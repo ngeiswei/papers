@@ -1,0 +1,679 @@
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.20 of 2017/10/04
+%
+\documentclass[runningheads]{llncs}
+%
+% \usepackage{graphicx}
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following line
+% to display URLs in blue roman font according to Springer's eBook style:
+% \renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\begin{document}
+%
+\title{Partial Operator Induction with Beta Distributions}
+%
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+\author{Nil Geisweiller\inst{1,2,3}}
+%
+\authorrunning{N. Geisweiller}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+\institute{SingularityNET Foundation\\ \and
+OpenCog Foundation\\ \and Novamente LLC\\
+% \email{lncs@springer.com}\\
+% \url{http://www.springer.com/gp/computer-science/lncs} \and
+% \email{\{abc,lncs\}@uni-heidelberg.de}
+}
+%
+\maketitle              % typeset the header of the contribution
+%
+\begin{abstract}
+  A specialization of Solomonoff Operator Induction, driven by OpenCog
+  model representation but expected to be more broadly useful,
+  considering partial operators described by Beta distributions is
+  introduced. The problem of taking into account partial operators in
+  the prediction estimate is presented. This problem turns out to be
+  non-trivial. A simplistic solution with a heuristic to estimate the
+  Kolomogorov complexity of completions of partial models is given.
+
+\keywords{Solomonoff Operator Induction \and Beta Distribution \and
+  Bayesian Averaging.}
+\end{abstract}
+%
+%
+%
+\section{Introduction}
+Rarely natural intelligent agents attempt to construct complete models
+of their environment. Often time they compartmentalize their knowledge
+into contextual rules and make use of them without worrying about the
+details of the assumingly remote and irrelevant parts of the world.
+
+This is typically how AGI Prime, aka OpenCog Prime, the AGI agent
+implemented over the OpenCog framework may utilize knowledge
+\cite{Goertzel15Speculative}. The models we are specifically targeting
+here are conditional probabilities, or to be more precise probability
+distributions over conditional probabilities, or \emph{second order}
+conditional probabilities. Maintaining second order probabilities is
+how OpenCog accounts for uncertainties \cite{Ikle08Probabilistic} and
+by that properly manages weighting knowledge from heterogeneous
+sources, balancing exploitation and exploration and so on.
+% In OpenCog terms, they are implication links with truth
+% values describing their second order distributions.
+
+We will sometimes call these models, rules, understanding that they
+actually represent second order conditional probabilities. Here are
+some examples of rules
+% with the same goal of predicting temperature rises
+% (propositions are assumed to be crisp,
+%for instance either the sun shines, or it doesn't)
+\begin{enumerate}
+\item If the sun shines, then the temperature rises
+\item If the sun shines and there is no wind, then the temperature rises
+\item If the sun shines and the agent is in a cave, then the
+  temperature rises
+\end{enumerate}
+
+These 3 rules have different degrees of truth. The first one is often
+true, the second is nearly always true and the last one is rarely
+true. The traditional way to quantify these degrees of truth is to
+assign probabilities. In practice though these probabilities are
+unknown, and instead one may only assign probability estimates based
+on limited evidence. Or, according to the OpenCog design, one may
+assign distributions over probabilities, capturing their degree of
+certainty. The wider the less certain, the narrower the more certain.
+
+% When such second order probability distribution is obtained by
+% observations, like from instances of sun shines and temperature rises,
+% a Beta-binomial distribution can be used [REF].
+
+% S = sun shines
+% T = temperature rises
+% N = no wind
+% C = in a cave
+
+% the following
+
+% f1(T|S)
+% f2(T|S, N)
+% f3(T|S, C)
+
+Once degrees of truth are properly represented, an agent should be
+able to utilize these rules to predict and operate in its
+environment. This raises a question. How to choose between rules?
+% Or how to weight them?
+Someone wanting to predict whether the temperature
+will rise will have to make a choice. If one is in a cave, should
+he/she follow the third rule? Why not the first one which is valid, or
+assuming there is no wind, maybe the second?
+
+Systematically picking the rule with the narrowest context (like being
+in a cave) is not always right. Indeed, the narrower the context the
+less evidence we have, the broader the uncertainty, the more prone to
+overfitting such rule might be.
+
+\subsection{Contribution}
+
+In this paper we attempt to address this issue by adapting Solomonoff
+Operator Induction \cite{Solomonoff08Three} for a special class of
+operators representing such rules. These operators have two
+particularities.  First, their outcomes are second order
+probabilities, specifically Beta distributions. Second, they are
+partial, that is they are only defined over a subset of observations,
+the available observations meeting the conditions of a given rule. For
+instance if the goal is to predict the consequences of some actions
+taken in the context of riding bicycle. Rules capturing that context
+and no broader will not be able to account for observations made in
+excluded contexts, such as walking. This latter particularity turns
+out to be very difficult to address, and the solution we offer is very
+lacking but presented nevertheless as a start.
+
+% The motivation for writing this paper is twofold. First, although our
+% specialization of Solomonoff Universal Operator Induction is driven by
+% the specificities of OpenCog knowledge representation, Beta
+% distribution for evidence based relationships, we believe it is
+% general enough to be of interest to the AGI community. Second, while
+% doing so we have uncovered an interesting problem (combination of
+% partial operators), with no obvious solution, largely under addressed
+% by the community, yet important. Although the solution we provide is
+% very limited, we hope that paper helps to raise awareness and motivate
+% further research in that direction.
+
+\subsection{Overview}
+
+In Section \ref{recall} we briefly recall Solomonoff Operator
+Induction, Beta distributions. In Section \ref{part-op} we introduce
+our specialization of Solomonoff Operator Induction for partial
+operators with Beta distributions. Finally in Section \ref{con} we
+conclude and present some directions for further research.
+
+% \subsection{Notes}
+
+% There is a continuum between complete uncertainty (operator output
+% follows some prior) and perfect prediction, such as estimating missing
+% data using the existing operators. We develop the perfect prediction
+% hypothesis because it is the simplest one.
+
+\section{Recall}
+\label{recall}
+
+\subsection{Solomonoff Operator Induction}
+\label{sol-op-ind}
+Solomonoff Universal Operator Induction \cite{Solomonoff08Three} is a
+general, parameter free induction method that has been shown to
+theoretically converge to any true computable distribution.  It is a
+special case of Bayesian Model Averaging \cite{Hoeting99bayesianmodel}
+though is universal in the sense that the models across which the
+averaging is taking place are Turing-complete.
+
+Let us recall its formulation, using the same notations as in the
+original paper of Solomonoff (Section 3.2 of
+\cite{Solomonoff08Three}). Given a sequence of $n$ questions and
+answers $(Q_i, A_i)_{i \in [1, n]}$, and a countable family of
+operators $O^j$ (the superscript $j$ denotes the $j^{th}$ operator,
+not the exponentiation) computing partial functions mapping pairs of
+question and answer to probabilities, then one may estimate the
+probability of the next answer $A_{n+1}$ given new question $Q_{n+1}$
+as follows
+\begin{equation}
+  \label{sol}
+  \hat{P}(A_{n+1}|Q_{n+1}) = \sum_j a_0^j \prod_{i=1}^{n+1} O^j(A_i|Q_i)
+\end{equation}
+% , that is $O^j(A_i|Q_i)$ is the
+% probability of answer $A_i$ given question $Q_i$,
+where $a_0^j$ is the prior of the $j^{th}$ operator (its probability
+after zero observation). Using Hutter's convergence theorems to
+arbitrary alphabets \cite{Hutter03Optimality} it can be shown that
+such estimate rapidly converges to the true probability.
+
+Let us rewrite this equation by making the prediction term and the
+likelihood explicit
+\begin{equation}
+  \label{sol-eas}
+\hat{P}(A_{n+1}|Q_{n+1}) = \sum_j a_0^j l^j O^j(A_{n+1}|Q_{n+1})
+\end{equation}
+where $l^j = \prod_{i=1}^{n} O^j(A_i|Q_i)$ is the likelihood, the
+probability of the data given the $j^{th}$ operator.\\
+
+\begin{remark}
+In the remaining of the paper the superscript $j$ is always used to
+denote the index of the $j^{th}$ operator. Sometimes, though in a
+consistent manner, it is used as subscript. All other superscript
+notations not using $j$ denote exponentiation.
+\end{remark}
+
+\subsection{Beta Distribution}
+
+Beta distributions \cite{Abourizk94Fitting} are convenient to model
+probability distributions over probabilities, i.e. second order
+probabilities. In particular, given a prior over a probability $p$ of
+some event, like a coin toss to head, defined by a Beta distribution,
+and a sequence of experiments, like $n$ coin tosses, the posterior of
+$p$ is still a Beta distribution. For that reason the Beta
+distribution is called a \emph{conjugate prior} for the binomial
+distribution.
+
+Let us recall the probability density and cumulative distribution
+functions of the Beta distribution as it will be useful later on.
+\subsubsection{Prior and Posterior Probability Density Function}
+The probability density function (pdf) of the Beta distribution with
+parameters $\alpha$ and $\beta$, is
+\begin{equation}
+  \label{beta-pdf}
+f(x; \alpha, \beta) = \frac{x^{\alpha - 1} (1-x)^{\beta - 1}}
+                           {\mathrm{B}(\alpha, \beta)}
+\end{equation}
+where $x$ is a probability and $\mathrm{B}(\alpha, \beta)$ is the beta
+function
+\begin{equation}
+\mathrm{B}(\alpha, \beta) = \int_0^1 p^{\alpha - 1}(1-p)^{\beta - 1}
+dp
+\end{equation}
+One may see that multiplying the density by the likelihood
+\begin{equation}
+x^m (1-x)^{n-m}
+\end{equation}
+of a particular sequence of $n$ experiments with $m$ positive
+outcomes, is also a Beta distribution
+% $$
+% f(x; m+\alpha, n-m+\beta) = \frac{x^{m+\alpha - 1} (1-x)^{n-m+\beta - 1}}
+%                                  {\mathrm{B}(m+\alpha, n-m+\beta)}
+% $$
+\begin{equation}
+f(x; m+\alpha, n-m+\beta) \propto x^{m+\alpha - 1} (1-x)^{n-m+\beta - 1}
+\end{equation}
+
+\subsubsection{Cumulative Distribution Function}
+The cumulative distribution function (cdf) of the Beta distribution is
+
+\begin{equation}
+I_x(\alpha, \beta) = \frac{\mathrm{B}(x; \alpha,
+  \beta)}{\mathrm{B}(\alpha, \beta)}
+\end{equation}
+where $\mathrm{B}(x; \alpha, \beta)$ is the incomplete beta function
+\begin{equation}
+\mathrm{B}(x; \alpha, \beta) = \int_0^x p^{\alpha - 1}(1-p)^{\beta -
+  1} dp
+\end{equation}
+$I_x$ is also called the regularized incomplete beta function.
+
+\section{Partial Operator Induction with Beta Distributions }
+\label{part-op}
+
+In this section we introduce a specialization of Solomonoff Operator
+Induction for partial operators describing second order distributions.
+% Some ideas can be borrowed from the Missing Data literature
+% \cite{Schafer02missingdata}, in particular.
+% Let us now introduced a specialization of Solomonoff Operator
+% Induction.  There are three aspects of that specialization. First, the
+% operators output second order probabilities. Second, they are Beta
+% distributions. And third, they are partial, that is they are only
+% known for a subset of the observations.
+
+% These 3 aspects reflects to our OpenCog realities... blahblah
+
+\subsection{Second Order Probability Estimate}
+
+Let us first modify the Solomonoff Operator Induction probability
+estimate to become a second order probability estimate. This is
+crucial to maintain the uncertainty surrounding that estimate.
+% For instance if the estimate is about the probability
+% of achieving some goal given some action in some context, the second
+% order can be utilize to properly balance exploration and exploitation
+% via Thompson sampling \cite{Leike17OnThompson}.
+It directly follows from Eq. \ref{sol-eas} of Section
+\ref{sol-op-ind}, that the cumulative distribution function of the
+probability estimate of observing answer $A_{n+1}$ given question
+$Q_{n+1}$ is
+\begin{equation}
+  \label{sol-cdf}
+\hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_{O^j(A_{n+1}|Q_{n+1}) \le x} a_0^j l^j
+\end{equation}
+Due to $O^j$ not being complete in general
+$\hat{cdf}(A_{n+1}|Q_{n+1})(1)$ may not be equal to 1. It means that
+some normalization will need to take place in practice. That is even
+more true in our case since, as will be shown further below, the
+operators taken into consideration are restricted to a subclass.
+Also, obviously the continuity or the differentiability of
+$\hat{cdf}(A_{n+1}|Q_{n+1})$ do not generally hold. What matters is
+that a spread of probabilities is represented to properly account for
+the uncertainty of that estimate. It is expected that the breadth
+would be wide at first, and progressively shrinks, fluctuating
+depending on the novelty of the contexts, as measure as more questions
+and answers get collected.
+
+\subsection{Continuous Parameterized Operators}
+
+% Although Solomonoff Operator Induction supposedly considers partial
+% operators (these are enumerable, while the set of complete operators
+% is not), any partial operator that happens not to compute the
+% probability of $A_i$ for some given $Q_i$ it will simply be entire
+% dismissed in equation [REF]. In practice however partial models can be
+% useful. Some partial models, only true in restricted contexts can
+% nevertheless be good predictors and we need a way to take them into
+% account. We will provide some suggestions to address that.
+
+% Solomonoff Universal Operator Induction addresses well the problem of
+% combining operators when these are complete, that is defined for each
+% question. In our case however, since our operators are mere second
+% order conditional probabilities, the distribution (or rather second
+% order distributions) over answers are only known for some questions.
+
+% To reuse our example above, the first rule tells us nothing about the
+% probability of the temperature rising when the sun is not shining. So
+% do the other rules when their conditions are not satisfied. For that
+% reason we cannot apply Universal Operator Induction as is.
+
+% To address that we suggest to artificially complete these operators by
+% either
+
+% 1. an uninformative prior
+% 2. or a fictive perfect predictor
+
+% If we were to see operators are programs, then the two options would
+% be seen as
+
+% 1. uninformative prior
+
+% if condition
+% then pdf
+% else Jeffreys
+
+% 2. fictive perfect predictor
+
+% if condition
+% then pdf
+% else 1
+
+% Let's first treat the fictive perfect predictor case.
+
+% Let's reformulate Solomonoff Universal Operator Induction considering
+% operators calculating second probabilities instead of probabilities.
+% Let $cdf^j(A_i|Q_i)$ be the cumulative distribution function
+% representing the second order conditional probability of $A_i$ knowing
+% $Q_i$ according to the $j^{th}$ operator.
+
+% \begin{equation}
+% P(A_{i+1}|Q_{i+1}) = \sum_j P(p_j)
+% \end{equation}
+
+%%%%%%%%%%%%%%%% Let redo that %%%%%%%%%%%%%%
+
+Let us now extend this for parameterized operators, so that each
+operator is a second order distribution. Let us consider a subclass of
+parameterized operators such that, if $p$ is the parameter of operator
+$O^j_p$, the result of the conditional probability of $A_{n+1}$ given
+$Q_{n+1}$ is
+\begin{equation}
+  \label{op}
+O^j_p(A_{n+1}|Q_{n+1})=p
+\end{equation}
+% and the result of $O^j_p$ on another pair of question answer is
+% \begin{equation}
+%   \label{op}
+% O^j_p(A_i|Q_i)=p
+% \end{equation}
+% TODO is $A_i=A_{n+1}$, $1-p$ otherwise.
+We do that to later consider Beta distribution operators. The reason
+for this assumption will become clearer in Section \ref{beta-op}.
+% of this assumption may seem unclear, but that is essentially how
+% truth values are defined in OpenCog. This will hopefully become
+% clearer later on.
+% Similar in spirit to integrating out continuous parameters [REF], with
+% the exception that we build a cdf as opposed to an expectation.
+Given that assumption, the cumulative distribution function of the
+estimate $\hat{cdf}(A_{n+1}|Q_{n+1})$ becomes
+\begin{equation}
+  \label{consol}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j \int_0^x f_p l_p^j dp
+\end{equation}
+where $f_p$ is the prior density of $p$, and
+$l_p^j= \prod_{i=1}^{n} O^j_p(A_i|Q_i)$ is the likelihood of the data
+according to the $j^{th}$ operator with parameter $p$.
+\begin{proof}
+  Consider continuous families of parameterized operators combined
+  with Eq. \ref{op}. Let us start with the discrete case
+\begin{equation}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_{O^j_p(A_{n+1}|Q_{n+1})\le x}
+  a_0^j f_p l_p^j \Delta p
+\end{equation}
+where the sum runs over all $j$ and $p$ by steps of $\Delta p$ such
+that $O^j_p(A_{n+1}|Q_{n+1})\le x$. Assuming that $a_0^j$ does not
+depends on $p$, it can be moved in its own sum
+\begin{equation}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j
+  \sum_{O^j_p(A_{n+1}|Q_{n+1})\le x} f_p l_p^j \Delta p
+\end{equation}
+now the second sum only runs over $p$. Due to Eq. \ref{op} this can be
+simplified into
+\begin{equation}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j \sum_{p\le x} f_p l_p^j
+  \Delta p
+\end{equation}
+which is turns into Eq. \ref{consol} when $\Delta p$ tends to 0.
+\end{proof}
+% Here $f_p$ here is independent of the operator. It doesn't have to be
+% necessarily the case, but for our purpose (which is to utilize some
+% form of universal operator induction in OpenCog) this is enough. This
+% will soon become clear.
+% Using Solomonoff's notations, let's first define the cumulative
+% distribution function of $A_{n+1}$. It is what we ultimately want as
+% this will allow us to account for the uncertainty of the prediction,
+% crucial for properly balancing exploration and exploitation when this
+% knowledge is put in use [REF, REF]
+Using continuous integration may seem like a departure from Solomonoff
+Induction. First, it does not correspond to a countable class of
+models. And second, the Kolmogorov complexity of $p$, that would in
+principle determine its prior, is likely chaotic and very different
+than how priors are typically defined over continuous parameters in
+Bayesian inference. In practice however integration is discretized and
+values are truncated up to some fixed precision. Moreover any prior
+can probably be made compatible with Solomonoff induction by selecting
+an adequate Turing machine of reference.
+\subsection{Operators as Beta Distributions}
+\label{beta-op}
+We have now all we need to fit our rules, second order conditional
+probabilities, into Solomonoff Operator Induction.
+
+First, we need to assume that operators are partial, that is the
+$j^{th}$ operator is only defined for a subset of $n^j$ questions,
+those that meet the conditions of the rule. For instance, with the
+rule
+\begin{itemize}
+\item If the sun shines, then the temperature rises
+\end{itemize}
+questions and answers pertaining to what happens at night will be
+ignored.
+
+Second, we assume that operators only represent whether answer $A_i$
+is equal to $A_{n+1}$ or not. In reality, OpenCog rules manipulate
+predicates (generally fuzzy predicates but that is let aside), and the
+questions asked are: given any instance holding some property $P$,
+what are the odds that it holds property $Q$. So we may assume that
+the property of interest $Q$ corresponds to whether $A_{n+1} = A_i$,
+or equivalently that answers are Boolean. This allows an operator to
+be modeled as a Beta distribution, with cumulative distribution
+function
+\begin{equation}
+  \label{O-cdf}
+  cdf_{O^j} = I_x(m^j + \alpha, n^j-m^j+\beta)
+\end{equation}
+where $m^j$ is 
+% Given that let us reduce the definition of our operators as follows
+% \begin{equation}O^j_p(A_i=A_{n+1}|Q_i)=p\end{equation}
+% \begin{equation}O^j_p(A_i\neq A_{n+1}|Q_i)=1-p\end{equation}
+% if $O^j_p$ is defined for question $Q_i$, otherwise $Q^j(A_1|Q_i)$ is
+% unknown. Let $m_j$ be
+the number of times $A_{n+1}=A_i$ for the subset of $n^j$ questions
+defined for the $j^{th}$ operator, $\alpha$ and $\beta$ are the
+parameters of the Beta distribution prior. This corresponds to the
+definition of OpenCog truth values (see Chapter 4 of the PLN book
+\cite{Goertzel09PLN}).
+
+\subsection{Handling Partial Operators}
+When attempting to use such operators we still need to account for
+their partiality. Although Solomonoff Operator Induction does in
+principle encompass partial operators\footnote{more by necessity,
+  since the set of partial operators are countable, while the set of
+  complete ones are not}, it does so insufficient, in our case
+anyway. Indeed, if a given operator cannot compute the conditional
+probability of some answer question pair, the contribution of that
+operator may simply be ignored in the estimate. This does not work for
+us since partial operators (rules over restricted contexts) might
+carry significant predictive power and should not go to waste.
+
+To the best of our knowledge, the existing literature does not cover
+that problem. The Bayesian inference literature contains in-depth
+treatments about how to properly consider missing data
+\cite{Schafer02missingdata}. Unfortunately, they do not directly apply
+here because our assumptions are different. In particular, here, data
+omission depends on the model. However, general principles such as
+modeling missing data and taking into account these models in the
+inference process, can be applied. Let us attempt to do that in a by
+explicitly representing the portion of the likelihood over the missing
+data according to the $j^{th}$ operator by a term, denoted $r^j$. In
+the rest of the paper rather than calling these data \emph{missing} we
+prefer to denominate them as \emph{unexplained} or \emph{unaccounted}
+by operator $O^j$, which better captures our assumption. Let us
+replace the likelihood in Eq. \ref{consol} by
+\begin{equation}
+l^j_p = p^{m^j}(1-p)^{n^j-m^j} r^j
+\end{equation}
+where the binomial term account for the likelihood of the explained
+observations by the $j^{th}$ operator with parameter $p$, and $r^j$
+accounts for the likelihood of the unexplained observations. One may
+notice that $r^j$ does not depends on $p$. Such assumption
+tremendously simplifies the analysis and is somewhat reasonable to
+make. It means that the \emph{completion} of the model is independent
+on its pre-existing part. By completion we mean computation that
+explains the unaccounted data. For instance a possible completion of
+the rule
+\begin{itemize}
+\item If the sun rises, then the temperature rises
+\end{itemize}
+could be
+\begin{itemize}
+\item Otherwise, the temperature falls
+\end{itemize}
+% as the missing part of the model accounting for
+% the missing data could simply be assume that We'll see later how to
+% deal this term. Obviously $p^{m^j}$ and $p^{n^j-m^j}$ represent $p$ to
+% the powers of $m^j$ and $n^j-m^j$ respectively, not superscripts.
+Using this likelihood the cumulative distribution function of the
+estimate of $A_{n+1}$ knowing $Q_{n+1}$ becomes
+\begin{equation}
+  \label{betaconsol}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j \int_0^x f_p p^{m^j}(1-p)^{n^j-m^j}
+  r^j dp
+\end{equation}
+Choosing a Beta distribution as the prior of $f_p$ simplifies the
+equation as the posterior remains a Beta distribution
+\begin{equation}
+f_p = f(p; \alpha, \beta)
+\end{equation}
+where $f$ is the pdf of the Beta distribution as define in
+Eq. \ref{beta-pdf}. Usual priors are Bayes' with $\alpha = 1$ and
+$\beta = 1$, Haldane's with $\alpha = 0$ and $\beta = 0$ and Jeffreys'
+with $\alpha = \frac{1}{2}$ and $\beta = \frac{1}{2}$. The latter is
+the most accepted due to being \emph{uninformative} in some sense
+\cite{Jeffreys46Invariant}. We do not need to commit to a particular
+one at that point and let the parameters $\alpha$ and $\beta$ free,
+giving us
+\begin{equation}
+  \label{betaconsol-1}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j \int_0^x
+  \frac{p^{\alpha - 1}(1-p)^{\beta - 1}}{\mathrm{B}(\alpha, \beta)}
+  p^{m^j}(1-p)^{n^j-m^j} r^j dp
+\end{equation}
+% Let us assume that $r^j_p$ is independent of $p$, thus $r^j=r^j_p$ for
+% any $p$. This may seem like an unrealistic assumption, and it is, but
+% we allow ourselves to make it for sake of simplicity. This will be
+$r^j$ can be moved out of the integral and the constant
+$\mathrm{B}(\alpha, \beta)$ can be ignored on the ground that our
+estimate requires some normalization anyway
+% do not need to worry about multiplicative
+% constants because the prior over the operators is a semi-measure
+% anyway, and in practice we will need to normalize the equation so that
+% $cdf_{A_{n+1}}(1) = 1$. Given these reasons Eq. \ref{betaconsol-1} can
+% be simplified into
+\begin{equation}
+  \label{betaconsol-2}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) \propto \sum_j a_0^j r^j
+  \int_0^x p^{m^j+\alpha - 1}(1-p)^{n^j-m^j+\beta - 1} dp
+\end{equation}
+$\displaystyle\int_0^x p^{m^j+\alpha - 1}(1-p)^{n^j-m^j+\beta - 1} dp$
+is the incomplete Beta function with parameters $m^j+\alpha$ and
+$n^j-m^j+\beta$, thus
+\begin{equation}
+  \label{betaconsol-3}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) \propto \sum_j a_0^j r^j
+  B(x; m^j+\alpha, n^j-m^j+\beta)
+\end{equation}
+Using the regularized incomplete beta function we obtain
+\begin{equation}
+  \label{betaconsol-4}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) \propto \sum_j a_0^j r^j
+  I_x(m^j+\alpha, n^j-m^j+\beta)
+  B(m^j+\alpha, n^j-m^j+\beta)
+\end{equation}
+As $I_x$ is the cumulative distribution function of $O^j$
+(Eq. \ref{O-cdf}), we finally get
+\begin{equation}
+  \label{betaconsol-5}
+  \hat{cdf}(A_{n+1}|Q_{n+1})(x) \propto \sum_j a_0^j r^j cdf_{O^j}(x)
+  B(m^j+\alpha, n^j-m^j+\beta)
+\end{equation}
+
+We have expressed our cumulative distribution function estimate as an
+averaging of the cumulative distribution functions of the
+operators. This averaging is hopefully close to optimal (since the
+operators are a subclass of Turing-complete operators optimality
+cannot be guarantied), and most importantly it captures the
+uncertainty of the estimate.
+
+We still need to address $r^j$, the likelihood of the unaccounted
+data. In theory, the right way to model $r^j$ would be to consider all
+possible completions of the $j^{th}$ operator, but that is
+intractable. One would be tempted to simply ignore $r^j$, however, as
+we have already observed in some preliminary experiments, this gives
+an unfair advantage to rules that have a lot of unexplained data, and
+thus make them more prone to overfitting. This is true even in spite
+of the fact that such rules exhibit more uncertainty, that is their
+second order probability have wider dispersion due to having less
+evidence.
+
+\subsection{Perfectly Explaining Unaccounted Data}
+Instead we attempt to consider the most prominent completions.  For
+now we consider completions that perfectly explain the unaccounted
+data. Moreover, to simplify further, we assume that unaccounted
+answers are entirely determined by their corresponding questions. This
+is generally not true, the same question may relate to different
+answers. But under such assumptions $r^j$ becomes 1. This may seem
+equivalent to ignoring $r^j$ unless the complexity of the completion
+is taken into account. What that means is that we must consider, not
+only the complexity of the rule but also the complexity of the
+completion. Unfortunately calculating that complexity (that is the
+Kolmogorov complexity) of is intractable. To work around that we
+estimate it with a simple heuristic
+\begin{equation}
+a^j_0 = K(O^j) + v_j^{(1-k)}
+\end{equation}
+where $K(O^j)$ is the Kolmogorov complexity of the $j^{th}$ operator,
+$v_j$ is the size of the unaccounted data by the $j^{th}$ operator,
+and $k$ is a \emph{compressability} parameter. If $k=0$ then the
+unaccounted data are incompressible. If $k=1$ then the unaccounted
+data can be compressed to a single bit. It is a very crude heuristic
+and is not parameter free, but it is simple and computationally
+lightweight. When applied to experiments (not described here due to
+their embryonic nature and due to space limitation) a value of $k=0.5$
+was actually shown to be satisfactory.
+
+\section{Conclusion}
+\label{con}
+We have introduced a specialization of Solomonoff Operator Induction
+over operators with the particularities of being partial and being
+modeled by Beta distributions. While doing so we have uncovered an
+interesting problem, how to include the contributions of partial
+operators in the averaging. This problem appears to have no obvious
+solution, is manifestly under-addressed by the research community, and
+is yet important in practice. Although the solution we provide is very
+lacking (crudely estimating the Kolmogorov complexity of a perfect
+completion) we hope that it may motivate further research.
+% Also, our estimate has already been used in the context of inference
+% control meta-learning within the OpenCog framework and, in spite of
+% being very early stage, has shown positive results.
+% Also, we have started experimenting with our estimate in the context
+% inference control meta-learning within OpenCog, and the results,
+% albeit very early stage, seem promising. For instance in our early
+% experiments a value of $k=0.5$ was shown to be satisfactory.
+% The proposed methodology has already been used in the context of
+% inference control meta-learning within the OpenCog framework and, in
+% spite of being very early stage, has shown positive results.
+% Subsequent publications will be make available as that work
+% progresses.
+Even though, ultimately, it is expected that this problem is hard
+enough that it may require some form of meta-learning
+\cite{Goertzel16Probabilistic}, improvements in the heuristic by, for
+instance, considering completions reusing available models that do
+explain some unaccounted data could help.
+% , as well as enrich the operator expressiveness by for instance
+% replacing Beta distributions by Dirichlet distributions.
+
+Experiments using this estimate are currently being carried out in the
+context of inference control meta-learning within the OpenCog
+framework and will be presented in future publications.
+
+%
+% ---- Bibliography ----
+%
+\bibliographystyle{splncs04}
+\bibliography{my}
+
+\end{document}
