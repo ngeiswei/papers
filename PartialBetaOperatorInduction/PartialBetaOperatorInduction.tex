@@ -12,6 +12,10 @@
 % to display URLs in blue roman font according to Springer's eBook style:
 % \renewcommand\UrlFont{\color{blue}\rmfamily}
 
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
 \begin{document}
 %
 \title{Partial Operator Induction with Beta Distributions}
@@ -439,8 +443,8 @@ can probably be made compatible with Solomonoff induction by selecting
 an adequate Turing machine of reference.
 \subsection{Operators as Beta Distributions}
 \label{beta-op}
-We have now all we need to fit our rules, second order conditional
-probabilities, into Solomonoff Operator Induction.
+We have now all we need to model our rules, second order conditional
+probabilities, as operators.
 
 First, we need to assume that operators are partial, that is the
 $j^{th}$ operator is only defined for a subset of $n^j$ questions,
@@ -452,13 +456,22 @@ rule
 questions and answers pertaining to what happens at night will be
 ignored.
 
-Second, we assume that operators only represent whether answer $A_i$
-is equal to $A_{n+1}$ or not. In reality, OpenCog rules manipulate
-predicates (generally fuzzy predicates but that is let aside), and the
-questions asked are: given any instance holding some property $P$,
-what are the odds that it holds property $Q$. So we may assume that
-the property of interest $Q$ corresponds to whether $A_{n+1} = A_i$,
-or equivalently that answers are Boolean. This allows an operator to
+Second, we assume that answers are Boolean, so that $A_i\in \{0, 1\}$
+for $i \in [1, n+1]$. In reality, OpenCog rules manipulate predicates
+(generally fuzzy predicates but that can be let aside), and the
+questions they represent are: if some instance holds property $R$,
+what are the odds that it holds property $S$. We simplify this by
+fixing $S$ so that the problem is reduced to finding $R$ that best
+predict $S$, if $A_{n+1}=1$, or $\neg S$ if $A_{n+1}=0$. So the class
+of operators under consideration are programs of the form
+\begin{equation}
+O^j_p(A_i|Q_i) = \text{if}\ R^j(Q_i)\ \text{then}\
+\begin{cases}
+  p, & \text{if}\ A_i = A_{n+1}\\
+  1-p, & \text{otherwise}
+\end{cases}
+\end{equation}
+where $R^j$ is the condition of the rule. This allows an operator to
 be modeled as a Beta distribution, with cumulative distribution
 function
 \begin{equation}
@@ -471,18 +484,18 @@ where $m^j$ is
 % \begin{equation}O^j_p(A_i\neq A_{n+1}|Q_i)=1-p\end{equation}
 % if $O^j_p$ is defined for question $Q_i$, otherwise $Q^j(A_1|Q_i)$ is
 % unknown. Let $m_j$ be
-the number of times $A_{n+1}=A_i$ for the subset of $n^j$ questions
-defined for the $j^{th}$ operator, $\alpha$ and $\beta$ are the
-parameters of the Beta distribution prior. This corresponds to the
-definition of OpenCog truth values (see Chapter 4 of the PLN book
-\cite{Goertzel09PLN}).
+the number of times $A_i = A_{n+1}$ for the subset of $n^j$
+questions such that $R^j(Q_i)$ is true. The parameters $\alpha$ and
+$\beta$ are the parameters of the prior of $p$, itself a Beta
+distribution. This corresponds in fact to the definition of OpenCog
+Truth Values (see Chapter 4 of the PLN book \cite{Goertzel09PLN}).
 
 \subsection{Handling Partial Operators}
 When attempting to use such operators we still need to account for
 their partiality. Although Solomonoff Operator Induction does in
 principle encompass partial operators\footnote{more by necessity,
   since the set of partial operators are countable, while the set of
-  complete ones are not}, it does so insufficient, in our case
+  complete ones are not}, it does so insufficiently, in our case
 anyway. Indeed, if a given operator cannot compute the conditional
 probability of some answer question pair, the contribution of that
 operator may simply be ignored in the estimate. This does not work for
@@ -494,39 +507,53 @@ that problem. The Bayesian inference literature contains in-depth
 treatments about how to properly consider missing data
 \cite{Schafer02missingdata}. Unfortunately, they do not directly apply
 here because our assumptions are different. In particular, here, data
-omission depends on the model. However, general principles such as
+omission depends on the model. However, the general principle of
 modeling missing data and taking into account these models in the
 inference process, can be applied. Let us attempt to do that in a by
 explicitly representing the portion of the likelihood over the missing
-data according to the $j^{th}$ operator by a term, denoted $r^j$. In
-the rest of the paper rather than calling these data \emph{missing} we
-prefer to denominate them as \emph{unexplained} or \emph{unaccounted}
-by operator $O^j$, which better captures our assumption. Let us
-replace the likelihood in Eq. \ref{consol} by
+data according to the $j^{th}$ operator by a term. In the rest of the
+paper rather than calling these data \emph{missing} we prefer to
+denominate them as \emph{unexplained} or \emph{unaccounted}, which
+better captures our assumption. Let us also define a \emph{completion}
+of $O^j_p$ as any program that can explain the unaccounted data.
+\begin{definition}
+  A \emph{completion} $C$ of $O^j_p$ is a program that completes
+  $O^j_p$ for the unaccounted data, that is when $R^j(Q_i)$ is false
+  $$
+  \begin{array}{@{}ll@{}}
+    O^j_{p, C}(A_i|Q_i) = &
+                            \text{if}\ R^j(Q_i)\ \text{then}\
+                            \begin{cases}
+                              p, & \text{if}\ A_i = A_{n+1} \\
+                              1-p, & \text{otherwise}
+                            \end{cases}\\
+                          & \text{else}\ C(A_i|Q_i)
+  \end{array}
+  $$
+\end{definition}
+Let us replace the likelihood in Eq. \ref{consol} by
 \begin{equation}
+  \label{new-lik}
 l^j_p = p^{m^j}(1-p)^{n^j-m^j} r^j
 \end{equation}
 where the binomial term account for the likelihood of the explained
-observations by the $j^{th}$ operator with parameter $p$, and $r^j$
-accounts for the likelihood of the unexplained observations. One may
-notice that $r^j$ does not depends on $p$. Such assumption
-tremendously simplifies the analysis and is somewhat reasonable to
-make. It means that the \emph{completion} of the model is independent
-on its pre-existing part. By completion we mean computation that
-explains the unaccounted data. For instance a possible completion of
-the rule
-\begin{itemize}
-\item If the sun rises, then the temperature rises
-\end{itemize}
-could be
-\begin{itemize}
-\item Otherwise, the temperature falls
-\end{itemize}
+observations by the $j^{th}$ operator with parameter $p$, and $r^j$ is
+a term that accounts for the likelihood of the unexplained
+observations
+\begin{equation}
+  % r^j = \prod_{i \in \{i|\neg R^j(Q_i)\}} C^j(A_i|Q_i)
+  r^j = \prod_{i \leq n\ \land\ \neg R^j(Q_i)} C^j(A_i|Q_i)
+\end{equation}
+assuming $C^j$ is the underlying completion of $O^j_p$ explaining the
+unaccounted data. One may notice that $r^j$ does not depends on
+$p$. Such assumption tremendously simplifies the analysis and is
+somewhat reasonable to make. It means that the completion of the model
+is independent on its pre-existing part.
 % as the missing part of the model accounting for
 % the missing data could simply be assume that We'll see later how to
 % deal this term. Obviously $p^{m^j}$ and $p^{n^j-m^j}$ represent $p$ to
 % the powers of $m^j$ and $n^j-m^j$ respectively, not superscripts.
-Using this likelihood the cumulative distribution function of the
+Using Eq. \ref{new-lik} the cumulative distribution function of the
 estimate of $A_{n+1}$ knowing $Q_{n+1}$ becomes
 \begin{equation}
   \label{betaconsol}
@@ -557,7 +584,7 @@ giving us
 % we allow ourselves to make it for sake of simplicity. This will be
 $r^j$ can be moved out of the integral and the constant
 $\mathrm{B}(\alpha, \beta)$ can be ignored on the ground that our
-estimate requires some normalization anyway
+estimate will require normalization anyway
 % do not need to worry about multiplicative
 % constants because the prior over the operators is a semi-measure
 % anyway, and in practice we will need to normalize the equation so that
@@ -596,7 +623,7 @@ averaging of the cumulative distribution functions of the
 operators. This averaging is hopefully close to optimal (since the
 operators are a subclass of Turing-complete operators optimality
 cannot be guarantied), and most importantly it captures the
-uncertainty of the estimate.
+uncertainty of the estimate.\\
 
 We still need to address $r^j$, the likelihood of the unaccounted
 data. In theory, the right way to model $r^j$ would be to consider all
@@ -605,9 +632,8 @@ intractable. One would be tempted to simply ignore $r^j$, however, as
 we have already observed in some preliminary experiments, this gives
 an unfair advantage to rules that have a lot of unexplained data, and
 thus make them more prone to overfitting. This is true even in spite
-of the fact that such rules exhibit more uncertainty, that is their
-second order probability have wider dispersion due to having less
-evidence.
+of the fact that such rules naturally exhibit more uncertainty due to
+having less evidence.
 
 \subsection{Perfectly Explaining Unaccounted Data}
 Instead we attempt to consider the most prominent completions.  For
