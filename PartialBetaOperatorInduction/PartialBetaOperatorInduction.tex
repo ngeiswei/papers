@@ -641,21 +641,20 @@ equivalent to ignoring $r^j$ unless the complexity of the completion
 is taken into account. What that means is that we must consider, not
 only the complexity of the rule but also the complexity of its
 completion. Unfortunately calculating that complexity is
-intractable. To work around that we estimate it with a simplistic
-heuristic
+intractable. To work around that we estimate it as function of the
+length of the unexplained data. Specifically, we suggest as prior
 \begin{equation}
-a^j_0 = 2^{-K(O^j) - v_j^{(1-k)}}
+a^j_0 = 2^{-K(O^j) - v_j^{(1-c)}}
 \end{equation}
 where $K(O^j)$ is the Kolmogorov complexity of the $j^{th}$ operator
 (estimated by the length of its rule), $v_j$ is the length of its
-unaccounted data, and $k$ is a \emph{compressability} parameter. If
-$k=0$ then the unaccounted data are incompressible. If $k=1$ then the
+unaccounted data, and $c$ is a \emph{compressability} parameter. If
+$c=0$ then the unaccounted data are incompressible. If $c=1$ then the
 unaccounted data can be compressed to a single bit. It is a very crude
 heuristic and is not parameter free, but it is simple and
 computationally lightweight. When applied to experiments, not
-described here due to their early stage nature and also due to space
-limitation, a value of $k=0.5$ was actually shown to be somewhat
-satisfactory.
+described here due to their early stage nature and space limitation, a
+value of $c=0.5$ was actually shown to be somewhat satisfactory.
 
 \section{Conclusion}
 \label{con}
