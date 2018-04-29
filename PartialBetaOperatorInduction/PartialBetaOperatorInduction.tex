@@ -41,14 +41,14 @@ OpenCog Foundation\\ \and Novamente LLC\\
 %
 \begin{abstract}
   A specialization of Solomonoff Operator Induction considering
-  partial operators described by second order distributions
-  (probabilities over probabilities), is introduced. An estimate, to
-  predict the second order distribution of new data, obtained by
-  averaging these partial operators is derived. The problem of taking
-  into account partial operators in that estimate is presented. This
-  problem appears to be non-trivial. A simplistic solution with a
-  heuristic based on estimating the Kolomogorov complexity of
-  completions of partial operators is given.
+  partial operators described by second order probability
+  distributions, and more specifically Beta distributions, is
+  introduced. An estimate to predict the second order probability of
+  new data, obtained by averaging the second order distributions of
+  partial operators, is derived. The problem of managing the
+  partiality of the operators is presented. A simplistic solution
+  based on estimating the Kolomogorov complexity of \emph{perfect
+    completions} of partial operators is given.
 
 \keywords{Solomonoff Operator Induction \and Beta Distribution \and
   Bayesian Averaging.}
@@ -57,27 +57,26 @@ OpenCog Foundation\\ \and Novamente LLC\\
 %
 %
 \section{Introduction}
-Rarely natural intelligent agents attempt to construct complete models
-of their environment. Often time they compartmentalize their knowledge
-into contextual rules and make use of them without worrying about the
-details of the assumingly remote and irrelevant parts of the world.
+Rarely do natural intelligent agents attempt to construct complete
+models of their environment. Often time they compartmentalize their
+knowledge into contextual rules and make use of them without worrying
+about the details of the assumingly remote and irrelevant parts of the
+world.
 
 This is typically how AGI Prime, aka OpenCog Prime, the AGI agent
 implemented over the OpenCog framework may utilize knowledge
 \cite{Goertzel15Speculative}. The models we are specifically targeting
-here are conditional probabilities, or to be more precise probability
-distributions over conditional probabilities, also called \emph{second
-  order} conditional probabilities. Maintaining second order
-probabilities is how OpenCog accounts for uncertainties
-\cite{Ikle08Probabilistic} and by that properly manages integrating
-knowledge from heterogeneous sources, balancing exploitation and
-exploration and so on.
+here are rules describing \emph{second order} conditional
+probabilities, probabilities over probabilities. Maintaining second
+order probabilities is how OpenCog accounts for uncertainties
+\cite{Ikle08Probabilistic} and by that properly manages cognitive
+tasks such as integrating knowledge from heterogeneous sources,
+balancing exploitation and exploration and so on.
 % In OpenCog terms, they are implication links with truth
 % values describing their second order distributions.
-
-We will sometimes call these models, rules, understanding that they
-actually represent second order conditional probabilities. Here are
-some examples of rules
+% We will sometimes call these models, rules, understanding that they
+% actually represent second order conditional probabilities.
+Here are some examples of rules
 % with the same goal of predicting temperature rises
 % (propositions are assumed to be crisp,
 %for instance either the sun shines, or it doesn't)
@@ -94,7 +93,7 @@ true. The traditional way to quantify these degrees of truth is to
 assign probabilities. In practice though these probabilities are
 unknown, and instead one may only assign probability estimates based
 on limited evidence. Another possibility is to assign second order
-probabilities, distributions over probabilities to capture their
+probabilities, distributions over probabilities as to capture their
 degrees of certainty. The wider the distribution the less certain, the
 narrower the more certain.
 
@@ -113,9 +112,9 @@ narrower the more certain.
 % f2(T|S, N)
 % f3(T|S, C)
 
-Once degrees of truth are properly represented, an agent should be
-able to utilize these rules to predict and operate in its
-environment. This raises a question. How to choose between rules?
+Once degrees of truth and confidence are properly represented, an
+agent should be able to utilize these rules to predict and operate in
+its environment. This raises a question. How to choose between rules?
 % Or how to weight them?
 Someone wanting to predict whether the temperature will rise will have
 to make a choice. If one is in a cave, should he/she follow the third
@@ -137,15 +136,7 @@ operators representing such rules. These operators have two
 particularities. First, their outcomes are second order probabilities,
 specifically Beta distributions. Second, they are partial, that is
 they are only defined over a subset of observations, the available
-observations encompassed by their associated contexts. An estimate of
-the second order probability predicting new data, obtained by
-averaging the second order probabilities of these partial operators,
-is derived. Then the problem of dealing with partial operators is
-presented and a simplistic heuristic consisting of estimating the
-Kolmogorov complexity of a \emph{perfect completion} (to turn a
-partial program into a complete one that perfectly explains the
-remaining data) is offered.
-
+observations encompassed by their associated contexts.
 % The motivation for writing this paper is twofold. First, although our
 % specialization of Solomonoff Universal Operator Induction is driven by
 % the specificities of OpenCog knowledge representation, Beta
@@ -159,12 +150,17 @@ remaining data) is offered.
 
 % \subsection{Overview}
 
-In Section \ref{sol-op-ind} we briefly recall what is Solomonoff
-Operator Induction, in Section \ref{beta} what are Beta
-distributions. In Section \ref{part-op} we introduce our
-specialization of Solomonoff Operator Induction for partial operators
-with Beta distributions. Finally, in Section \ref{con} we conclude and
-present some directions for research.
+The remaining of the paper is roganized as follows. In Section
+\ref{sol-op-ind} we briefly recall what is Solomonoff Operator
+Induction and in Section \ref{beta} what are Beta distributions. In
+Section \ref{part-op} we introduce our specialization of Solomonoff
+Operator Induction for partial operators with Beta distributions. An
+estimate of the second order probability predicting new data, obtained
+by averaging the second order probabilities of these partial
+operators, is derived. Then the problem of dealing with partial
+operators is presented and somewhat minimally addressed. Finally, in
+Section \ref{con} we conclude and present some directions for
+research.
 
 % \subsection{Notes}
 
@@ -179,11 +175,11 @@ present some directions for research.
 \section{Solomonoff Operator Induction}
 \label{sol-op-ind}
 Solomonoff Universal Operator Induction \cite{Solomonoff08Three} is a
-general, parameter free induction method that has been shown to
-theoretically converge to any true computable distribution.  It is a
-special case of Bayesian Model Averaging \cite{Hoeting99bayesianmodel}
-though is universal in the sense that the models across which the
-averaging is taking place are Turing-complete.
+general, parameter free induction method shown to theoretically
+converge to the true distribution, if computable. It is a special case
+of Bayesian Model Averaging \cite{Hoeting99bayesianmodel} though is
+universal in the sense that the models across which the averaging is
+taking place are Turing-complete.
 
 Let us recall its formulation, using the same notations as in the
 original paper of Solomonoff (Section 3.2 of
@@ -191,9 +187,8 @@ original paper of Solomonoff (Section 3.2 of
 answers $(Q_i, A_i)_{i \in [1, n]}$, and a countable family of
 operators $O^j$ (the superscript $j$ denotes the $j^{th}$ operator,
 not the exponentiation) computing partial functions mapping pairs of
-question and answer to probabilities, then one may estimate the
-probability of the next answer $A_{n+1}$ given question $Q_{n+1}$ as
-follows
+question and answer to probabilities, one may estimate the probability
+of the next answer $A_{n+1}$ given question $Q_{n+1}$ as follows
 \begin{equation}
   \label{sol}
   \hat{P}(A_{n+1}|Q_{n+1}) = \sum_j a_0^j \prod_{i=1}^{n+1} O^j(A_i|Q_i)
@@ -201,11 +196,11 @@ follows
 % , that is $O^j(A_i|Q_i)$ is the
 % probability of answer $A_i$ given question $Q_i$,
 where $a_0^j$ is the prior of the $j^{th}$ operator, its probability
-after zero observation, and is generally approximated by $2^{-K(O^j)}$
-where $K$ is the Kolmogorov complexity
-\cite{Li97anintroduction}. Using Hutter's convergence theorem to
-arbitrary alphabets \cite{Hutter03Optimality} it can be shown that
-such estimate rapidly converges to the true probability.
+after zero observation, generally approximated by $2^{-K(O^j)}$ where
+$K$ is the Kolmogorov complexity \cite{Li97anintroduction}. Using
+Hutter's convergence theorem to arbitrary alphabets
+\cite{Hutter03Optimality} it can be shown that such estimate rapidly
+converges to the true probability.
 
 Let us rewrite Eq. \ref{sol} by making the prediction term and the
 likelihood explicit
@@ -230,9 +225,10 @@ Beta distributions \cite{Abourizk94Fitting} are convenient to model
 probability distributions over probabilities, i.e. second order
 probabilities. In particular, given a prior over a probability $p$ of
 some event, like a coin toss to head, defined by a Beta distribution,
-and a sequence of experiments, like coin tosses, the posterior of $p$
-is still a Beta distribution. For that reason the Beta distribution is
-called a \emph{conjugate prior} for the binomial distribution.
+and a sequence of experiments, like tossing coins, the posterior of
+$p$ is still a Beta distribution. For that reason the Beta
+distribution is called a \emph{conjugate prior} for the binomial
+distribution.
 
 Let us recall the probability density and cumulative distribution
 functions of the Beta distribution as it will be useful later on.
@@ -284,15 +280,14 @@ $I_x$ is also called the regularized incomplete beta function
 In this section we introduce our specialization of Solomonoff Operator
 Induction for partial operators describing second order distributions,
 and more specifically Beta distributions. An estimate of the second
-order conditional probability of the next data is derived,
-Eq. \ref{betaconsol-final}. Such equation contains unknown terms, the
-likelihoods of the unaccounted data by the partial operators,
-them estimated by a simplistic heuristic.
+order conditional probability of the next data is derived, however it
+contains unknown terms, the likelihoods of the unaccounted data by
+partial operators, themselves estimated by a simplistic heuristic.
 
 \subsection{Second Order Probability Estimate}
 
 Let us first modify the Solomonoff Operator Induction probability
-estimate to represent a second order probability. This is crucial to
+estimate to represent a second order probability. This allows us to
 maintain, and ultimately propagate to efferent cognitive processes,
 the uncertainty of that estimate.
 % For instance if the estimate is about the probability
@@ -309,77 +304,22 @@ $Q_{n+1}$ is
 \end{equation}
 Due to $O^j$ not being complete in general
 $\hat{cdf}(A_{n+1}|Q_{n+1})(1)$ may not be equal to 1. It means that
-some normalization will need to take place, that is even more true
-since only a very small fraction of the operator space is explored in
-practice. We need not to worry about the continuity or the
-differentiability of $\hat{cdf}(A_{n+1}|Q_{n+1})$. What matters is
-that a spread of probabilities is represented to account for the
-uncertainty. It is expected that the breadth would be wide at first,
-and progressively shrinks, fluctuating depending on the novelty of the
-data, as measure as more questions and answers get collected.
+some normalization will need to take place, that is even more true in
+practice since only a fraction of the operator space is typically
+explored. Also, we need not to worry about properties such as the
+continuity or the differentiability of
+$\hat{cdf}(A_{n+1}|Q_{n+1})$. What matters is that a spread of
+probabilities is represented to account for the uncertainty. It is
+expected that the breadth would be wide at first, and progressively
+shrinks, fluctuating depending on the novelty of the data, as measure
+as more questions and answers get collected.
 
 \subsection{Continuous Parameterized Operators}
-
-% Although Solomonoff Operator Induction supposedly considers partial
-% operators (these are enumerable, while the set of complete operators
-% is not), any partial operator that happens not to compute the
-% probability of $A_i$ for some given $Q_i$ it will simply be entire
-% dismissed in equation [REF]. In practice however partial models can be
-% useful. Some partial models, only true in restricted contexts can
-% nevertheless be good predictors and we need a way to take them into
-% account. We will provide some suggestions to address that.
-
-% Solomonoff Universal Operator Induction addresses well the problem of
-% combining operators when these are complete, that is defined for each
-% question. In our case however, since our operators are mere second
-% order conditional probabilities, the distribution (or rather second
-% order distributions) over answers are only known for some questions.
-
-% To reuse our example above, the first rule tells us nothing about the
-% probability of the temperature rising when the sun is not shining. So
-% do the other rules when their conditions are not satisfied. For that
-% reason we cannot apply Universal Operator Induction as is.
-
-% To address that we suggest to artificially complete these operators by
-% either
-
-% 1. an uninformative prior
-% 2. or a fictive perfect predictor
-
-% If we were to see operators are programs, then the two options would
-% be seen as
-
-% 1. uninformative prior
-
-% if condition
-% then pdf
-% else Jeffreys
-
-% 2. fictive perfect predictor
-
-% if condition
-% then pdf
-% else 1
-
-% Let's first treat the fictive perfect predictor case.
-
-% Let's reformulate Solomonoff Universal Operator Induction considering
-% operators calculating second probabilities instead of probabilities.
-% Let $cdf^j(A_i|Q_i)$ be the cumulative distribution function
-% representing the second order conditional probability of $A_i$ knowing
-% $Q_i$ according to the $j^{th}$ operator.
-
-% \begin{equation}
-% P(A_{i+1}|Q_{i+1}) = \sum_j P(p_j)
-% \end{equation}
-
-%%%%%%%%%%%%%%%% Let redo that %%%%%%%%%%%%%%
-
 Let us now extend the definition of this estimate for parameterized
-operators, so that each operator is a second order distribution. Let
-us consider a subclass of parameterized operators such that, if $p$ is
-the parameter of operator $O^j_p$, the result of the conditional
-probability of $A_{n+1}$ given $Q_{n+1}$ is
+operators to describe second order distributions. Let us consider a
+subclass of parameterized operators such that, if $p$ is the parameter
+of operator $O^j_p$, the result of the conditional probability of
+$A_{n+1}$ given $Q_{n+1}$ is
 \begin{equation}
   \label{op}
 O^j_p(A_{n+1}|Q_{n+1})=p
@@ -401,7 +341,7 @@ where $f_p$ is the prior density of $p$, and
 $l_p^j= \prod_{i=1}^{n} O^j_p(A_i|Q_i)$ is the likelihood of the data
 according to the $j^{th}$ operator with parameter $p$.
 \begin{proof}
-  Consider continuous families of parameterized operators combined
+  Consider continuous families of parameterized operators following
   with Eq. \ref{op}. Let us start by expressing Eq.9 with a
   discretization of $O^j_p$ with prior $a^j_0 f_p \Delta p$
 \begin{equation}
@@ -448,24 +388,24 @@ probabilities, as operators.
 
 First, we need to assume that operators are partial, that is the
 $j^{th}$ operator is only defined for a subset of $n^j$ questions,
-those that meet the conditions of the rule. For instance, considering
-the rule
+those that meet the conditions of the rule. For instance, when
+considering the rule
 \begin{itemize}
 \item {\it If the sun shines, then the temperature rises}
 \end{itemize}
-questions and answers pertaining to what happens at night will be
-ignored.
+questions pertaining to what happens at night will be ignored by it.
 
 Second, we assume that answers are Boolean, so that $A_i\in \{0, 1\}$
-for $i \in [1, n+1]$. In reality, OpenCog rules manipulate predicates
+for any $i$. In reality, OpenCog rules manipulate predicates
 (generally fuzzy predicates but that can be let aside), and the
 questions they represent are: {\it if some instance holds property
   $R$, what are the odds that it holds property $S$?} We simplify this
 by fixing predicate $S$ so that the problem is reduced to finding $R$
 that best predicts it. Thus we assume that if $A_i=A_{n+1}$ then
 $O^j_p$ models the odds of $S(Q_i)$, and if $A_i \neq A_{n+1}$, it
-models the odds of $\neg S(Q_i)$. The class of operators under
-consideration can be represented as programs of the form
+models the odds of $\neg S(Q_i)$. More formally, the class of
+operators under consideration can be represented as programs of the
+form
 \begin{equation}
 O^j_p(A_i|Q_i) = \text{if}\ R^j(Q_i)\ \text{then}\
 \begin{cases}
@@ -473,9 +413,9 @@ O^j_p(A_i|Q_i) = \text{if}\ R^j(Q_i)\ \text{then}\
   1-p, & \text{otherwise}
 \end{cases}
 \end{equation}
-where $R^j$ is the condition of the rule. This allows an operator to
-be modeled as a Beta distribution, with cumulative distribution
-function
+where $R^j$ is the conditioning predicate of the rule. This allows an
+operator to be modeled as a Beta distribution, with cumulative
+distribution function
 \begin{equation}
   \label{O-cdf}
   cdf_{O^j}(x) = I_x(m^j + \alpha, n^j-m^j+\beta)
@@ -488,6 +428,7 @@ Truth Values as described in Chapter 4 of the PLN book
 \cite{Goertzel09PLN}.
 
 \subsection{Handling Partial Operators}
+\label{ha-pa-op}
 When attempting to use such operators we still need to account for
 their partiality. Although Solomonoff Operator Induction does in
 principle encompass partial operators\footnote{more by necessity,
@@ -508,16 +449,19 @@ here, data omission depends on the model. However, the general
 principle of modeling missing data and taking into account these
 models in the inference process, can be applied. Let us attempt to do
 that by explicitly representing the portion of the likelihood over the
-missing data according to the $j^{th}$ operator by a dedicated term,
-denoted $r^j$. In the rest of the paper rather than calling these data
-\emph{missing} we prefer to refer to them as \emph{unexplained} or
-\emph{unaccounted}, which better suits our problem. Let us also define
-a \emph{completion} of $O^j_p$ as a program that can explain the
-unaccounted data.
+missing, or to use better terms, \emph{unexplained} or
+\emph{unaccounted} data of the $j^{th}$ operator, by a dedicated term,
+denoted $r^j$.
+% In the rest of the paper rather than
+% calling these data \emph{missing} we prefer to refer to them as ,
+% which better suits our problem.
+Let us also define a \emph{completion} of $O^j_p$, a subprogram that
+explains the unaccounted data.
 \begin{definition}
   A \emph{completion} $C$ of $O^j_p$ is a program that completes
-  $O^j_p$ for the unaccounted data (when $R^j(Q_i)$ is false)
-  $$
+  $O^j_p$ for the unaccounted data, when $R^j(Q_i)$ is false, such
+  that the operator once completed is as follows
+  \begin{equation}
   \begin{array}{@{}ll@{}}
     O^j_{p, C}(A_i|Q_i) = &
                             \text{if}\ R^j(Q_i)\ \text{then}\
@@ -527,25 +471,25 @@ unaccounted data.
                             \end{cases}\\
                           & \text{else}\ C(A_i|Q_i)
   \end{array}
-  $$
+  \end{equation}
 \end{definition}
-The likelihood given such operator once completed would be
+The likelihood given the operator completed is
 \begin{equation}
   \label{new-lik}
 l^j_p = p^{m^j}(1-p)^{n^j-m^j} r^j
 \end{equation}
 where the binomial term account for the likelihood of the explained
-data, and $r^j$ is a term that accounts for the likelihood of the
-unexplained data, more specifically
+data, and $r^j$ accounts for the likelihood of the unexplained data,
+more specifically
 \begin{equation}
   % r^j = \prod_{i \in \{i|\neg R^j(Q_i)\}} C^j(A_i|Q_i)
   r^j = \prod_{i \leq n\ \land\ \neg R^j(Q_i)} C^j(A_i|Q_i)
 \end{equation}
-where $C^j$ is the underlying completion of $O^j_p$ explaining the
-unaccounted data. One may notice that $r^j$ does not depends on
-$p$. Such assumption tremendously simplifies the analysis and is
-somewhat reasonable to make. Generally we may assume that the
-completion of the model is independent on its pre-existing part.
+where $C^j$ is the underlying completion of $O^j_p$. One may notice
+that $r^j$ does not depends on $p$. Such assumption tremendously
+simplifies the analysis and is somewhat reasonable to make. We
+generally assume that the completion of the model is independent on
+its pre-existing part.
 % as the missing part of the model accounting for
 % the missing data could simply be assume that We'll see later how to
 % deal this term. Obviously $p^{m^j}$ and $p^{n^j-m^j}$ represent $p$ to
@@ -562,7 +506,7 @@ equation as the posterior remains a Beta distribution
 \begin{equation}
 f_p = f(p; \alpha, \beta)
 \end{equation}
-where $f$ is the pdf of the Beta distribution as define in
+where $f$ is the pdf of the Beta distribution as defined in
 Eq. \ref{beta-pdf}. Usual priors are Bayes' with $\alpha = 1$ and
 $\beta = 1$, Haldane's with $\alpha = 0$ and $\beta = 0$ and Jeffreys'
 with $\alpha = \frac{1}{2}$ and $\beta = \frac{1}{2}$. The latter is
@@ -617,8 +561,9 @@ As $I_x$ is the cumulative distribution function of $O^j$
 
 We have expressed our cumulative distribution function estimate as an
 averaging of the cumulative distribution functions of the
-operators. This gives us an estimate to predict whether $S$ holds for
-a new question and how much certainty we have about that prediction.\\
+operators. This gives us an estimate that predicts to what extend $S$
+holds for a new question and how much confidence we have in that
+prediction.\\
 
 However, we still need to address $r^j$, the likelihood of the
 unaccounted data. In theory, the right way to model $r^j$ would be to
@@ -638,8 +583,8 @@ answers are entirely determined by their corresponding questions. This
 is generally not true, the same question may relate to different
 answers. But under such assumptions $r^j$ becomes 1. This may seem
 equivalent to ignoring $r^j$ unless the complexity of the completion
-is taken into account. What that means is that we must consider, not
-only the complexity of the rule but also the complexity of its
+is taken into account. Meaning, we must consider not only the
+complexity of the rule but also the complexity of its
 completion. Unfortunately calculating that complexity is
 intractable. To work around that we estimate it as function of the
 length of the unexplained data. Specifically, we suggest as prior
@@ -653,8 +598,9 @@ $c=0$ then the unaccounted data are incompressible. If $c=1$ then the
 unaccounted data can be compressed to a single bit. It is a very crude
 heuristic and is not parameter free, but it is simple and
 computationally lightweight. When applied to experiments, not
-described here due to their early stage nature and space limitation, a
-value of $c=0.5$ was actually shown to be somewhat satisfactory.
+described here due to their early stage nature and the space
+limitation of the paper, a value of $c=0.5$ was actually shown to be
+somewhat satisfactory.
 
 \section{Conclusion}
 \label{con}
@@ -690,8 +636,8 @@ explain some unaccounted data could help.
 % replacing Beta distributions by Dirichlet distributions.
 
 Experiments using this estimate are currently being carried out in the
-context of inference control meta-learning within the OpenCog
-framework and will make the object of future publications.
+context of enabling inference control meta-learning within the OpenCog
+framework and will be the subject of future publications.
 
 %
 % ---- Bibliography ----
