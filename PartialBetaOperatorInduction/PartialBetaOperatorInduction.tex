@@ -374,13 +374,17 @@ which is turns into Eq. \ref{consol} when $\Delta p$ tends to 0.
 % knowledge is put in use [REF, REF]
 Using continuous integration may seem like a departure from Solomonoff
 Induction. First, it does not correspond to a countable class of
-models. And second, the Kolmogorov complexity of $p$, that would in
-principle determine its prior, is likely chaotic and very different
-than how priors are typically defined over continuous parameters in
-Bayesian inference. In practice however integration is discretized and
-values are truncated up to some fixed precision. Moreover any prior
-can probably be made compatible with Solomonoff induction by selecting
-an adequate Turing machine of reference.
+models. Second, the Kolmogorov complexity of $p$, determining the
+prominent contribution of its prior, is likely chaotic and would yield
+very different priors than what is typically defined over continuous
+parameters in Bayesian inference. In practice however integration is
+discretized and values are truncated up to some fixed precision.
+Moreover any prior can probably be approximated by selecting an
+adequate Turing machine of reference, assuming all contributions, not
+just the prominent ones defined by their Kolmogorov complexities, are
+considered, otherwise the prior will likely be confined to an
+exponential one, as pointed out in \cite{Goertzel10Toward}.
+
 \subsection{Operators as Beta Distributions}
 \label{beta-op}
 We have now what we need to model our rules, second order conditional
