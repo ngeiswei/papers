@@ -47,7 +47,7 @@ OpenCog Foundation\\ \and Novamente LLC\\
   new data, obtained by averaging the second order distributions of
   partial operators, is derived. The problem of managing the
   partiality of the operators is presented. A simplistic solution
-  based on estimating the Kolomogorov complexity of \emph{perfect
+  based on estimating the Kolmogorov complexity of \emph{perfect
     completions} of partial operators is given.
 
 \keywords{Solomonoff Operator Induction \and Beta Distribution \and
@@ -63,7 +63,7 @@ knowledge into contextual rules and make use of them without worrying
 about the details of the assumingly remote and irrelevant parts of the
 world.
 
-This is typically how AGI Prime, aka OpenCog Prime, the AGI agent
+This is typically how PrimeAGI, aka OpenCog Prime, the AGI agent
 implemented over the OpenCog framework may utilize knowledge
 \cite{Goertzel15Speculative}. The models we are specifically targeting
 here are rules describing \emph{second order} conditional
@@ -150,17 +150,17 @@ observations encompassed by their associated contexts.
 
 % \subsection{Overview}
 
-The remaining of the paper is roganized as follows. In Section
-\ref{sol-op-ind} we briefly recall what is Solomonoff Operator
-Induction and in Section \ref{beta} what are Beta distributions. In
-Section \ref{part-op} we introduce our specialization of Solomonoff
-Operator Induction for partial operators with Beta distributions. An
-estimate of the second order probability predicting new data, obtained
-by averaging the second order probabilities of these partial
-operators, is derived. Then the problem of dealing with partial
-operators is presented and somewhat minimally addressed. Finally, in
-Section \ref{con} we conclude and present some directions for
-research.
+The remaining of the paper is organized as follows. In Section
+\ref{sol-op-ind} we briefly recount the idea of Solomonoff Operator
+Induction and in Section \ref{beta}, the definition and properties of
+Beta distributions. In Section \ref{part-op} we introduce our
+specialization of Solomonoff Operator Induction for partial operators
+with Beta distributions. An estimate of the second order probability
+predicting new data, obtained by averaging the second order
+probabilities of these partial operators, is derived. Then the problem
+of dealing with partial operators is presented and somewhat minimally
+addressed. Finally, in Section \ref{con} we conclude and present some
+directions for research.
 
 % \subsection{Notes}
 
@@ -176,10 +176,12 @@ research.
 \label{sol-op-ind}
 Solomonoff Universal Operator Induction \cite{Solomonoff08Three} is a
 general, parameter free induction method shown to theoretically
-converge to the true distribution, if computable. It is a special case
-of Bayesian Model Averaging \cite{Hoeting99bayesianmodel} though is
-universal in the sense that the models across which the averaging is
-taking place are Turing-complete.
+converge to the true distribution, the source underlying the
+generation of a sequence of symbols, provided that such a source is
+computable. It is a special case of Bayesian Model Averaging
+\cite{Hoeting99bayesianmodel} though is universal in the sense that
+the class of models across which the averaging is taking place is
+Turing complete.
 
 Let us recall its formulation, using the same notations as in the
 original paper of Solomonoff (Section 3.2 of
@@ -319,31 +321,28 @@ Let us now extend the definition of this estimate for parameterized
 operators to describe second order distributions. Let us consider a
 subclass of parameterized operators such that, if $p$ is the parameter
 of operator $O^j_p$, the result of the conditional probability of
-$A_{n+1}$ given $Q_{n+1}$ is
-\begin{equation}
-  \label{op}
-O^j_p(A_{n+1}|Q_{n+1})=p
-\end{equation}
-Doing so will enable us to consider operators as Beta distribution
-later on, in Section \ref{beta-op}.
-% of this assumption may seem unclear, but that is essentially how
-% truth values are defined in OpenCog. This will hopefully become
-% clearer later on.
-% Similar in spirit to integrating out continuous parameters [REF], with
-% the exception that we build a cdf as opposed to an expectation.
-Given that assumption, the cumulative distribution function of the
-estimate $\hat{cdf}(A_{n+1}|Q_{n+1})$ becomes
-\begin{equation}
-  \label{consol}
-  \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j \int_0^x f_p l_p^j dp
-\end{equation}
-where $f_p$ is the prior density of $p$, and
-$l_p^j= \prod_{i=1}^{n} O^j_p(A_i|Q_i)$ is the likelihood of the data
-according to the $j^{th}$ operator with parameter $p$.
+$A_{n+1}$ given $Q_{n+1}$ is $p$. Doing so will enable us to consider
+operators as Beta distribution later on, in Section \ref{beta-op}.
+
+\begin{theorem}
+  Given a family of parameterized operators $O^j_p$ such that
+  \begin{equation}
+    \label{op}
+    O^j_p(A_{n+1}|Q_{n+1})=p
+  \end{equation}
+  and the prior of $O^i_p$ is $a_0^jf_p$ where $f_p$ is the prior
+  density of $p$, the cumulative distribution function of the estimate
+  $\hat{cdf}(A_{n+1}|Q_{n+1})$ is
+  \begin{equation}
+    \label{consol}
+    \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j \int_0^x f_p l_p^j dp
+  \end{equation}
+  where $l_p^j= \prod_{i=1}^{n} O^j_p(A_i|Q_i)$ is the likelihood of
+  the data according to the $j^{th}$ operator with parameter $p$.
+\end{theorem}
 \begin{proof}
-  Consider continuous families of parameterized operators following
-  with Eq. \ref{op}. Let us start by expressing Eq.9 with a
-  discretization of $O^j_p$ with prior $a^j_0 f_p \Delta p$
+  Let us express Eq.9 with a discretization of $O^j_p$ with prior
+  $a^j_0 f_p \Delta p$
 \begin{equation}
   \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_{O^j_p(A_{n+1}|Q_{n+1})\le x}
   a_0^j f_p l_p^j \Delta p
@@ -361,7 +360,7 @@ simplified into
   \hat{cdf}(A_{n+1}|Q_{n+1})(x) = \sum_j a_0^j \sum_{p\le x} f_p l_p^j
   \Delta p
 \end{equation}
-which is turns into Eq. \ref{consol} when $\Delta p$ tends to 0.
+which turns into Eq. \ref{consol} when $\Delta p$ tends to 0. \qed
 \end{proof}
 % Here $f_p$ here is independent of the operator. It doesn't have to be
 % necessarily the case, but for our purpose (which is to utilize some
@@ -596,12 +595,12 @@ length of the unexplained data. Specifically, we suggest as prior
 a^j_0 = 2^{-K(O^j) - v_j^{(1-c)}}
 \end{equation}
 where $K(O^j)$ is the Kolmogorov complexity of the $j^{th}$ operator
-(estimated by the length of its rule), $v_j$ is the length of its
-unaccounted data, and $c$ is a \emph{compressability} parameter. If
-$c=0$ then the unaccounted data are incompressible. If $c=1$ then the
-unaccounted data can be compressed to a single bit. It is a very crude
-heuristic and is not parameter free, but it is simple and
-computationally lightweight. When applied to experiments, not
+(the length of its corresponding rule in bits), $v_j$ is the length of
+its unaccounted data, and $c$ is a \emph{compressability}
+parameter. If $c=0$ then the unaccounted data are incompressible. If
+$c=1$ then the unaccounted data can be compressed to a single bit. It
+is a very crude heuristic and is not parameter free, but it is simple
+and computationally lightweight. When applied to experiments, not
 described here due to their early stage nature and the space
 limitation of the paper, a value of $c=0.5$ was actually shown to be
 somewhat satisfactory.
@@ -611,11 +610,11 @@ somewhat satisfactory.
 We have introduced a specialization of Solomonoff Operator Induction
 over operators with the particularities of being partial and modeled
 by Beta distributions. A second order probability estimate to predict
-new data and represent the uncertainty of the prediction has been
-derived. While doing so we have uncovered an interesting problem, how
-to account for partial operators in the estimate. This problem appears
-to have no obvious solution, is manifestly under-addressed by the
-research community, and yet important in practice. Although the
+new data, as well as capturing the uncertainty of such prediction, has
+been derived. While doing so we have uncovered an interesting problem,
+how to account for partial operators in the estimate. This problem
+appears to have no obvious solution, is manifestly under-addressed by
+the research community, and yet important in practice. Although the
 solution we provide is very lacking (crudely estimating the Kolmogorov
 complexity of a perfect completion) we hope that it provides some
 initial ground for experimentation and motivates further research.
