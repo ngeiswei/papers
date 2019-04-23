@@ -46,52 +46,123 @@ Ben Goertzel\inst{2,3}\orcidID{1111-2222-3333-4444}}
 
 \section{Introduction}
 
-Finding patterns in data is an important part of learning.
+Finding patterns is a way of discovering knowledge and learning about
+data and the world they represent. These patterns can then be used in
+various ways like constructing predictive models to help to act in
+this world [REF Shujing work], or to passed on to human
+expertise. Pattern mining [REF] usually design classes of algorithms
+capturing \emph{syntactic} features [REF itemset, etc], such as
+subtree mining [REF], where patterns are subtrees within a data base
+of trees, and each subtree represents a concept containing all the
+trees compatible with that subtree. This is both a limit and a
+strength. Limit because they cannot express arbitrary abstractions,
+and strength because for that reason they can be relatively
+efficient. Moreover even purely syntactic pattern miners can go a long
+way if much of the semantic knowledge is turned into syntax. For
+instance if the data contains
+$$\texttt{human(John)}$$
+$$\texttt{human}\Rightarrow\texttt{mortal}$$ a purely syntactic
+pattern miner will not be able to take into account the implicit
+datum $$\texttt{mortal(John)}$$ unless a step of inference is
+previously taken to make it visible.
 
-By placing more learning into reasoning it allows to
+Another shortcoming of pattern mining is the volume of patterns it
+tend to produce. For that reason it can be useful to rank the patterns
+according to some measure of interestingness [REF].
 
+\subsection{Contribution}
+
+In this paper we introduce a pattern miner algorithm to find syntactic
+patterns in hypergraph database alongside a measure of
+surprisingness. Both are implemented in the OpenCog framework [REF],
+on top of the \emph{Unified Rule Engine}, URE for short, OpenCog's
+reasoning engine. Framing pattern mining as reasoning provides the
+following advantages:
 \begin{enumerate}
-\item Leverage the existing inference control mechanism of OpenCog (to be
-described in subsequent publications, but that follows the abstract
-principles described in [REF: growth of pattern, etc].
-\item Offers more transparency, both for the human and the machine,
-  bringing a form of XAI (eXplanatory AI).
+\item It enables hybridization between syntactic and semantic pattern
+  mining.
+\item It offers more transparency. Produced knowledge can be reasoned
+  upon. Reasoning steps taken during mining can be represented as data
+  for subsequent mining as well.
+\item It enables meta-learning. By leveraging the URE's dynamic
+  inference control mechanism [REF] pattern mining itself can be
+  improved.
 \end{enumerate}
-Although such a reframing carries a computational cost it confers a
-significant benefit, which is that the search over the space of
-patterns, by far the most costly aspect of pattern mining is amenable
-to meta-learning [REF].
+The last point, although already important by itself, goes further
+than that. One the motivations to have a pattern miner in OpenCog is
+to mine inference traces to speed-up reasoning in general. By framing
+not only pattern mining but more generally learning as reasoning we
+hope to kickstart a virtuous self-improving cycle. Towards that end,
+MOSES [REF], OpenCog's evolutionary program learner, is currently in
+the process of being ported to the URE as well.
 
-Pattern mining itself, if considered in its broadest form can be a
-very expensive process. Implementing it on top of the Unified Rule
-Engine confer multiple advantages.
+Framing learning as reasoning is not without any drawback as more
+transparency typically comes with greater computational
+penalty. However by carefully partitioning transparent reasoning
+versus opaque computations we hope that an adequate balance between
+efficiency and open-endedness can be achieved. For instance in the
+case of evolutionary programming, decisions pertaining to which
+regions of the program space to explore is best represented as
+reasoning, given its importance and cost. While more systematic
+computations such as evaluating the fitness of a candidate can be left
+as opaque efficient computation. One may draw here a loose analogy
+with the distinction between conscious and unconscious processes.
 
-\section{Mining Surprising Patterns in Hypergraph Data Base}
+\subsection{Outline}
 
-\subsection{Patterns as Queries}
+In Section [REF] a pattern mining algorithm over hypergraphs is
+presented. Section [REF] is dedicated to frame such algorithm as
+reasoning. In Section [REF] a measure of Surprisingness is
+introduced. Preliminary experiments are conducted in Section [REF] on
+the SUMO ontology. And the conclusion is given in Section [REF].
 
-In OpenCog, data can be retrieved from the atomspace via programs
-describing queries, similar in spirit to SQL queries, represented
-themselves as hypergraphs! This insure complete reflexivity of the
-querying language, queries can be queried, produced, inferred, etc.
+\section{Pattern Mining in Hypergraph Database}
 
-What the pattern miner does is essentially to evolve such program
-queries, which is underneath also an evolution of inferences.
+\subsection{AtomSpace: Hypegraph Database}
 
-Here's an example of such query programs (provided in Scheme syntax,
-the primary binding language for OpenCog)
+OpenCog's primary knowledge repository structure is a labeled
+hypergraph called the AtomSpace [REF]. It is particularly suited for
+representing a combination of symbolic (logical, declarative)
+knowledge and subsymbolic (probabilistic, connectionistic)
+knowledge. In the OpenCog terminology, edges are called \emph{links},
+vertices are called \emph{nodes}, and \emph{atoms} are either links or
+nodes.  For example one may express that cars are vehicle with
+\begin{verbatim}
+(Inheritance (Concept "car") (Concept "vehicle"))
+\end{verbatim}
+if one wishes to express the other way around, how much vehicles are
+cars, then one can label the inheritance link with a \emph{truth
+  value}
+\begin{verbatim}
+(Inheritance (stv 0.4 0.8) (Concept "vehicle") (Concept "car"))
+\end{verbatim}
+where 0.4 represents a probability and 0.8 represents a confidence.
+
+Storing knowledge as hypergraph rather than collections of formulae
+allows to rapidly retrieve atoms and how they relate to other
+atoms. For instance given the node $\texttt{(Concept "car")}$ one can
+rapidly query the links pointing to it, here two, one expressing that
+cars are vehicle, the other expressing that some vehicles are cars.
+
+\subsection{Pattern Matching}
+
+OpenCog comes with a \emph{pattern matcher}, a component that can
+query the atomspace, similar in spirit to SQL, but different in many
+aspects. For instance queries are themselves programs represented as
+atoms in the atomspace. This insures reflexivity where queries can be
+queried or produced by queries. Here's an example of such query
 \begin{verbatim}
 (Get
   (Present
     (Inheritance (Variable "$X") (Variable "$Y"))
     (Inheritance (Variable "$Y") (Variable "$Z"))))
 \end{verbatim}
-which fetch any instance of transitivity in the AtomSpace. For
-instance if the AtomSpace contains
+which fetch any instance of transitivity of inheritance in the
+AtomSpace. For instance if the AtomSpace contains
 \begin{verbatim}
 (Inheritance (Concept "cat") (Concept "mammal"))
 (Inheritance (Concept "mammal") (Concept "animal"))
-(Inheritance (Concept "square") (Concept "geometric-shape"))
+(Inheritance (Concept "square") (Concept "shape"))
 \end{verbatim}
 it will retrieve
 \begin{verbatim}
@@ -99,128 +170,190 @@ it will retrieve
   (List (Concept "cat") (Concept "mammal") (Concept "animal")))
 \end{verbatim}
 where \texttt{cat}, \texttt{mammal} and \texttt{animal} are associated
-to variable \texttt{\$X}, \texttt{\$Y} and \texttt{\$Z} according to a
-prefix order. \texttt{square} and \texttt{geometric-shape} are not
-retrieved because they do not exhibit transitivity in the data.
+to variable \texttt{\$X}, \texttt{\$Y} and \texttt{\$Z} according to
+the prefix order of the query, but \texttt{square} and \texttt{shape}
+will not be retrieved because they do not exhibit transitivity in the
+data. The construct $\texttt{Set}$ represents a set of atoms (here
+tuples).
 
 The construct \texttt{Get} means retrieve. The construct
-\texttt{Present} means that the following expressions are patterns to
-be conjunctively matched against the data present in the atomspace. We
-also call the argument expressions of \texttt{Present} clauses and say
-that the whole pattern is a conjunction of clauses.
+\texttt{Present} means that the arguments are patterns to be
+conjunctively matched against the data present in the atomspace. We
+also call \texttt{Present} arguments \emph{clauses}, and say that the
+pattern is a \emph{conjunction of clauses}.
 
-The component that takes a query and returns the matching data is
-called the \emph{pattern matcher}. The pattern miner solves the
-inverse problem of pattern matcher. That is provided data, it attempts
-to find queries that would retrieve a certain minimum number of
-matches. This number corresponds to the \emph{support} in the pattern
-mining terminology.
+In addition, the pattern matcher can rewrite. For instance a
+transitivity rule could be implemented with
+\begin{verbatim}
+(Bind
+  (Present
+    (Inheritance (Variable "$X") (Variable "$Y"))
+    (Inheritance (Variable "$Y") (Variable "$Z")))
+  (Inheritance (Variable "$X") (Variable "$Z")))
+\end{verbatim}
+The pattern matcher provides the building blocks for the OpenCog's
+reasoning engine. In fact the URE is, for the most part, pattern
+matching + unification.
 
-More constructs exist to build sophisticated queries such as type
-declarations, preconditions, and pretty much any computation that one
-may need to express. However the pattern miner only supports a subset
-of these, due to the inherent complexity of dealing with such
-expressiveness. The type of queries like the example above are
-supported and already allows to capture a wide range of patterns. For
-instance, as the reader would have probably noticed, clauses can be
-connected via joint variables. In the example above such a joint
-variable is \texttt{\$Y}.
+\subsection{Pattern Mining as Inverse of Pattern Matching}
+
+The pattern miner solves the inverse problem of pattern matcher. That
+is provided data, it attempts to find queries that would retrieve a
+certain \emph{minimum} number of matches. This number is called the
+\emph{support} in the pattern mining terminology.
+
+It is worth mentioning that the pattern matcher has many more
+constructs than \texttt{Get}, \texttt{Present} and \texttt{Bind}; for
+declaring types, expressing preconditions, and coding pretty much any
+computation one may want to express. However the pattern miner only
+supports a subset of constructs due to the inherent complexity of
+dealing with such expressiveness.
 
 \subsection{Pattern Mining High Level Algorithm}
 
-Frequent Subtree Mining \cite{Chi2005Freq} refers to a group
-techniques to discover patterns within a data base of trees.
+Before showing how to express pattern mining as reasoning, let us
+explain the algorithm itself.
 
-Patterns are Atomese programs, programs expressing queries, akin to
-SQL queries.
+Our pattern mining algorithm operates like most pattern mining
+algorithms \cite{Chi2005Freq} by searching the space of patterns while
+pruning the parts that do not have enough support. It typically starts
+from the most abstract one, the \emph{top} pattern, them constructs
+specializations of it, only retaining those that have enough support,
+repeat the specialization on the obtained patterns and so on. The
+apriori property \cite{Agrawal1994fastalgorithms} guaranties that no
+pattern with enough support will be missed based on the fact that
+patterns without enough support cannot have specializations with
+enough support.
 
-To discover surprising patterns we first mine frequent patterns,
-pruning the search using the apriori property
-\cite{Agrawal1994fastalgorithms}, as well as some home brewed
-heuristics. Then we calculate the surprisingness of all resulting
-patterns.
-
-Much of the terminology used in this paper is borrowed from
-. Let us recall the most important terms
-\begin{itemize}
-\item \emph{Text tree}: a tree, here a hypergraph, that is part of the
-  data set to mine. Can be simply called \emph{tree}. Generally
-  speaking any atom of an atomspace.
-\item \emph{Pattern tree}: a tree representing a pattern, that is
-  capturing a collection of text trees. Can be simply called
-  \emph{pattern}.
-\item \emph{Count}: number of text trees and subtrees matching a
-  given pattern.
-\item \emph{Frequency}: count of a pattern divided by the size of the
-  universe, here the number of nodes of the hypergraph.
-\item \emph{Support}: similar to count.
-\item \emph{Minimum support}: parameter of the mining algorithm to discard
-  patterns with frequency below that value.
-\item \emph{Apriori property}: assumption that allows to systematically prune
-  the search space. In its least abstract form, it expresses the fact
-  that if a pattern tree has a certain frequency `f` then a
-  specialization of it can only have a frequency that is equal to or
-  lower than `f`.
-\end{itemize}
-
-Pattern mining operates by searching the space of patterns, typically
-starting from the most abstract pattern, the \emph{top} pattern that
-encompasses all trees, then constructing specializations of it, retain
-those that have enough support (frequency equal to or above the
-threshold), recursively specializing those, and so on.
-
-Given a data base $\mathcal{D}$, a minimal support $S$ and an initialize
-collection $\mathcal{C}$ of patterns with their counts equal to or above $S$,
-the mining algorithm is as follows
+Semi-formally, given a database $\mathcal{D}$, a minimal support $S$
+and an initialize collection $\mathcal{C}$ of patterns with their
+counts equal to or above $S$, the mining algorithm is as follows
 \begin{enumerate}
 \item select a pattern $P$ from $\mathcal{C}$,
-\item find all shallow specializations $\mathcal{E}$ of $P$ with
-  support equal to or above $S$,
+\item find all \emph{shallow specializations} $\mathcal{E}$ of $P$
+  with support equal to or above $S$,
 \item remove $P$ from $\mathcal{C}$ and add the new patterns
   $\mathcal{E}$ to $\mathcal{C}$,
-\item repeat till a termination criterion is met (maximum number of
-  iterations, etc).
+\item repeat till a termination criterion is met.
 \end{enumerate}
 
 The pattern collection $\mathcal{C}$ is usually initialized with the
-top pattern, from which all subsequent pattern derive from.
+top pattern
+\begin{verbatim}
+(Get
+  (Present
+    (Variable "$X")))
+\end{verbatim}
+that matches the entire database, and from which all subsequent
+patterns are derived. A shallow specialization is a specialization
+such that the expansion is only a level deep. For instance, if
+$\mathcal{D}$ is the 3 inheritances links of Section [REF] (cat is a
+mammal, a mammal is an animal and square is a shape), a shallow
+specialization of the top pattern could be
+\begin{verbatim}
+(Get
+  (Present
+    (Inheritance (Variable "$X") (Variable "$Y"))))
+\end{verbatim}
+that would still match the entire database, thus have a support of
+3. A subsequent shallow specialization of it could be
+\begin{verbatim}
+(Get
+  (Present
+    (Inheritance (Concept "cat") (Variable "$Y"))))
+\end{verbatim}
+that would only match
+\begin{verbatim}
+(Inheritance (Concept "cat") (Concept "mammal"))
+\end{verbatim}
+thus have a support of 1.
+
+In practice the algorithm is complemented by heuristics to avoid an
+exhaustive search, but that is the core of it.
 
 \section{Framing Pattern Mining as Reasoning}
 
-The tricky part of the algorithm above is step 1, selecting which
-pattern to expand at each iteration, which will determine how the
-space of patterns is being searched. However by framing pattern mining
-as reasoning we can.
+The hard part of the algorithm above is step 1, selecting which
+pattern to expand, which determines how the space is being
+searched. When pattern mining is framed as reasoning such decision
+corresponds to a \emph{premise selection}.
 
-We will just mention the fact that due to having the search framed as
-a reasoning process, the following step actually amounts to selecting
-a source in a forward chaining reasoning.
-
-The type of propositions we need to prove have the following forms
-$$ S \le \text{support}(P, \mathcal{D}) $$ expressing that P has
-enough support with respect to the data base $\mathcal{D}$, or simply
+Let us formalize the type of propositions we need to prove in order to
+search the space of patterns. Given a database $\mathcal{D}$ and a
+minimum support $S$ we want is the following theorems
+$$ S \le \text{support}(P, \mathcal{D}) $$ expressing that pattern $P$
+has enough support with respect to the data base $\mathcal{D}$, or to
+simplify
 $$ \text{minsup}(P, S, \mathcal{D}) $$ where $\text{minsup}$ is
 defined as
 $$ \text{minsup}(P, S, \mathcal{D}) := S \le \text{support}(P,
 \mathcal{D}) $$
 
-The type of knowledge above can be inferred with the rule
+Then the primary inference rule we need is
 $$ \text{minsup}(Q, S, \mathcal{D}) \land \text{spec}(Q, P) \vdash
 \text{minsup}(P, S, \mathcal{D})$$ expressing that if $Q$ has enough
 support, and $Q$ is a specialization of $P$, then $P$ has enough
-support, essentially formalizing the Apriori property\footnote{or
-  rather its simplest variation}.
+support, essentially formalizing the apriori property. We can either
+apply such rule in a forward way, from left to right, or in a backward
+way, from right to left. If we search from more abstract to more
+specialized then we want to use it in a backward way. Meaning the
+reasoning engine needs to choose $P$ and then construct a
+specialization of it, $Q$.  In practice we actually have rewritten
+that rule in a backward way that we apply it in a forward for
+efficiency reasons, although the underlying idea is the same, which is
+why in this context select $P$ amounts to selecting a premise of the
+$\text{minsup}(P, S, \mathcal{D})$. The exact definition of
+$\text{spec}$ is left out, it is merely a variation of the subtree
+relationship while accounting for variables. As one can see a pattern
+such as
+\begin{verbatim}
+(Get
+  (Present
+    (Inheritance (Variable "$X") (Variable "$Y"))))
+\end{verbatim}
+is different than
+\begin{verbatim}
+(Get
+  (Present
+    (Inheritance (Variable "$X") (Variable "$X"))))
+\end{verbatim}
+where $\texttt{\$Y}$ has been replace by $\texttt{\$X}$, which
+requires some additional care.
 
-Other rules can be used to infer knowledge about $\text{minsup}$, more
-considered as heuristics as, unlike the apriori property, they do not
-guaranty completeness, but can speed-up the search. For instance the
-following rule
+Other \emph{heuristic} rules can be used to infer knowledge about
+$\text{minsup}$. They are heuristics because unlike the apriori
+property, they do not guaranty completeness, but can speed-up the
+search by eliminating large portions of the search space. For instance
+the following rule
 $$ \text{minsup}(P, S, \mathcal{D}) \land \text{minsup}(Q, S,
-\mathcal{D}) \land \mathcal{P}(P \otimes Q) \vdash \text{minsup}(P
-\otimes Q, S, \mathcal{D}) $$ expresses that if $P$ and $Q$ have
-enough support, and a certain combination of $P$ and $Q$ has a certain
-property, then such combination has enough support. An example of such
-rule will be given below.
+\mathcal{D}) \land R(P \otimes Q) \vdash \text{minsup}(P \otimes Q, S,
+\mathcal{D}) $$ expresses that if $P$ and $Q$ have enough support, and
+a certain combination of $P$ and $Q$ has a certain property $R$, then
+such combination has enough support. Such rule is used to combine
+multiple conjunctions of patterns, that if for instance given $P$ and
+$Q$ both being
+\begin{verbatim}
+(Get
+  (Present
+    (Inheritance (Variable "$X") (Variable "$Y"))))
+\end{verbatim}
+One can combine them to form
+\begin{verbatim}
+(Get
+  (Present
+    (Inheritance (Variable "$X") (Variable "$Y"))
+    (Inheritance (Variable "$Y") (Variable "$Z"))))
+\end{verbatim}
+or
+\begin{verbatim}
+(Get
+  (Present
+    (Inheritance (Variable "$X") (Variable "$Y"))
+    (Inheritance (Variable "$X") (Variable "$Z"))))
+\end{verbatim}
+etc. The property $R$ here is that both clauses must share at least
+one joint variable and the combination must have its support above or
+equal to the minimum threshold.
 
 \section{Surprisingness}
 
@@ -230,33 +363,31 @@ overwhelming. For that it can be helpful to assign to the patterns a
 measure of \emph{interestingness}. Such notion is broad and can mean
 various things in various contexts. We will restrict our attention on
 the sub-notion of \emph{surprisingness}. Although still broad one can
-define surprisingness as what is \emph{contrary to expectations}. It
-is not too difficult to see, in the context of discovering patterns,
-why such notion is important. If some pattern contradicts expectations
-it means we have uncovered an incorrectness or incompleteness in our
-model of the world and thus requires special attention.
+define surprisingness as what is \emph{contrary to expectations}. Such
+notion is important as if some pattern contradicts expectations it
+means we have uncovered an incorrectness or incompleteness in our
+model of the world.
 
 Just like for pattern mining, surprisingness can be framed as
 reasoning. They are many ways to formalize such notion. We suggest
 that in its most general sense, surpisingness may be the difference of
 outcome between different inferences over the same conjecture. Of
 course in most logical systems, if consistent, different inferences
-will produce the same result. However para-consistent systems, such as
-PLN \cite{Goertzel2009PLN} for \emph{Probabilistic Logic Network},
-OpenCog's logic for common sense reasoning, allow different inferences
-to produce different outcomes on the a given conjecture. In particular
-PLN allows a conjecture to be believed with various degrees of truth,
-ranging from total ignorance to absolute certainty. Thus PLN is
-particularly well suited for such definition of surprisingness. More
-specifically we define surprisingness as the \emph{distance of truth
-  values between different inferences over the same conjecture}. In
-PLN a truth value is a second order distribution, probabilities over
-probabilities, as explained in Chapter 4 of
-\cite{Goertzel2009PLN}. Second order distributions allow to capture
-uncertainties. Total ignorance is represented by a flat distribution
-(Bayesian prior), or possible a slightly concave one (Jeffreys prior
-\cite{Jeffreys46Invariant}), and absolute certainty by a Dirac delta
-function.
+will produce the same result. However in para-consistent systems, such
+as PLN \cite{Goertzel2009PLN} for \emph{Probabilistic Logic Network},
+OpenCog's logic for common sense reasoning, different inference
+outcomes on the same conjecture are possible. In particular PLN allows
+a conjecture to be believed with various degrees of truth, ranging
+from total ignorance to absolute certainty. Thus PLN is particularly
+well suited for such definition of surprisingness. More specifically
+we define surprisingness as the \emph{distance of truth values between
+  different inferences over the same conjecture}. In PLN a truth value
+is a second order distribution, probabilities over probabilities, as
+explained in Chapter 4 of \cite{Goertzel2009PLN}. Second order
+distributions are good at capturing uncertainties. Total ignorance is
+represented by a flat distribution (Bayesian prior), or possibly a
+slightly concave one (Jeffreys prior \cite{Jeffreys46Invariant}), and
+absolute certainty by a Dirac delta function.
 
 Such definition of surprisingness has the merit of encompassing a wide
 variety of cases; like the surprisingness of finding a proof
@@ -270,16 +401,16 @@ constructing different types of inferences and finding contradictions
 between them. For instance in the case of discovering a pattern in a
 data set, one inference could calculate the empirical probability
 based on the data, while an other inference could calculate a
-probability estimate based on independence of the variables and their
-marginal probabilities.
+probability estimate based on the independence of the variables and
+their marginal probabilities.
 
 To be closer to the human notion of surprisingness one may refine this
-definition by having one type of inference as being the current model
-of the world from which rapid (and usually uncertain) conclusions can
-be derived, and the other type of inference provided by the world
-itself, either via observations, in the case of an experienced
-reality, or via crisp and long chains of deductions in the case of a
-mathematical reality.
+definition by having one type of inference obtained from the current
+model of the world from which rapid (and usually uncertain)
+conclusions can be derived, and the other type of inference provided
+by the world itself, either via observations, in the case of an
+experienced reality, or via crisp and long chains of deductions in the
+case of a mathematical reality.
 
 The distance measure to use to compare conjecture outcomes remains to
 be defined. Since our truth values are distributions the
@@ -303,11 +434,11 @@ probability $p_2$ of head is calculated. $p_1$ and $p_2$ might be very
 different, but it should not be surprising given the low number of
 observations. On the contrary, in the second experiment the coin is
 tossed a billion times, $p_1$ is calculated, then another billion
-times and $p_2$ is calculated. Here even tiny differences between
-$p_1$ and $p_2$ should be considered surprising. In both cases, by
-representing $p_1$ and $p_2$ as second order distributions rather than
-mere probabilities, the Jensen-Shannon distance properly accounts for
-the uncertainty.
+times, $p_2$ is calculated. Here even tiny differences between $p_1$
+and $p_2$ should be surprising. In both cases, by representing $p_1$
+and $p_2$ as second order distributions rather than mere
+probabilities, the Jensen-Shannon distance properly accounts for the
+uncertainty.
 
 From now on, for sake of brevity, when speaking of \emph{probability}
 we actually mean \emph{second order probability distribution}. When
@@ -317,10 +448,9 @@ distribution can easily be obtained by considering a Beta-distribution
 [REF].
 
 \subsection{Independence-based Surprisingness}
-
 Here we explore a simple form of surprisingness based on the
-independence of the clauses (not variables) within a pattern called
-I-Surprisingness for Independence-Surprisingness. For instance
+independence of the clauses within a pattern called I-Surprisingness
+for Independence-Surprisingness. For instance
 \begin{verbatim}
 (Get
   (Present
@@ -335,20 +465,18 @@ and
 \begin{verbatim}
 (Inheritance (Variable "$Y") (Variable "$Z"))
 \end{verbatim}
-joint by \texttt{\$Y}. Each clause considered independently, one can
-use the data to calculate the empirical probability of the
-clause. That is, considering the first clause, the probability of
-having an assignment (\texttt{\$X=x},\texttt{\$Y=y}) such that
-\texttt{(Inheritance x y)} appears in the data.
-
-The goal is to, given such empirical probabilities, calculate the
-probability estimate of their conjunctions. The presence of joint
-variables makes it impossible to merely calculate the estimate of the
-conjunction as the product of their probabilities as the joint
-variables need to be accounted for. To do that we use the fact that a
-pattern of connected clauses is equivalent to a pattern of
-disconnected clauses combined with a condition of equality between the
-joint variables. For instance
+If each clause is considered independently, that is the distribution
+of values taken by the variable tuples $(\texttt{\$X}, \texttt{\$Y})$
+appearing in the first clause is independent from the distribution of
+values taken by the variable tuples $(\texttt{\$Y}, \texttt{\$Z})$ in
+the second clause, one can simply use the product of the two
+distributions to obtain an estimate of the distribution of their
+conjunctions. However the presence of joint variables, here
+$\texttt{\$Y}$, makes it obviously wrong. Instead the connections need
+to be taken into account. To do that we use the fact that a pattern of
+connected clauses is equivalent to a pattern of disconnected clauses
+combined with a condition of equality between the joint variables. For
+instance
 \begin{verbatim}
 (Get
   (Present
@@ -364,96 +492,127 @@ is equivalent to
       (Inheritance (Variable "$Y2") (Variable "$Z")))
     (Equal (Variable "$Y1") (Variable "$Y2"))))
 \end{verbatim}
-where the joint variables, here \texttt{\$Y}, have been replaced by
-variable occurrences in each clause, \texttt{\$Y1} and
-\texttt{\$Y2}. This allows us to express the probability estimate as
-the product of the probabilities of the clauses times the
-probabilities of having equal values of assigned to the variables
-occurrences, called $P_e$.
+where the joint variables, here $\texttt{\$Y}$, have been replaced by
+variable occurrences in each clause, $\texttt{\$Y1}$ and
+$\texttt{\$Y2}$. The construct $\texttt{Equal}$ tests the equality of
+values, and the construct $\texttt{And}$ is the logical
+conjunction. So the whole query means, find values matching these two
+pattern, such that each value associated to $\texttt{\$Y1}$ is equal
+to the value associated to $\texttt{\$Y2}$. Then we can express the
+probability estimate as the product of the probabilities of the
+clauses, as if they were independent, times the probability of having
+the values of joint variables equal. The formula estimating the
+probability of equality is not detailed here due to lack of place but
+basically it involves some limited form of static analysis to estimate
+the number of value a particular variable occurrence can take. More
+detail is provided in the comment of the code [REF].
 
-A excellent estimate of $P_e$ can be obtained as the inner product of
-the distributions over all values that can be taken by the variable
-occurrences. However such inner product does capture the interactions
-between the clauses happening at the joint variables and thus
-contradict the assumption of independence. It is ``too good'' for
-I-surprisingness. We initially tried that and almost nothing was
-measure as surprising. Instead we need to estimate $P_e$ without using
-any empirical knowledge about the interactions if the clauses. For
-that we can simply estimate the probability of two variable
-occurrences being equal be considering the number of possible values
-they can each take. Let us denote $V(X_i)$ the set of values that
-variable occurrence $X_i$ can take when its corresponding clauses is
-considered independently, and $|V(X_i)|$ the size of $V(X_i)$. Thus,
-assuming $n$ clauses connected by variable $X$, an estimate would be
-
+In the end we obtain the following inference rule for calculating
+I-Surprisingness
 $$
-P_e(X_1=...=X_n)~=\prod_{i=2}^n |V(X_i)|^{-1}
+\text{minsup}(P, S, \mathcal{D}) \vdash \text{isurp}(P, \mathcal{D}, f)
 $$
 
-assuming that all values in $|V(X_i)|$ are distributed uniformly. The
-product ignores one of variable occurrence because for each value we
-want to estimate the probability that the \emph{other} values equal to
-this one. Then the quality of the estimate depends on the quality of
-the estimations of $|V(X_i)|$. We will not enter in too much details
-but what we have found is that by considering specialization
-relationships (captured by the \texttt{spec} predicate defined in
-[REF]) relative to joint variables between the clauses, it allows us
-to place an upper bound on the number values $|V(X_i)|$ can take, and
-provides an excellent estimate, yet without having to utilize the
-interactions between the clauses that are hidden in the data.
+where $\texttt{isurp}$ is a predicate relating a pattern $P$ and its
+database $\mathcal{D}$ to its I-Surprisingness $f$, the Shannon-Jensen
+divergence between the empirical (second order) probability of $P$ and
+its (second order) probability estimate, as described above. In
+practice the calculation of $f$ is done in C++ for efficiency. That is
+the URE calls that rule after running the pattern miner, which itself
+calls the C++ code. This provides another example of how learning can
+be partitioned into transparent reasoning and opaque computation.
 
-In the end we obtain the following inference rule to calculate the
-estimate
+After discovering a few surprising patterns based on such independence
+assumption, the data should be expected to contain such dependencies,
+and subsequent estimates should take that into account when
+calculating of the surprisingness of new patterns. For instance once
+the empirical probability of a pattern is known, if such a pattern was
+surprising such knowledge should be retained and utilized, so that any
+other pattern that has its probability estimate rapidly derivable from
+the previously surprising patterns (and other background knowledge),
+and such that this estimate is good (the distance between the
+empirical probability and the estimate is small) should not be
+considered surprising.
 
-$$
-P_e(X_1=...=X_n) = Prod_{i=2}^n M(X_i)^{-1}
-$$
+For that the current I-Surprisingness rule needs to be decomposed so
+that the estimate can be calculated in a separate inference, the
+empirical probability in a separate inference, and the two compared in
+a separated Jensen-Shannon distance step.
 
-where $M(X_i)$ is either
-\begin{enumerate}
-\item $|V(X_j)|$, the number of values that $X_j$ can take in the most
-  specialized clause where $X_j$ occurs that is either more abstract
-  than or equivalent to the clauses where $X_i$ appears relative to
-  $X$ and such that j<i.
-\item $|U|$, the size of the data base if no such more abstract or
-  equivalent component exists for $X_i$.
-\end{enumerate}
+%% Let's denote this probability $P_e$. To estimate $P_e$ while avoiding
+%% empirical knowledge about the interactions of the
+%% clauses\footnote{$P_e$ can be estimated with the inner product of the
+%%   distributions over the values the joint variable occurrences, but
+%%   this captures interactions between the clauses exhibited in the
+%%   data. We initially tried that and almost nothing was measured as
+%%   surprising.} we estimate the probability of two variable occurrences
+%% being equal by assuming values are uniformly distributed. Let us
+%% denote $S(X_i)$ the number of values $X_i$ can take when its
+%% corresponding clauses is matched in isolation. Thus, assuming $n$
+%% clauses connected by variable $X$, an estimate would be
+%% $$
+%% P_e(X_1=...=X_n)~=\prod_{i=2}^n S(X_i)^{-1}
+%% $$
 
-This allows to see how such calculation can be entirely expressed as a
-reasoning process, although in practice it is wrapped into a single
-inference rule for efficiency purpose.
+%% The product ignores one of variable occurrence because for each value
+%% we want to estimate the probability that the \emph{other} values equal
+%% to this one. The quality of the estimate depends on the quality of the
+%% estimations of $S(X_i)$. Without entering in too much details what we
+%% have found is that by considering specialization relationships because
+%% the clauses (captured by the \texttt{spec} predicate defined in
+%% Section [REF]) we can place an upper bound on the number of values
+%% that $S(X_i)$ can take, and provides a decent estimate.
 
-\subsection{Beyond Independence-based Surprisingness and Dynamic Measure}
+%% In the end we obtain the following inference rule to calculate the
+%% estimate
+%% $$
+%% P_e(X_1=...=X_n) = Prod_{i=2}^n M(X_i)^{-1}
+%% $$
+%% where $M(X_i)$ is either
+%% \begin{enumerate}
+%% \item $|V(X_j)|$, the number of values that $X_j$ can take in the most
+%% specialized clause where $X_j$ occurs that is either more abstract
+%% than or equivalent to the clauses where $X_i$ appears relative to $X$
+%% and such that j<i.
+%% \item $|U|$, the size of the data base if no such more abstract or
+%%   equivalent component exists for $X_i$.
+%% \end{enumerate}
 
-Surprisingness has to be dynamic be nature, once a fact is known it is
-no longer surprising, thus...
+%% This allows to see how such calculation can be entirely expressed as a
+%% reasoning process, although in practice it is wrapped into a single
+%% inference rule for efficiency purpose.
 
-The advantage of framing measuring surprisingness as a reasoning
-process is that we can easily make the transition from a hard coded
-definition of surprisingness to a more general one. 
+%% \subsection{Beyond Independence-based Surprisingness and Dynamic Measure}
 
-\section{Experiment: Mining Surprising Patterns in SUMO}
+%% Surprisingness has to be dynamic be nature, once a fact is known it is
+%% no longer surprising, thus...
 
-We have experiemented our current surprisingness measure on
-synthesized data (to verify the correctness of the algorithm described
-in REF), as well as real world data, in particular on the SUMO
-ontology REF. Most surprising patterns discovered are rather abstract
-and thus difficult to interpret, in spite of being surprising. Such
-patterns are for instance
+%% The advantage of framing measuring surprisingness as a reasoning
+%% process is that we can easily make the transition from a hard coded
+%% definition of surprisingness to a more general one. 
 
-TODO
+%% \section{Experiment: Mining Surprising Patterns in SUMO}
 
-Also patterns that are concrete enough to be understood by a human,
-such as
+%% We have experiemented our current surprisingness measure on
+%% synthesized data (to verify the correctness of the algorithm described
+%% in REF), as well as real world data, in particular on the SUMO
+%% ontology REF. Most surprising patterns discovered are rather abstract
+%% and thus difficult to interpret, in spite of being surprising. Such
+%% patterns are for instance
 
-TODO (maritim)
+%% TODO
 
-are usually not surprising to a human because, although they are
-indeed distant from their probability estimate under independence
-assumptions, thus considered as surprising to the machine, are not
-surprising to us because we can use our background knowledge of the
-world as well as our capacity to infer a better estimate to be able to
-not be surprised.
+%% Also patterns that are concrete enough to be understood by a human,
+%% such as
+
+%% TODO (maritim)
+
+%% are usually not surprising to a human because, although they are
+%% indeed distant from their probability estimate under independence
+%% assumptions, thus considered as surprising to the machine, are not
+%% surprising to us because we can use our background knowledge of the
+%% world as well as our capacity to infer a better estimate to be able to
+%% not be surprised.
 
 \section{Conclusion}
 
