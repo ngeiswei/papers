@@ -17,7 +17,7 @@
 
 \begin{document}
 %
-\title{Mining Surprising Patterns in Hypergraph as Reasoning}
+\title{An Inferential Approach to Mining Surprising Patterns in Hypergraphs}
 %
 %\titlerunning{Abbreviated paper title}
 % If the paper title is too long for the running head, you can set
@@ -38,23 +38,42 @@
 %
 
 \begin{abstract}
-  In this paper we introduce a pattern miner algorithm alongside a
-  definition of surprisingness. Both the algorithm and the
-  surprisingness measure are framed as a form of reasoning, conferring
-  some advantages, in particular that of being able to handle a very
-  broad definition of surprisingness. The work is presented in the
-  context of its implementation on the OpenCog framework.
+  A novel pattern mining algorithm and a novel formal
+  definition of surprisingness are introduced, both framed in
+  the context of formal reasoning.   Hypergraphs are used 
+  to represent the data in which patterns are mined, the patterns
+  themselves, and the control rules for the pattern miner.
+   The implementation of these
+  tools in the OpenCog framework, as part of a broader
+  multi-algorithm approach to AGI, is described.
 
-  \keywords{Pattern Miner \and Surprisingness \and Reasoning.}
+  \keywords{Pattern Miner \and Surprisingness \and Reasoning \and Hypergraphs.}
 \end{abstract}
 
 \section{Introduction}
 
-Finding patterns is a way of discovering knowledge and learning about
-the data and the world they represent. These patterns can then be used
-in various ways like constructing predictive models to help to act in
-this world \cite{Jade12Pat}, or to be passed on to human
-expertise. Pattern mining algorithms tend to work at the
+Pattern recognition is broadly recognized as a key aspect
+of general intelligence, as well as of many varieties of
+specialized intelligence.   Finding patterns is a way of discovering knowledge and learning about
+the data the world they represents. These patterns can then be used
+in various ways like constructing predictive models to help agents act in
+this world \cite{Jade12Pat}, or they can be passed on to human
+expertise.  General intelligence can be envisioned, among other ways, as the process
+of an autonomous agent recognizing patterns in itself and its environment,
+including patterns regarding which of its actions tend to achieve which goals in
+which contexts \cite{Goertzel2014EGI1}.
+
+The scope of pattern recognition algorithms in AI and allied disciplines
+is very broad, including many specialized algorithms aimed at recognizing
+patterns in particular sorts of data such as visual data, auditory data or
+genomic data.   Among more general-purpose approaches to pattern recognition,
+so-called "pattern mining" plays a prominent role.   Mining here refers to the process
+of systematically searching a body of data to find a large number of patterns
+satisfying certain criteria.   Most pattern mining algorithms are greedy in operation,
+meaning they start by finding simple patterns and then try to combine these to guide
+their search for more complex patterns, and iterate this approach a few times.
+
+Pattern mining algorithms tend to work at the
 \emph{syntactic} level, such as subtree mining \cite{Chi2005Freq},
 where patterns are subtrees within a database of trees, and each
 subtree represents a concept containing all the trees compatible with
@@ -70,16 +89,27 @@ datum $$\texttt{mortal(John)}$$ unless a step of inference is formerly
 taken to make it visible.
 
 Another shortcoming of pattern mining is the volume of patterns it
-tend to produce. For that reason it can be useful to rank the patterns
-according to some measure of interestingness \cite{Vreeken2014}.
+tends to produce. For that reason it can be useful to rank the patterns found
+according to some measure of interestingness \cite{Vreeken2014}.  One can
+also use pattern mining in combination with other pattern recognition techniques,
+e.g. evolutionary programming or logical inference.
+
+Here we present a novel approach to pattern mining that combines semantic
+with syntactic understanding of patterns, and that uses a sophisticated
+measure of pattern surprisingness to filter the combinatorial explosion of
+patterns.   The surprisingness measure and the semantic aspect of patterns
+are handled via embedding the pattern mining process in an inference engine,
+operating on a highly general hypergraph-based knowledge representation.
 
 \subsection{Contribution}
 
-In this paper we introduce a pattern miner algorithm to find patterns
-in hypergraph database alongside a measure of surprisingness. Both are
-implemented on the OpenCog framework \cite{Goertzel2014}, on top of the
-\emph{Unified Rule Engine}, URE for short, the reasoning engine of
-OpenCog. Framing pattern mining as reasoning provides the following
+We introduce a pattern miner algorithm designed to find patterns in
+hypergraph database, alongside a measure of surprisingness designed
+for use with this pattern miner. Both are implemented on the OpenCog
+framework \cite{Goertzel2014EGI2}, on top of the \emph{Unified Rule
+  Engine}, URE for short, the reasoning engine of OpenCog.
+
+Framing pattern mining as reasoning provides the following
 advantages:
 \begin{enumerate}
 \item Enable hybridizations between syntactic and semantic pattern
@@ -93,16 +123,16 @@ advantages:
   mechanism.
 \end{enumerate}
 The last point, although already important as it stands, goes further
-than that. One of the motivations to have a pattern miner in OpenCog
+than it may at first seem. One of the motivations to have a pattern miner in OpenCog
 is to mine inference traces, discover control rules out of them, and
-apply these control rules to speed-up reasoning in general. By framing
+apply these control rules to speed up reasoning in general. By framing
 not only pattern mining but more generally learning as reasoning we
 hope to kickstart a virtuous self-improvement cycle. Towards that end
 more components of OpenCog, such as MOSES
 \cite{Looks06abstractcompetent}, an evolutionary program learner, are
 currently in the process of being ported to the URE as well.
 
-Framing learning as reasoning is not without any drawback as more
+Framing learning as reasoning is not without drawbacks, as more
 transparency comes at a greater computational cost. However by
 carefully partitioning transparent/costly versus opaque/efficient
 computations we hope that an adequate balance between efficiency and
@@ -111,14 +141,14 @@ evolutionary programming, decisions pertaining to what regions of the
 program space to explore is best processed as reasoning, given the
 importance and the cost of such operation. While more systematic
 operations such as evaluating the fitness of a candidate can be left
-as opaque. One may probably draw an analogy with the distinction
+as opaque. One may even draw a speculative analogy here with the distinction
 between conscious and unconscious processes.
 
 \subsection{Outline}
 
 In Section \ref{PMHD} a pattern mining algorithm over hypergraphs is
-presented, and frame as reasoning in Section \ref{FPMR}. In Section
-\ref{SUR} a definition of surprisingness is provided, a more
+presented; it is framed as reasoning in Section \ref{FPMR}. In Section
+\ref{SUR} a definition of surprisingness is provided, and a more
 specialized implementation is derived from it. Then, in Section
 \ref{ISRB} an example of how it can be framed as reasoning is
 presented, both for the specialized and abstract definitions of
@@ -127,16 +157,19 @@ surprisingness.
 \section{Pattern Mining in Hypergraph Database}
 \label{PMHD}
 
-\subsection{AtomSpace: Hypegraph Database}
+\subsection{AtomSpace: Hypergraph Database}
 
 Let us first rapidly recall what is the AtomSpace
-\cite{Goertzel2014}. The AtomSpace is OpenCog's primary data storage
-solution. It is a labeled hypergraph particularly suited for
-representing symbolic knowledge, but is also capable of representing
-sub-symbolic knowledge (probabilities, tensors, etc), and most
-importantly combinations of the two. In the OpenCog terminology, edges
-of that hypergraph are called \emph{links}, vertices are called
-\emph{nodes}, and \emph{atoms} are either links or nodes.  For example
+\cite{Goertzel2014EGI2}, the hypergraph knowledge store with which we
+shall work here.  The AtomSpace is the OpenCog AGI framework's primary
+data storage solution. It is a labeled hypergraph particularly suited
+for representing symbolic knowledge, but is also capable of
+representing sub-symbolic knowledge (probabilities, tensors, etc), and
+most importantly combinations of the two. In the OpenCog terminology,
+edges of that hypergraph are called \emph{links}, vertices are called
+\emph{nodes}, and \emph{atoms} are either links or nodes.
+
+For example
 one may express that cars are vehicles with
 \begin{verbatim}
 (Inheritance (Concept "car") (Concept "vehicle"))
@@ -163,8 +196,9 @@ OpenCog comes with a \emph{pattern matcher}, a component that can
 query the AtomSpace, similar in spirit to SQL, but different in
 several aspects. For instance queries are themselves programs
 represented as atoms in the AtomSpace. This insures reflexivity where
-queries can be queried or produced by queries. Here's an example of
-such query
+queries can be queried or produced by queries. 
+
+Here's an example of such a query
 \begin{verbatim}
 (Get
   (Present
@@ -231,7 +265,8 @@ Before showing how to express pattern mining as reasoning, let us
 explain the algorithm itself.
 
 Our pattern mining algorithm operates like most pattern mining
-algorithms \cite{Chi2005Freq} by searching the space of frequent
+algorithms \cite{Chi2005Freq} by a greedy algorithm of
+searching the space of frequent
 patterns while pruning the parts that do not have enough support. It
 typically starts from the most abstract one, the \emph{top} pattern,
 constructing specializations of it and only retain those that have
@@ -288,13 +323,13 @@ heuristics to avoid exhaustive search, but that is the crux of it.
 \label{FPMR}
 
 The hardest part of the algorithm above is step 1, selecting which
-pattern to expand, which has the biggest impact on how the space is
+pattern to expand; this has the biggest impact on how the space is
 explored. When pattern mining is framed as reasoning such decision
 corresponds to a \emph{premise or conclusion selection}.
 
 Let us formalize the type of propositions we need to prove in order to
 search the space of patterns. For sake of conciseness we will use a
-hybridization between mathematics and Atomese, being understood that
+hybridization between mathematics and Atomese, it being understood that
 all can be formalized in Atomese.  Given a database $\mathcal{D}$ and
 a minimum support $S$ we want to instantiate and prove the following
 theorems
@@ -354,7 +389,7 @@ the following rule
 \end{prooftree}
 expresses that if $P$ and $Q$ have enough support, and a certain
 combination $P\otimes Q$ has a certain property $R$, then such
-combination has enough support. Such rule is used to build the
+combination has enough support. Such rule can be used to build the
 conjunction of multiple patterns. For instance given $P$ and $Q$ both
 equal to
 \begin{verbatim}
@@ -388,17 +423,21 @@ that can be defined as what is \emph{contrary to expectations}.
 %% addressed.
 
 Just like for pattern mining, surprisingness can be framed as
-reasoning. They are many ways to formalize it. We suggest that in its
-most general sense, surpisingness may be the difference of outcome
-between different inferences over the same conjecture. Of course in
-most logical systems, if consistent, different inferences will produce
+reasoning. They are many ways to formalize it.  We tentatively suggest that in its
+most general sense, surprisingness may be the considered as the difference of outcome
+between different inferences over the same conjecture. 
+
+Of course in
+most conventional logical systems, if consistent, different inferences will produce
 the same result. However in para-consistent systems, such as PLN for
 \emph{Probabilistic Logic Network} \cite{Goertzel2009PLN}, OpenCog's
 logic for common sense reasoning, conflicting outcomes are
 possible. In particular PLN allows a proprosition to be believed with
 various degrees of truth, ranging from total ignorance to absolute
 certainty. Thus PLN is well suited for such definition of
-surprisingness. More specifically we define surprisingness as the
+surprisingness. 
+
+More specifically we define surprisingness as the
 \emph{distance of truth values between different inferences over the
   same conjecture}. In PLN a \emph{truth value} is a second order
 distribution, probabilities over probabilities, Chapter 4 of
@@ -537,9 +576,8 @@ The proposition to infer in order to calculate surprisingness is
 defined as
 $$
 \texttt{surp}(P, \mathcal{D}, s)
-$$
-where $\texttt{surp}$ is a predicate relating $P$ and $\mathcal{D}$ to
-its surprisingness $s$, defined as
+$$ where $\texttt{surp}$ is a predicate relating the pattern $P$ and
+the database $\mathcal{D}$ to its surprisingness $s$, defined as
 $$
 s := \texttt{dst}(\texttt{emp}(P,\mathcal{D}),\texttt{est}(P,\mathcal{D}))
 $$ where $\texttt{dst}$ is the Jensen-Shannon distance, $\texttt{emp}$
@@ -553,7 +591,7 @@ beta-binomial-distribution describing its second order probability.
 However, the mean by which the estimate is calculated is let
 unspecified. This is up to the reasoning engine to find an inference
 path to calculate it. Below is an example of inference tree to
-calculate I-Surprisingness
+calculate $\texttt{surp}$ based on I-Surprisingness
 \begin{prooftree}
   \AxiomC{$P$}
   \AxiomC{$\mathcal{D}$}
@@ -594,18 +632,37 @@ As of today we have only implemented (IS) for the estimate. In
 general, however, we want to have more rules, and ultimately enough so
 that the estimate can be inferred in an open-ended way. In such
 scenario, the inference tree would look very similar to the one above,
-with the difference that the (IS) would be replaced by a combination
-of other rules. Such approach naturally leads to a dynamic
+with the difference that the (IS) rule would be replaced by a
+combination of other rules. Such approach naturally leads to a dynamic
 surprisingness measure. Indeed, inferring that some pattern is
-I-Surprising requires to infer its estimate, and this knowledge can be
-further utilized to infer estimates of related patterns. For instance,
-if say an I-Surprising pattern is discovered about pets and food. A
-pattern about cats and food might also be measured as I-Surprising,
-however the fact that cat inherits pet may lead to constructing an
-inference that estimates the combination of cat and food based on the
-combination of pet and food, possibly leading to a much better
-estimate, and thus decreasing the surprisingness of that pattern.
+I-Surprising requires to infer its empirical probability, and this
+knowledge can be further utilized to infer estimates of related
+patterns. For instance, if say an I-Surprising pattern is discovered
+about pets and food. A pattern about cats and food might also be
+measured as I-Surprising, however the fact that cat inherits pet may
+lead to constructing an inference that estimates the combination of
+cat and food based on the combination of pet and food, possibly
+leading to a much better estimate, and thus decreasing the
+surprisingness of that pattern.
 
+\section{Discussion}
+
+The ideas presented above have been implemented as open source C++
+code in the OpenCog framework, and have been evaluated on some initial
+test datasets, including a set of logical relationships drawn from the
+SUMO ontology \cite{Pease2011}.  The results of this empirical
+experimentation are omitted here for space reasons and will be posted
+online as supplementary information.  These early experiments provide
+tentative validation of the sensibleness of the approach presented:
+using inference on a hypergraph based representation to carry out
+pattern mining that weaves together semantics and syntax and is
+directed toward a sophisticated version of surprisingness rather than
+simpler objective functions like frequency.
+
+Future work will explore applications
+to a variety of practical datasets, including empirical data and logs from an inference engine; and
+richer integration of these methods with more powerful but more expensive techniques such as
+predicate logic inference and evolutionary learning.
 
 
 %% some independence assumptions will be
