@@ -52,26 +52,31 @@
 
 \section{Introduction}
 
-Pattern recognition is broadly recognized as a key aspect
-of general intelligence, as well as of many varieties of
-specialized intelligence.   Finding patterns is a way of discovering knowledge and learning about
-the data the world they represents. These patterns can then be used
-in various ways like constructing predictive models to help agents act in
-this world \cite{Jade12Pat}, or they can be passed on to human
-expertise.  General intelligence can be envisioned, among other ways, as the process
-of an autonomous agent recognizing patterns in itself and its environment,
-including patterns regarding which of its actions tend to achieve which goals in
+Pattern recognition is broadly recognized as a key aspect of general
+intelligence, as well as of many varieties of specialized
+intelligence.
+% Finding patterns is a way of discovering knowledge and
+% learning about the world.  These patterns can then be used in various
+% ways such as constructing predictive models to help agents act
+% \cite{Jade12Pat} or be passed on to human expertise.
+General
+intelligence can be envisioned, among other ways, as the process of an
+%autonomous
+agent recognizing patterns in itself and its environment, including
+patterns regarding which of its actions tend to achieve which goals in
 which contexts \cite{Goertzel2014EGI1}.
 
-The scope of pattern recognition algorithms in AI and allied disciplines
-is very broad, including many specialized algorithms aimed at recognizing
-patterns in particular sorts of data such as visual data, auditory data or
-genomic data.   Among more general-purpose approaches to pattern recognition,
-so-called "pattern mining" plays a prominent role.   Mining here refers to the process
-of systematically searching a body of data to find a large number of patterns
-satisfying certain criteria.   Most pattern mining algorithms are greedy in operation,
-meaning they start by finding simple patterns and then try to combine these to guide
-their search for more complex patterns, and iterate this approach a few times.
+The scope of pattern recognition algorithms in AI and allied
+disciplines is very broad, including many specialized algorithms aimed
+at recognizing patterns in particular sorts of data such as visual
+data, auditory data or genomic data.  Among more general-purpose
+approaches to pattern recognition, so-called "pattern mining" plays a
+prominent role.  Mining here refers to the process of systematically
+searching a body of data to find a large number of patterns satisfying
+certain criteria.  Most pattern mining algorithms are greedy in
+operation, meaning they start by finding simple patterns and then try
+to combine these to guide their search for more complex patterns, and
+iterate this approach a few times.
 
 Pattern mining algorithms tend to work at the \emph{syntactic} level,
 such as subtree mining \cite{Chi2005Freq}, where patterns are subtrees
@@ -85,12 +90,11 @@ syntax. For instance if the data contains $\texttt{human(John)}$ and
 $\texttt{human}\Rightarrow\texttt{mortal}$ a purely syntactic pattern
 miner will not be able to take into account the implicit datum
 $\texttt{mortal(John)}$ unless a step of inference is formerly taken
-to make it visible.
-
-Another shortcoming of pattern mining is the volume of patterns it
-tends to produce. For that reason it can be useful to rank the patterns found
-according to some measure of interestingness \cite{Vreeken2014}.  One can
-also use pattern mining in combination with other pattern recognition techniques,
+to make it visible.  Another shortcoming of pattern mining is the
+volume of patterns it tends to produce. For that reason it can be
+useful to rank the patterns according to some measure of
+interestingness \cite{Vreeken2014}.  One can also use pattern mining
+in combination with other pattern recognition techniques,
 e.g. evolutionary programming or logical inference.
 
 Here we present a novel approach to pattern mining that combines semantic
@@ -102,14 +106,12 @@ operating on a highly general hypergraph-based knowledge representation.
 
 \subsection{Contribution}
 
-We introduce a pattern miner algorithm designed to find patterns in
-hypergraph database, alongside a measure of surprisingness designed
-for use with this pattern miner. Both are implemented on the OpenCog
-framework \cite{Goertzel2014EGI2}, on top of the \emph{Unified Rule
-  Engine}, URE for short, the reasoning engine of OpenCog.
-
-Framing pattern mining as reasoning provides the following
-advantages:
+A pattern miner algorithm alongside a measure of surprisingness
+designed to find patterns in hypergraph database are introduced.  Both
+are implemented on the OpenCog framework \cite{Goertzel2014EGI2}, on
+top of the \emph{Unified Rule Engine}, URE for short, the reasoning
+engine of OpenCog. Framing pattern mining as reasoning provides the
+following advantages:
 \begin{enumerate}
 \item Enable hybridizations between syntactic and semantic pattern
   mining.
@@ -117,17 +119,17 @@ advantages:
   further shown.
 \item Offer more transparency. Produced knowledge can be reasoned
   upon. Reasoning steps selected during mining can be represented as
-  data for subsequent mining and reasoning.
-\item Enable meta-learning by leveraging URE's inference control
-  mechanism.
+  data for subsequent mining and reasoning, enabling meta-learning by
+  leveraging URE's inference control mechanism.
 \end{enumerate}
 The last point, although already important as it stands, goes further
-than it may at first seem. One of the motivations to have a pattern miner in OpenCog
-is to mine inference traces, discover control rules out of them, and
-apply these control rules to speed up reasoning in general. By framing
-not only pattern mining but more generally learning as reasoning we
-hope to kickstart a virtuous self-improvement cycle. Towards that end
-more components of OpenCog, such as MOSES
+than it may at first seem. One of the motivations to have a pattern
+miner in OpenCog is to mine inference traces, discover control rules,
+and apply these control rules to speed up reasoning in general, akin
+to a Heuristic Algorithmic Memory \cite{Ozkural2011} for reasoning. By
+framing not only pattern mining but more generally learning as
+reasoning we hope to kickstart a virtuous self-improvement
+cycle. Towards that end more components of OpenCog, such as MOSES
 \cite{Looks06abstractcompetent}, an evolutionary program learner, are
 currently in the process of being ported to the URE as well.
 
