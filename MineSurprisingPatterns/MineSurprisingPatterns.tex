@@ -321,10 +321,10 @@ and a minimum support $S$ we want to instantiate and prove the
 following theorem
 $$ S \le \texttt{support}(P, \mathcal{D}) $$ which expresses that
 pattern $P$ has enough support with respect to the data base
-$\mathcal{D}$. To simplify we introduce the predicate $
+$\mathcal{D}$.  To simplify we introduce the predicate $
 \texttt{minsup}(P, S, \mathcal{D})$ as a shorthand for $S \le
-\texttt{support}(P, \mathcal{D}) $. The primary inference rule we need
-is (in Gentzen style),
+\texttt{support}(P, \mathcal{D}) $.  The primary inference rule we
+need is (given in Gentzen style),
 \begin{prooftree}
   \AxiomC{$\texttt{minsup}(Q, S, \mathcal{D})$}
   \AxiomC{$\texttt{spec}(Q, P)$}
@@ -343,8 +343,8 @@ that rule is actually written backward so that choosing $P$ amounts to
 a \emph{premise selection}, but is presented here this way for
 expository purpose.  The definition of $\texttt{spec}$ is left out,
 but it is merely a variation of the subtree relationship while
-accounting for variables (the same variable may occur at different
-places in the pattern).
+accounting for variables as the same variable may occur at different
+places in a pattern.
 %% As
 %% one can see a pattern such as
 %% \begin{verbatim}
@@ -376,12 +376,11 @@ the following rule
 expresses that if $P$ and $Q$ have enough support, and a certain
 combination $P\otimes Q$ has a certain property $R$, then such
 combination has enough support. Such rule can be used to build the
-conjunction of multiple patterns. For instance given $P$ and $Q$ both
-equal to
+conjunction of patterns. For instance given $P$ and $Q$ both equal to
 \begin{verbatim}
 (Get (Present (Inheritance (Variable "$X") (Variable "$Y"))))
 \end{verbatim}
-One can combine them to form
+One can combine them (joint by variable $\texttt{\$Y}$) to form
 \begin{verbatim}
 (Get (Present (Inheritance (Variable "$X") (Variable "$Y"))
               (Inheritance (Variable "$Y") (Variable "$Z"))))
@@ -409,33 +408,31 @@ reasoning. They are many ways to formalize it.  We tentatively suggest that in i
 most general sense, surprisingness may be the considered as the difference of outcome
 between different inferences over the same conjecture. 
 
-Of course in
-most conventional logical systems, if consistent, different inferences will produce
-the same result. However in para-consistent systems, such as PLN for
-\emph{Probabilistic Logic Network} \cite{Goertzel2009PLN}, OpenCog's
-logic for common sense reasoning, conflicting outcomes are
-possible. In particular PLN allows a proprosition to be believed with
-various degrees of truth, ranging from total ignorance to absolute
-certainty. Thus PLN is well suited for such definition of
-surprisingness. 
+Of course in most conventional logical systems, if consistent,
+different inferences will produce the same result. However in
+para-consistent systems, such as PLN for \emph{Probabilistic Logic
+  Network} \cite{Goertzel2009PLN}, OpenCog's logic for common sense
+reasoning, conflicting outcomes are possible. In particular PLN allows
+propositions to be believed with various degrees of truth, ranging
+from total ignorance to absolute certainty. Thus PLN is well suited
+for such definition of surprisingness.
 
-More specifically we define surprisingness as the
-\emph{distance of truth values between different inferences over the
-  same conjecture}. In PLN a \emph{truth value} is a second order
+More specifically we define surprisingness as the \emph{distance of
+  truth values between different inferences over the same
+  conjecture}. In PLN a \emph{truth value} is a second order
 distribution, probabilities over probabilities, Chapter 4 of
 \cite{Goertzel2009PLN}. Second order distributions are good at
 capturing uncertainties. Total ignorance is represented by a flat
-distribution (Bayesian prior), or possibly a slightly concave one
-(Jeffreys prior% \cite{Jeffreys46Invariant}
-), and absolute certainty by
-a Dirac delta function.
+distribution (Bayesian prior), or a slightly concave one (Jeffreys
+prior)% \cite{Jeffreys46Invariant} )
+, and absolute certainty by a Dirac delta function.
 
 Such definition of surprisingness has the merit of encompassing a wide
 variety of cases; like the surprisingness of finding a proof
 contradicting human intuition. For instance the outcome of Euclid's
 proof of the infinity of prime numbers might contradict the intuition
 of a beginner upon observation that prime numbers rapidly rarefy as
-numbers grow. It also encompasses the surprisingness of observing an
+they grow. It also encompasses the surprisingness of observing an
 unexpected event, or the surprisingness of discovering a pattern in
 seemingly random data. All these cases can be framed as ways of
 constructing different types of inferences and finding contradictions
@@ -458,21 +455,23 @@ data set displaying high levels of dependencies between variables
 surprisingness measure should consider the possibility that it might
 be a fluke since the data set is small. Fortunately, the smaller the
 data set, the flatter the second order distributions representing the
-empirical and the estimated truth values of the pattern, reducing the
-JSD.
+empirical and the estimated truth values of the pattern, consequently
+reducing the JSD.
 
-Likewise one can imagine the following coin tossing experiments. In
-the first experiment a coin is tossed 3 times, a probability $p_1$ of
-head is calculated, then the coin is tossed 3 more times, a second
-probability $p_2$ of head is calculated. $p_1$ and $p_2$ might be very
-different, but it should not be surprising given the low number of
+Likewise one can imagine the following experiments. In the first
+experiment a coin is tossed 3 times, a probability $p_1$ of head is
+calculated, then the coin is tossed 3 more times, a second probability
+$p_2$ of head is calculated. $p_1$ and $p_2$ might be very different,
+but it should not be surprising given the low number of
 observations. On the contrary, in the second experiment the coin is
 tossed a billion times, $p_1$ is calculated, then another billion
 times, $p_2$ is calculated. Here even tiny differences between $p_1$
-and $p_2$ should be surprising. In both cases, by representing $p_1$
-and $p_2$ as second order distributions rather than mere
-probabilities, the Jensen-Shannon Distance seems to adequatly accounts
-for the uncertainty.
+and $p_2$ should be surprising. In both cases
+%% , by representing $p_1$
+%% and $p_2$ as second order distributions rather than mere
+%% probabilities,
+the Jensen-Shannon Distance seems to adequatly accounts for the
+uncertainty.
 
 A slight refinement of our definition of surprisingness, probably
 closer to human intuition, can be obtained by fixing one type of
@@ -510,11 +509,11 @@ values taken by the variable tuples $(\texttt{\$Y}, \texttt{\$Z})$ in
 the second clause, one can simply use the product of the two
 probabilities to obtain an probability estimate of their
 conjunctions. However the presence of joint variables, here
-$\texttt{\$Y}$, makes this calculation wrong. Instead the connections
-need to be taken into account. To do that we use the fact that a
-pattern of connected clauses is equivalent to a pattern of
-disconnected clauses combined with a condition of equality between the
-joint variables. For instance
+$\texttt{\$Y}$, makes this calculation incorrect. The connections need
+to be taken into account. To do that we use the fact that a pattern of
+connected clauses is equivalent to a pattern of disconnected clauses
+combined with a condition of equality between the joint variables. For
+instance
 \begin{verbatim}
 (Get (Present (Inheritance (Variable "$X") (Variable "$Y"))
               (Inheritance (Variable "$Y") (Variable "$Z"))))
@@ -527,19 +526,23 @@ is equivalent to
 \end{verbatim}
 where the joint variables, here $\texttt{\$Y}$, have been replaced by
 variable occurrences in each clause, $\texttt{\$Y1}$ and
-$\texttt{\$Y2}$. The construct $\texttt{Equal}$ tests the equality of
-values, and the construct $\texttt{And}$ is the logical
-conjunction.
+$\texttt{\$Y2}$.
+%% The construct $\texttt{Equal}$ tests the equality of
+%% values, and the construct $\texttt{And}$ is the logical
+%% conjunction.
 %% So the query means, find values matching these two
 %% patterns, such that each value associated to $\texttt{\$Y1}$ is equal
 %% to the value associated to $\texttt{\$Y2}$.
 Then we can express the probability estimate as the product of the
-probabilities of the clauses, as if they were independent, times the
-probability of having the values of the joint variables equal. The
-formula estimating the probability of equality is not detailed here,
-but according to our preliminary experiments, a decent estimate can be
-obtained by performing some syntactic analysis to take into account
-specializations between clauses relative to their joint variables.
+probabilities of the clauses,
+%% as if they were independent,
+times the
+probability of having the values of the joint variables equal.
+%% The
+%% formula estimating the probability of equality is not detailed here,
+%% but according to our preliminary experiments, a decent estimate can be
+%% obtained by performing some syntactic analysis to take into account
+%% specializations between clauses relative to their joint variables.
 %% to estimate the number of value a particular variable occurrence
 %% can take.  \footnote{More detail is provided in the code
 %% documentation of
@@ -559,7 +562,7 @@ s := \texttt{dst}(\texttt{emp}(P,\mathcal{D}),\texttt{est}(P,\mathcal{D}))
 $$ where $\texttt{dst}$ is the Jensen-Shannon distance, $\texttt{emp}$
 is the empirical second order distribution of $P$, and $\texttt{est}$
 its estimate.
-
+%
 The calculation of $\texttt{emp}(P, \mathcal{D})$ is easily handled by
 a \emph{direct evaluation} rule that uses the support of $P$ and the
 size of $\mathcal{D}$ to obtain the parameters of the
