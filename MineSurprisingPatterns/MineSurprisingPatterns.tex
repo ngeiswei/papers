@@ -321,9 +321,11 @@ and a minimum support $S$ we want to instantiate and prove the
 following theorem
 $$ S \le \texttt{support}(P, \mathcal{D}) $$ which expresses that
 pattern $P$ has enough support with respect to the data base
-$\mathcal{D}$.  To simplify we introduce the predicate $
+$\mathcal{D}$.
+To simplify we introduce the predicate $
 \texttt{minsup}(P, S, \mathcal{D})$ as a shorthand for $S \le
-\texttt{support}(P, \mathcal{D}) $.  The primary inference rule we
+\texttt{support}(P, \mathcal{D}) $.
+The primary inference rule we
 need is (given in Gentzen style),
 \begin{prooftree}
   \AxiomC{$\texttt{minsup}(Q, S, \mathcal{D})$}
@@ -342,9 +344,10 @@ way. Meaning the reasoning engine needs to choose $P$
 that rule is actually written backward so that choosing $P$ amounts to
 a \emph{premise selection}, but is presented here this way for
 expository purpose.  The definition of $\texttt{spec}$ is left out,
-but it is merely a variation of the subtree relationship while
-accounting for variables as the same variable may occur at different
-places in a pattern.
+but it is merely a variation of the subtree relationship accounting
+for variables.
+%% as the same variable may occur at different places in a
+%% pattern.
 %% As
 %% one can see a pattern such as
 %% \begin{verbatim}
@@ -424,8 +427,8 @@ distribution, probabilities over probabilities, Chapter 4 of
 \cite{Goertzel2009PLN}. Second order distributions are good at
 capturing uncertainties. Total ignorance is represented by a flat
 distribution (Bayesian prior), or a slightly concave one (Jeffreys
-prior)% \cite{Jeffreys46Invariant} )
-, and absolute certainty by a Dirac delta function.
+prior \cite{Jeffreys46Invariant}), and absolute certainty by a Dirac
+delta function.
 
 Such definition of surprisingness has the merit of encompassing a wide
 variety of cases; like the surprisingness of finding a proof
