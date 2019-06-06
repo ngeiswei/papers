@@ -76,26 +76,25 @@ searching a body of data to find a large number of patterns satisfying
 certain criteria.  Most pattern mining algorithms are greedy in
 operation, meaning they start by finding simple patterns and then try
 to combine these to guide their search for more complex patterns, and
-iterate this approach a few times.
-
-Pattern mining algorithms tend to work at the \emph{syntactic} level,
-such as subtree mining \cite{Chi2005Freq}, where patterns are subtrees
-within a database of trees, and each subtree represents a concept
-containing all the trees compatible with that subtree. This is both a
-limit and a strength. Limit because they cannot express arbitrary
-abstractions, and strength because for that reason they can be
-relatively efficient. Moreover even purely syntactic pattern miners
-can go a long way if much of the semantic knowledge is turned into
-syntax. For instance if the data contains $\texttt{human(John)}$ and
+iterate this approach a few times.  Pattern mining algorithms tend to
+work at the \emph{syntactic} level, such as subtree mining
+\cite{Chi2005Freq}, where patterns are subtrees within a database of
+trees, and each subtree represents a concept containing all the trees
+consistent with that subtree. This is both a limit and a
+strength. Limit because they cannot express arbitrary abstractions,
+and strength because they can be relatively efficient. Moreover even
+purely syntactic pattern miners can go a long way if much of the
+semantic knowledge is represented in syntax. For instance if the data
+contains $\texttt{human(John)}$ and
 $\texttt{human}\Rightarrow\texttt{mortal}$ a purely syntactic pattern
 miner will not be able to take into account the implicit datum
 $\texttt{mortal(John)}$ unless a step of inference is formerly taken
 to make it visible.  Another shortcoming of pattern mining is the
 volume of patterns it tends to produce. For that reason it can be
-useful to rank the patterns according to some measure of
-interestingness \cite{Vreeken2014}.  One can also use pattern mining
-in combination with other pattern recognition techniques,
-e.g. evolutionary programming or logical inference.
+useful to rank the patterns according to interestingness
+\cite{Vreeken2014}.  One can also use pattern mining in combination
+with other pattern recognition techniques, e.g. evolutionary
+programming or logical inference.
 
 Here we present a novel approach to pattern mining that combines semantic
 with syntactic understanding of patterns, and that uses a sophisticated
@@ -124,26 +123,26 @@ following advantages:
 \end{enumerate}
 The last point, although already important as it stands, goes further
 than it may at first seem. One of the motivations to have a pattern
-miner in OpenCog is to mine inference traces, discover control rules,
-and apply these control rules to speed up reasoning in general, akin
-to a Heuristic Algorithmic Memory \cite{Ozkural2011} for reasoning. By
+miner in OpenCog is to mine inference traces, to discover control
+rules and apply these control rules to speed up reasoning, akin to a
+Heuristic Algorithmic Memory \cite{Ozkural2011} for reasoning. By
 framing not only pattern mining but more generally learning as
 reasoning we hope to kickstart a virtuous self-improvement
 cycle. Towards that end more components of OpenCog, such as MOSES
 \cite{Looks06abstractcompetent}, an evolutionary program learner, are
-currently in the process of being ported to the URE as well.
+in the process of being ported to the URE.
 
-Framing learning as reasoning is not without drawbacks, as more
-transparency comes at a greater computational cost. However by
-carefully partitioning transparent/costly versus opaque/efficient
-computations we hope that an adequate balance between efficiency and
-open-endedness can be achieved. For instance in the case of
-evolutionary programming, decisions pertaining to what regions of the
-program space to explore is best processed as reasoning, given the
-importance and the cost of such operation. While more systematic
-operations such as evaluating the fitness of a candidate can be left
-as opaque. One may even draw a speculative analogy here with the distinction
-between conscious and unconscious processes.
+Framing learning as reasoning is not without drawbacks as more
+transparency comes at a computational cost. However by carefully
+partitioning transparent/costly versus opaque/efficient computations
+we hope to reach an adequate balance between efficiency and
+open-endedness. For instance in the case of evolutionary programming,
+decisions pertaining to what regions of the program space to explore
+is best processed as reasoning, given the importance and the cost of
+such operation. While more systematic operations such as evaluating
+the fitness of a candidate can be left as opaque. One may draw a
+speculative analogy with the distinction between conscious and
+unconscious processes.
 
 \subsection{Outline}
 
@@ -185,10 +184,11 @@ inheritance with a \emph{truth value}
 where 0.4 represents a probability and 0.8 represents a confidence.
 
 Storing knowledge as hypergraph rather than collections of formulae
-allows to rapidly query atoms and how they relate to other atoms. For
-instance given the node $\texttt{(Concept "car")}$ one can query the
-links pointing to it, here two, one expressing that cars are vehicle,
-the other expressing that some vehicles are cars.
+allows to rapidly query atoms and how they relate to other atoms.
+%% For
+%% instance given the node $\texttt{(Concept "car")}$ one can query the
+%% links pointing to it, here two, one expressing that cars are vehicle,
+%% the other expressing that some vehicles are cars.
 
 \subsection{Pattern Matching}
 \label{PM}
@@ -204,7 +204,7 @@ Here's an example of such a query
 (Get (Present (Inheritance (Variable "$X") (Variable "$Y"))
               (Inheritance (Variable "$Y") (Variable "$Z"))))
 \end{verbatim}
-which fetches any instance of transitivity of inheritance in the
+which fetches instances of transitivity of inheritance in the
 AtomSpace. For instance if the AtomSpace contains
 \begin{verbatim}
 (Inheritance (Concept "cat") (Concept "mammal"))
@@ -223,9 +223,9 @@ construct $\texttt{Set}$ represents a set of atoms, and
 $\texttt{List}$ in this context represents tuples of values. The
 construct \texttt{Get} means retrieve. The construct \texttt{Present}
 means that the arguments are patterns to be conjunctively matched
-against the data present in the AtomSpace. We also call
-\texttt{Present} arguments \emph{clauses} and say that the pattern is
-a \emph{conjunction of clauses}.
+against the data present in the AtomSpace. We also call the arguments
+of \texttt{Present}, \emph{clauses}, and say that the pattern is a
+\emph{conjunction of clauses}.
 
 In addition, the pattern matcher can rewrite. For instance a
 transitivity rule could be implemented with
@@ -242,18 +242,17 @@ to query the atomspace, reason or such, forms a language called
 
 \subsection{Pattern Mining as Inverse of Pattern Matching}
 
-The pattern miner solves the inverse problem of pattern matcher. That
-is provided data, it attempts to find queries that would retrieve a
-certain \emph{minimum} number of matches. This number is called the
-\emph{support} in the pattern mining terminology \cite{Chi2005Freq,
+The pattern miner solves the inverse problem of pattern matching. It
+attempts to find queries that would retrieve a certain \emph{minimum}
+number of matches. This number is called the \emph{support} in the
+pattern mining terminology \cite{Chi2005Freq,
   Agrawal1994fastalgorithms}.
 
-It is worth mentioning that the pattern matcher has many more
-constructs than \texttt{Get}, \texttt{Present} and \texttt{Bind}; for
-declaring types, expressing preconditions, and implementing pretty
-much any computation one may want to express. However the pattern
-miner only supports a subset of constructs due to the inherent
-complexity of dealing with such expressiveness.
+It is worth mentioning that the pattern matcher has more constructs
+than \texttt{Get}, \texttt{Present} and \texttt{Bind}; for declaring
+types, expressing preconditions, and performing general
+computations. However the pattern miner only supports a subset of
+constructs due to the inherent complexity of such expressiveness.
 
 \subsection{High Level Algorithm of the Pattern Miner}
 
@@ -261,26 +260,24 @@ Before showing how to express pattern mining as reasoning, let us
 explain the algorithm itself.
 
 Our pattern mining algorithm operates like most pattern mining
-algorithms \cite{Chi2005Freq} by a greedy algorithm of
-searching the space of frequent
-patterns while pruning the parts that do not have enough support. It
-typically starts from the most abstract one, the \emph{top} pattern,
-constructing specializations of it and only retain those that have
-enough support, then repeat. The apriori property
+algorithms \cite{Chi2005Freq} by greedily searching the space of
+frequent patterns while pruning the parts that do not reach the
+minimum support. It typically starts from the most abstract one, the
+\emph{top} pattern, constructing specializations of it and only retain
+those that have enough support, then repeat. The apriori property
 \cite{Agrawal1994fastalgorithms} guaranties that no pattern with
 enough support will be missed based on the fact that patterns without
-enough support cannot have specializations with enough support.
-
-Let us semi-formalize the above. Given a database $\mathcal{D}$, a
-minimal support $S$ and an initialize collection $\mathcal{C}$ of
-patterns with enough support, the mining algorithm operates as follows
+enough support cannot have specializations with enough support.  More
+formally, given a database $\mathcal{D}$, a minimal support $S$ and an
+initialize collection $\mathcal{C}$ of patterns with enough support,
+the mining algorithm is as follows
 \begin{enumerate}
 \item Select a pattern $P$ from $\mathcal{C}$.
 \item Produce a \emph{shallow specialization} $Q$ of $P$ with support
   equal to or above $S$.
 \item Add $Q$ to $\mathcal{C}$, remove $P$ if all its shallow
   specializations have been produced.
-\item Repeat till a termination criterion is met.
+\item Repeat till a termination criterion has been met.
 \end{enumerate}
 The pattern collection $\mathcal{C}$ is usually initialized with the
 top pattern
@@ -307,7 +304,7 @@ which would only match
 \end{verbatim}
 and have a support of 1. So if the minimum support $S$ is 2, this one
 would be discarded. In practice the algorithm is complemented by
-heuristics to avoid exhaustive search, but that is the crux of it.
+heuristics to avoid exhaustive search, but that is the core of it.
 
 \section{Framing Pattern Mining as Reasoning}
 \label{FPMR}
@@ -315,20 +312,19 @@ heuristics to avoid exhaustive search, but that is the crux of it.
 The hardest part of the algorithm above is step 1, selecting which
 pattern to expand; this has the biggest impact on how the space is
 explored. When pattern mining is framed as reasoning such decision
-corresponds to a \emph{premise or conclusion selection}.
-
-Let us formalize the type of propositions we need to prove in order to
-search the space of patterns. For sake of conciseness we will use a
-hybridization between mathematics and Atomese, it being understood that
-all can be formalized in Atomese.  Given a database $\mathcal{D}$ and
-a minimum support $S$ we want to instantiate and prove the following
-theorems
-$$ S \le \texttt{support}(P, \mathcal{D}) $$ expressing that pattern
-$P$ has enough support with respect to the data base $\mathcal{D}$, or
-simplify
-$$ \texttt{minsup}(P, S, \mathcal{D}) := S \le \texttt{support}(P,
-\mathcal{D}) $$ The primary inference rule we need is (given in
-Gentzen style),
+corresponds to a \emph{premise or conclusion selection}. Let us
+formalize the type of propositions we need to prove in order to search
+the space of patterns. For sake of conciseness we will use a
+hybridization between mathematics and Atomese, it being understood
+that all can be formalized in Atomese.  Given a database $\mathcal{D}$
+and a minimum support $S$ we want to instantiate and prove the
+following theorem
+$$ S \le \texttt{support}(P, \mathcal{D}) $$ which expresses that
+pattern $P$ has enough support with respect to the data base
+$\mathcal{D}$. To simplify we introduce the predicate $
+\texttt{minsup}(P, S, \mathcal{D})$ as a shorthand for $S \le
+\texttt{support}(P, \mathcal{D}) $. The primary inference rule we need
+is (in Gentzen style),
 \begin{prooftree}
   \AxiomC{$\texttt{minsup}(Q, S, \mathcal{D})$}
   \AxiomC{$\texttt{spec}(Q, P)$}
