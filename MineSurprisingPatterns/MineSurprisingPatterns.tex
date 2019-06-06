@@ -73,20 +73,19 @@ satisfying certain criteria.   Most pattern mining algorithms are greedy in oper
 meaning they start by finding simple patterns and then try to combine these to guide
 their search for more complex patterns, and iterate this approach a few times.
 
-Pattern mining algorithms tend to work at the
-\emph{syntactic} level, such as subtree mining \cite{Chi2005Freq},
-where patterns are subtrees within a database of trees, and each
-subtree represents a concept containing all the trees compatible with
-that subtree. This is both a limit and a strength. Limit because they
-cannot express arbitrary abstractions, and strength because for that
-reason they can be relatively efficient. Moreover even purely
-syntactic pattern miners can go a long way if much of the semantic
-knowledge is turned into syntax. For instance if the data contains
-$$\texttt{human(John)}$$
-$$\texttt{human}\Rightarrow\texttt{mortal}$$ a purely syntactic
-pattern miner will not be able to take into account the implicit
-datum $$\texttt{mortal(John)}$$ unless a step of inference is formerly
-taken to make it visible.
+Pattern mining algorithms tend to work at the \emph{syntactic} level,
+such as subtree mining \cite{Chi2005Freq}, where patterns are subtrees
+within a database of trees, and each subtree represents a concept
+containing all the trees compatible with that subtree. This is both a
+limit and a strength. Limit because they cannot express arbitrary
+abstractions, and strength because for that reason they can be
+relatively efficient. Moreover even purely syntactic pattern miners
+can go a long way if much of the semantic knowledge is turned into
+syntax. For instance if the data contains $\texttt{human(John)}$ and
+$\texttt{human}\Rightarrow\texttt{mortal}$ a purely syntactic pattern
+miner will not be able to take into account the implicit datum
+$\texttt{mortal(John)}$ unless a step of inference is formerly taken
+to make it visible.
 
 Another shortcoming of pattern mining is the volume of patterns it
 tends to produce. For that reason it can be useful to rank the patterns found
@@ -200,10 +199,8 @@ queries can be queried or produced by queries.
 
 Here's an example of such a query
 \begin{verbatim}
-(Get
-  (Present
-    (Inheritance (Variable "$X") (Variable "$Y"))
-    (Inheritance (Variable "$Y") (Variable "$Z"))))
+(Get (Present (Inheritance (Variable "$X") (Variable "$Y"))
+              (Inheritance (Variable "$Y") (Variable "$Z"))))
 \end{verbatim}
 which fetches any instance of transitivity of inheritance in the
 AtomSpace. For instance if the AtomSpace contains
@@ -214,8 +211,7 @@ AtomSpace. For instance if the AtomSpace contains
 \end{verbatim}
 it retrieves
 \begin{verbatim}
-(Set
-  (List (Concept "cat") (Concept "mammal") (Concept "animal")))
+(Set (List (Concept "cat") (Concept "mammal") (Concept "animal")))
 \end{verbatim}
 where \texttt{cat}, \texttt{mammal} and \texttt{animal} are associated
 to variable \texttt{\$X}, \texttt{\$Y} and \texttt{\$Z} according to
@@ -232,11 +228,9 @@ a \emph{conjunction of clauses}.
 In addition, the pattern matcher can rewrite. For instance a
 transitivity rule could be implemented with
 \begin{verbatim}
-(Bind
-  (Present
-    (Inheritance (Variable "$X") (Variable "$Y"))
-    (Inheritance (Variable "$Y") (Variable "$Z")))
-  (Inheritance (Variable "$X") (Variable "$Z")))
+(Bind (Present (Inheritance (Variable "$X") (Variable "$Y"))
+               (Inheritance (Variable "$Y") (Variable "$Z")))
+      (Inheritance (Variable "$X") (Variable "$Z")))
 \end{verbatim}
 The pattern matcher provides the building blocks for the reasoning
 engine. In fact the URE is, for the most part, pattern matching +
@@ -289,9 +283,7 @@ patterns with enough support, the mining algorithm operates as follows
 The pattern collection $\mathcal{C}$ is usually initialized with the
 top pattern
 \begin{verbatim}
-(Get
-  (Present
-    (Variable "$X")))
+(Get (Present (Variable "$X")))
 \end{verbatim}
 that matches the whole database, and from which all subsequent
 patterns are specialized. A shallow specialization is a specialization
@@ -300,16 +292,12 @@ $\mathcal{D}$ is the 3 inheritances links of Subsection \ref{PM} (cat
 is a mammal, a mammal is an animal and square is a shape), a shallow
 specialization of the top pattern could be
 \begin{verbatim}
-(Get
-  (Present
-    (Inheritance (Variable "$X") (Variable "$Y"))))
+(Get (Present (Inheritance (Variable "$X") (Variable "$Y"))))
 \end{verbatim}
 which would match all inheritance links, thus have a support of 3. A
 subsequent shallow specialization of it could be
 \begin{verbatim}
-(Get
-  (Present
-    (Inheritance (Concept "cat") (Variable "$Y"))))
+(Get (Present (Inheritance (Concept "cat") (Variable "$Y"))))
 \end{verbatim}
 which would only match
 \begin{verbatim}
@@ -336,7 +324,7 @@ theorems
 $$ S \le \texttt{support}(P, \mathcal{D}) $$ expressing that pattern
 $P$ has enough support with respect to the data base $\mathcal{D}$, or
 simplify
-$$ \texttt{minsup}(P, S, \mathcal{D}) := S \le \text{support}(P,
+$$ \texttt{minsup}(P, S, \mathcal{D}) := S \le \texttt{support}(P,
 \mathcal{D}) $$ The primary inference rule we need is (given in
 Gentzen style),
 \begin{prooftree}
@@ -393,16 +381,12 @@ combination has enough support. Such rule can be used to build the
 conjunction of multiple patterns. For instance given $P$ and $Q$ both
 equal to
 \begin{verbatim}
-(Get
-  (Present
-    (Inheritance (Variable "$X") (Variable "$Y"))))
+(Get (Present (Inheritance (Variable "$X") (Variable "$Y"))))
 \end{verbatim}
 One can combine them to form
 \begin{verbatim}
-(Get
-  (Present
-    (Inheritance (Variable "$X") (Variable "$Y"))
-    (Inheritance (Variable "$Y") (Variable "$Z"))))
+(Get (Present (Inheritance (Variable "$X") (Variable "$Y"))
+              (Inheritance (Variable "$Y") (Variable "$Z"))))
 \end{verbatim}
 The property $R$ here is that both clauses must share at least one
 joint variable and the combination must have its support above or
@@ -444,7 +428,8 @@ distribution, probabilities over probabilities, Chapter 4 of
 \cite{Goertzel2009PLN}. Second order distributions are good at
 capturing uncertainties. Total ignorance is represented by a flat
 distribution (Bayesian prior), or possibly a slightly concave one
-(Jeffreys prior \cite{Jeffreys46Invariant}), and absolute certainty by
+(Jeffreys prior% \cite{Jeffreys46Invariant}
+), and absolute certainty by
 a Dirac delta function.
 
 Such definition of surprisingness has the merit of encompassing a wide
@@ -509,10 +494,8 @@ independence of the variables involved in the clauses of a pattern,
 called I-Surprisingness for Independence-based Surprisingness. For
 instance
 \begin{verbatim}
-(Get
-  (Present
-    (Inheritance (Variable "$X") (Variable "$Y"))
-    (Inheritance (Variable "$Y") (Variable "$Z"))))
+(Get (Present (Inheritance (Variable "$X") (Variable "$Y"))
+              (Inheritance (Variable "$Y") (Variable "$Z"))))
 \end{verbatim}
 has two clauses
 \begin{verbatim}
@@ -535,19 +518,14 @@ pattern of connected clauses is equivalent to a pattern of
 disconnected clauses combined with a condition of equality between the
 joint variables. For instance
 \begin{verbatim}
-(Get
-  (Present
-    (Inheritance (Variable "$X") (Variable "$Y"))
-    (Inheritance (Variable "$Y") (Variable "$Z"))))
+(Get (Present (Inheritance (Variable "$X") (Variable "$Y"))
+              (Inheritance (Variable "$Y") (Variable "$Z"))))
 \end{verbatim}
 is equivalent to
 \begin{verbatim}
-(Get
-  (And
-    (Present
-      (Inheritance (Variable "$X") (Variable "$Y1"))
-      (Inheritance (Variable "$Y2") (Variable "$Z")))
-    (Equal (Variable "$Y1") (Variable "$Y2"))))
+(Get (And (Present (Inheritance (Variable "$X") (Variable "$Y1"))
+                   (Inheritance (Variable "$Y2") (Variable "$Z")))
+          (Equal (Variable "$Y1") (Variable "$Y2"))))
 \end{verbatim}
 where the joint variables, here $\texttt{\$Y}$, have been replaced by
 variable occurrences in each clause, $\texttt{\$Y1}$ and
@@ -659,10 +637,11 @@ pattern mining that weaves together semantics and syntax and is
 directed toward a sophisticated version of surprisingness rather than
 simpler objective functions like frequency.
 
-Future work will explore applications
-to a variety of practical datasets, including empirical data and logs from an inference engine; and
-richer integration of these methods with more powerful but more expensive techniques such as
-predicate logic inference and evolutionary learning.
+Future work will explore applications to a variety of practical
+datasets, including empirical data and logs from an inference engine;
+and richer integration of these methods with more powerful but more
+expensive techniques such as predicate logic inference and
+evolutionary learning.
 
 
 %% some independence assumptions will be
