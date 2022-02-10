@@ -1,0 +1,204 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% AGI-22 paper about temporal and procedural reasoning with OpenCog %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[runningheads]{llncs}
+%
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{bussproofs}
+\usepackage{cite}
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following line
+% to display URLs in blue roman font according to Springer's eBook style:
+% \renewcommand\UrlFont{\color{blue}\rmfamily}
+
+% Commands for Atomese code
+\newcommand{\SP}{\;\;\;}
+\newcommand{\TP}{\textit P}
+\newcommand{\TQ}{\textit Q}
+\newcommand{\TR}{\textit R}
+\newcommand{\TTrue}{\textit True}
+\newcommand{\TFalse}{\textit False}
+\newcommand{\TAtom}{\textit Atom}
+\newcommand{\TImpl}{{\textit Implication}}
+\newcommand{\TAnd}{{\textit And}}
+\newcommand{\TNot}{{\textit Not}}
+\newcommand{\TPredImpl}{{\textit PredictiveImplication}}
+\newcommand{\TSeqAnd}{{\textit SequentialAnd}}
+\newcommand{\TTV}{\langle \textit TV \rangle}
+
+\begin{document}
+%
+\title{Temporal and Procedural Reasoning for Rational Agent Control in
+  OpenCog}
+
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+\author{Nil Geisweiller
+  %\orcidID{0000-0001-5041-6299}
+  \and Hedra Yusuf}
+%
+\authorrunning{N. Geisweiller et al.}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+\institute{ SingularityNET Foundation, The
+  Netherlands\\ \email{\{nil,hedra\}@singularitynet.io}}
+%
+\maketitle              % typeset the header of the contribution
+%
+
+\begin{abstract}
+  TODO
+
+  \keywords{Temporal \and Procedural \and Reasoning \and Probabilistic
+    Logic Networks \and OpenCog}
+\end{abstract}
+
+\section{Introduction}
+
+The goal of this project is to make an agent as rational as possible,
+not necessarily as efficient as possible.  This stems from the concern
+that in order to autonomously gain efficiency the agent must first be
+able to make the best possible decisions, starting first in the outer
+world, and then in the inner world.
+
+The paper presents
+
+The agent starts in a completely unknown environment
+
+The idea is that reasoning is used at all levels, discovering patterns
+from raw observations, building plans and making decisions.
+
+\section{Contributions}
+
+The contributions of that paper are:
+\begin{enumerate}
+\item Build upon existing temporal reasoning framework defined in
+  Chap.14 [TODO: cite PLN book].
+\item Design an architecture for controlling an agent based on that
+  temporal reasoning extension.
+\end{enumerate}
+
+\section{Outline}
+
+\begin{enumerate}
+\item Temporal reasoning
+\item ROCCA
+\item Minecraft experiment
+\end{enumerate}
+
+\section{Probabilistic Logic Networks}
+
+PLN, which stands for Probabilistic Logic Networks, is a mixture of
+predicate and term logic that has been probabilitized to properly
+handle uncertainty.  It has two types of rules
+\begin{enumerate}
+\item one type for introducing relationships from direct observations,
+\item the other for introducing relationships from existing
+  relationships.
+\end{enumerate}
+As such it is especially suited for building an ongoing understanding
+of an unknown environment (using direct introduction rules), and then
+planning in that environment (using indirect introduction rules).
+
+\subsection{Recall}
+
+Let us first recall the minimum portion of PLN we will need to
+describe the temporal logic used in this paper.
+
+Graphically speaking a PLN statement is a graph made of links and
+nodes, called \emph{Atoms}, decorated with \emph{Truth Values}
+%% ,
+%% that can be understood as probabilities incorporating uncertainties,
+%% more specifically second order probability distributions\footnote{it
+%% should be noted that even though these predicates seems crisp, they
+%% are actually probabilistic because probabilities can be assigned to
+%% their evaluations, but that is not our concern for this paper}.
+\cite{TODO}.  It is said that such graph is a hypergraph or a
+metagraph because links can point to links \cite{TODO}.  Syntactically
+speaking however, a PLN statement is not very different than a
+statement expressed in another logic.  Here will focus primarily on
+Atoms representing predicates
+$$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$ as well as a
+small subset of connectors operating on these predicates, recalled
+below.
+\begin{itemize}
+\item Conjunction:
+  $$
+  \begin{array}{l}
+    \TAnd\ \TTV\\
+    \SP \TP\\
+    \SP \TQ\\
+  \end{array}
+  $$
+  represents the predicate obtained by taking the conjunction of
+  $P$ and $Q$, or equivalently the indicator function corresponding to
+  the intersection of the \emph{satisfying sets} of $P$ and $Q$.  The
+  truth value $\textit{TV}$ then represents an estimate of the
+  probability $\mathbf{Pr}(P,Q)$ of the conjunction of $P$ and $Q$.
+\item Negation:
+  $$
+  \begin{array}{l}
+    \TNot\ \TTV\\
+    \SP \TP\\
+  \end{array}
+  $$
+  represents the negation of $P$, or equivalently the indicator
+  function corresponding to the complement of the satisfying set of
+  $P$. The truth value $\textit{TV}$ then represents an estimate of
+  the probability $\mathbf{Pr}(\neg P)$ of the negation of $P$.
+\item Implication:
+  $$
+  \begin{array}{l}
+    \TImpl\ \TTV\\
+    \SP \TP\\
+    \SP \TQ\\
+  \end{array}
+  $$ represents the predicate $Q$ conditioned on $P$, that is only
+  defined for the instances $x$ for which $P(x)$ is true.  The truth
+  value $\textit{TV}$ then represents an estimate of the conditional
+  probability $\mathbf{Pr}(Q|P)$.
+\end{itemize}
+Truth values are, fundamentally speaking, second order probability
+distributions. However in practice they are usually represented by two
+numbers, a strength and a confidence, both ranging from 0 to 1.  The
+strength represents a probability while the confidence represents a
+precision over that probability.  Underneath, strength and confidence
+can be mapped into a second order distribution via the Beta
+distribution [TODO: add figure].
+
+\subsection{Inference Rules}
+
+\subsubsection{Direct Introduction Rules}
+
+NEXT
+
+\subsubsection{Indirect Introduction Rules}
+
+\section{Temporal Logic}
+
+The temporal logic used here builds upon what is described in the
+Chapter 14 of the PLN book [TODO: cite].  Let us define that
+
+\subsection{Mapping Temporal into Atemporal Statements}
+
+
+
+\section{Rational OpenCog Controlled Agent (ROCCA)}
+
+\section{Experiment with Simple Minecraft Environment}
+
+\section{Conclusion}
+
+%
+% ---- Bibliography ----
+%
+\bibliographystyle{splncs04} \bibliography{TPRC}
+
+\end{document}
