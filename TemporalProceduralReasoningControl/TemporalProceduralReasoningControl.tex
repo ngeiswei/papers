@@ -17,18 +17,24 @@
 
 % Commands for Atomese code
 \newcommand{\SP}{\;\;\;}
-\newcommand{\TP}{\textit P}
-\newcommand{\TQ}{\textit Q}
-\newcommand{\TR}{\textit R}
 \newcommand{\TTrue}{\textit True}
 \newcommand{\TFalse}{\textit False}
 \newcommand{\TAtom}{\textit Atom}
-\newcommand{\TImpl}{{\textit Implication}}
+\newcommand{\TEval}{\textit Evaluation}
+\newcommand{\TLamb}{\textit Lambda}
 \newcommand{\TAnd}{{\textit And}}
 \newcommand{\TNot}{{\textit Not}}
+\newcommand{\TImpl}{{\textit Implication}}
 \newcommand{\TPredImpl}{{\textit PredictiveImplication}}
 \newcommand{\TSeqAnd}{{\textit SequentialAnd}}
-\newcommand{\TTV}{\langle \textit TV \rangle}
+\newcommand{\TTV}{\textit TV}
+\newcommand{\TTVPi}{\textit TV_i^P}
+\newcommand{\TTVQi}{\textit TV_i^Q}
+\newcommand{\TBTV}{\langle \TTV \rangle}
+\newcommand{\TBTVPi}{\langle \TTVPi \rangle}
+\newcommand{\TBTVQi}{\langle \TTVQi \rangle}
+\newcommand{\Tstrength}{\textit s}
+\newcommand{\Tconf}{\textit c}
 
 \begin{document}
 %
@@ -93,7 +99,7 @@ The contributions of that paper are:
 \item Minecraft experiment
 \end{enumerate}
 
-\section{Probabilistic Logic Networks}
+\section{Recall: Probabilistic Logic Networks}
 
 PLN, which stands for Probabilistic Logic Networks, is a mixture of
 predicate and term logic that has been probabilitized to properly
@@ -107,79 +113,171 @@ As such it is especially suited for building an ongoing understanding
 of an unknown environment (using direct introduction rules), and then
 planning in that environment (using indirect introduction rules).
 
-\subsection{Recall}
+\subsection{Elementary Notions}
 
-Let us first recall the minimum portion of PLN we will need to
-describe the temporal logic used in this paper.
+%% Let us first recall the minimum portion of PLN we will need to
+%% describe the temporal logic used in this paper.
 
-Graphically speaking a PLN statement is a graph made of links and
-nodes, called \emph{Atoms}, decorated with \emph{Truth Values}
+Graphically speaking, PLN statements are
+sub-hypergraphs\footnote{because links can point to links, not just
+nodes} made of links and nodes, called \emph{Atoms}, decorated with
+\emph{Truth Values} that can be understood as probabilities
+incorporating uncertainties
 %% ,
 %% that can be understood as probabilities incorporating uncertainties,
 %% more specifically second order probability distributions\footnote{it
 %% should be noted that even though these predicates seems crisp, they
 %% are actually probabilistic because probabilities can be assigned to
 %% their evaluations, but that is not our concern for this paper}.
-\cite{TODO}.  It is said that such graph is a hypergraph or a
-metagraph because links can point to links \cite{TODO}.  Syntactically
-speaking however, a PLN statement is not very different than a
-statement expressed in another logic.  Here will focus primarily on
-Atoms representing predicates
-$$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$ as well as a
-small subset of connectors operating on these predicates, recalled
-below.
+\cite{TODO}.  Syntactically speaking however PLN statements are not
+very different from statements expressed in another logic, except that
+they are usually formatted in prefixed-operator indented-argument
+style to emphasize their graphical nature and leave room for truth
+values.  There is a large variety of constructs for PLN, here we will
+focus primarily on constructs for manipulating predicates.  Let us
+recall that predicates are functions that take tuples of Atoms and
+output boolean values
+$$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$ Within
+predicate constructs there are two classes of operators
+\begin{enumerate}
+\item one for defining predicate from instances, such as $\TEval$ and
+  $\TLamb$,
+\item and another for combining existing predicates, such as $\TAnd$,
+  $\TNot$ and $\TImpl$.
+\end{enumerate}
+Let us present these operators below, corresponding to the minimum
+subset we will need in the rest of the paper.
 \begin{itemize}
+\item Evaluation:
+  $$
+  \begin{array}{l}
+    \TEval\ \TBTV\\
+    \SP P\\
+    \SP e\\
+  \end{array}
+  $$
+  states that $P(e)$ outputs $\TTrue$ to a degree set by the truth value
+  $\TTV$.
+\item Lambda:
+  $$
+  \begin{array}{l}
+    \TLamb\ \TBTV\\
+    \SP x\\
+    \SP P(x)\\
+  \end{array}
+  $$
+  is a predicate constructor with variable $x$ and predicate body
+  $P(x)$, where the true value $\TTV$ corresponds to the probability
+  $\mathbf{Pr}(P)$ of $P(x)$ to output $\TTrue$ for a random input.
 \item Conjunction:
   $$
   \begin{array}{l}
-    \TAnd\ \TTV\\
-    \SP \TP\\
-    \SP \TQ\\
+    \TAnd\ \TBTV\\
+    \SP P\\
+    \SP Q\\
   \end{array}
   $$
   represents the predicate obtained by taking the conjunction of
   $P$ and $Q$, or equivalently the indicator function corresponding to
-  the intersection of the \emph{satisfying sets} of $P$ and $Q$.  The
-  truth value $\textit{TV}$ then represents an estimate of the
+  the intersection of the \emph{satisfying sets} of $P$ and $Q$.
+  The truth value $\TTV$ then represents an estimate of the
   probability $\mathbf{Pr}(P,Q)$ of the conjunction of $P$ and $Q$.
 \item Negation:
   $$
   \begin{array}{l}
-    \TNot\ \TTV\\
-    \SP \TP\\
+    \TNot\ \TBTV\\
+    \SP P\\
   \end{array}
   $$
   represents the negation of $P$, or equivalently the indicator
   function corresponding to the complement of the satisfying set of
-  $P$. The truth value $\textit{TV}$ then represents an estimate of
+  $P$. The truth value $\TTV$ then represents an estimate of
   the probability $\mathbf{Pr}(\neg P)$ of the negation of $P$.
 \item Implication:
   $$
   \begin{array}{l}
-    \TImpl\ \TTV\\
-    \SP \TP\\
-    \SP \TQ\\
+    \TImpl\ \TBTV\\
+    \SP P\\
+    \SP Q\\
   \end{array}
-  $$ represents the predicate $Q$ conditioned on $P$, that is only
-  defined for the instances $x$ for which $P(x)$ is true.  The truth
-  value $\textit{TV}$ then represents an estimate of the conditional
-  probability $\mathbf{Pr}(Q|P)$.
+  $$
+  represents the predicate $Q$ conditioned on $P$, that is only
+  defined for instances $x$ for which $P(x)$ is $\TTrue$.  The truth
+  value $\TTV$ then represents an estimate of the conditional
+  probability $\mathbf{Pr}(Q|P)$.  There is some subtleties to take
+  into account due to the fact $P(x)$ can actually be partially true
+  (stated by the truth value of $\TEval$ as explained above), but this
+  all resolves nicely by assuming degrees of truth are probabilistic.
+  More is explained about that below.
 \end{itemize}
-Truth values are, fundamentally speaking, second order probability
+Truth values are fundamentally second order probability
 distributions. However in practice they are usually represented by two
 numbers, a strength and a confidence, both ranging from 0 to 1.  The
 strength represents a probability while the confidence represents a
 precision over that probability.  Underneath, strength and confidence
-can be mapped into a second order distribution via the Beta
+can be mapped into a second order distribution such as a Beta
 distribution [TODO: add figure].
 
 \subsection{Inference Rules}
 
-\subsubsection{Direct Introduction Rules}
+Beside operators, inferences rules are used to construct PLN
+statements and calculate their truth values.  They mainly fall into
+two categories, direct and indirect.  Direct rules infer abstract
+knowledge from direct evidence, while indirect rules infer knowledge
+by combining existing abstractions, themselves inferred directly or
+indirectly.  There are dozens of inference rules but for now we will
+only recall two which are needed for the paper:
+\begin{enumerate}
+\item \emph{Implication Direct Introduction Rule}
+\item \emph{Deduction Rule}
+\end{enumerate}
+
+\subsubsection{The Implication Direct Introduction Rule (IDI)} takes $\TEval$
+links as premises and produces an $\TImpl$ link as conclusion,
+formally depicted as the proof tree
+{\small
+\begin{prooftree}
+  \AxiomC{$
+    \begin{array}{l}
+      \TEval\ \TBTVPi\\
+      \SP P\\
+      \SP E_i\\
+    \end{array}
+    $}
+  \AxiomC{$\hdots$}
+  \AxiomC{$
+    \begin{array}{l}
+      \TEval\ \TBTVQi\\
+      \SP Q\\
+      \SP E_i\\
+    \end{array}
+    $}
+  \RightLabel{(IDI)}
+  \TrinaryInfC{$
+    \begin{array}{l}
+      \TImpl\ \TBTV\\
+      \SP P\\
+      \SP Q\\
+    \end{array}
+    $}
+\end{prooftree}}
+Assuming perfectly reliable direct evidence\footnote{dealing with
+unreliable direct evidence involves expensive convolution products and
+is outside of the scope of this paper.} then the resulting truth value
+is calculated as follows
+$$\TTV.\Tstrength = \frac{\sum_{i=1}^n f_\wedge(\TTVPi.\Tstrength, \TTVQi.\Tstrength)}{\sum_{i=1}^n \TTVPi.\Tstrength}$$
+$$\TTV.\Tconf = \frac{n}{n+k}$$ where $\TTV.\Tstrength$ and
+$\TTV.\Tconf$ represents the strength and the confidence of $\TTV$
+respectively, $k$ is a system parameter, and $f_\wedge$ is a function
+embodying a probabilistic assumption about the intersection of the
+events corresponding to the \emph{probabilitized degrees of truth} of
+$P(E_i)$ and $Q(E_i)$.  Such function typically ranges from the product
+function (perfect independence) to the $\min$ function (perfect
+overlap).
+
+\subsubsection{The Deduction Rule}
 
 NEXT
-
-\subsubsection{Indirect Introduction Rules}
 
 \section{Temporal Logic}
 
@@ -193,6 +291,9 @@ Chapter 14 of the PLN book [TODO: cite].  Let us define that
 \section{Rational OpenCog Controlled Agent (ROCCA)}
 
 \section{Experiment with Simple Minecraft Environment}
+
+%% Does not do justice and is not meant to demonstrate the prowess of
+%% ROCCA
 
 \section{Conclusion}
 
