@@ -622,8 +622,24 @@ NEXT
 
 \section{Experiment with Simple Minecraft Environment}
 
-%% Does not do justice and is not meant to demonstrate the prowess of
-%% ROCCA
+In this experiment we built a minecraft environment using Malmo, which is a platform for Artificial Intelligence experimentation and research built on top of Minecraft. The demo environment consists of a small house with a locked door, diamonds inside and a key to get into the house. The agent, initially located outside of the house, can perform different actions like getting a key, opening a door of the house and collecting the diamonds in order to achieve a reward. \par
+The aim of this experiment is to make the ROCCA agent learn from the actions and perceptions in the minecraft environment and do efficient planning so as to be able to collect as many diamonds as possible and accumulate reward. The ROCCA agent will be able to perform a series of possible actions with a goal of achieving a reward and learns from them by applying PLN (Probabilistic Logic Networks) and Pattern Miner, which can be seen as a specialized form of PLN reasoning. The Planning, the discovery of cognitive schematics, is also handled by PLN and its temporal reasoning rule base.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=.2]{simple_demo.png}}
+\caption{Simple Minecraft demo with a house and a key.}
+\label{fig}
+\end{figure}
+
+There are lists of allowed actions provided by minecraft that an agent can perform like moving, turning, picking etc.. but due to the limited processing capacity we have to handle the observations from each action and to reduce complexity, we proposed to have an abstract action and perception where unnecessary details have been omitted. With that we generate three abstract actions namely go-to-key, go-to-house, go-to-diamonds where each of them contains a series of actions and returns an abstract perception about where the agent is (inside house, outside house, next to closed door etc..), about its inventory (has key, diamond pickaxe etc..) and the reward of completing a given action. \par
+We perform various experiments tuning different parameters. A typical experiment has two iterations of the learning-training process with a duration of fifty iterations for each training. In the first cycle the agent will not have prior knowledge hence no learning will take place. The agent pursues the environment and builds its knowledge base by trying a combination of fifty randomly weighted actions. At the end of the first cycle the agent will have enough background knowledge to apply Pattern miner and PLN temporal reasoning. Hence, during the second cycle, the agent will be able to learn and plan the desired cognitive schematics which leads to a positive goal of getting a reward.\\
+The ROCCA agent is able to learn the following cognitive schematics with higher strength.
+
+$$\textit{outside}(\textit{self}, \textit{house}) \MAnd \MDo{\textit{go\_to}(\textit{key})} \MPredImpl^1 \textit{hold}(\textit{self}, \textit{key})$$
+$$\textit{hold}(\textit{self}, \textit{key}) \MAnd \MDo{\textit{go\_to}(\textit{house})} \MPredImpl^1 \textit{inside}(\textit{self}, \textit{house})$$
+$$\textit{inside}(\textit{self}, \textit{house}) \MAnd \MDo{\textit{go\_to}(\textit{diamond})} \MPredImpl^1 \textit{reward}(1)$$
+
+In this experiment, we measure the agent's performance by the cognitive schematics learned and accumulated rewards achieved. The ROCAA agent is successful in learning the required cognitive schematics which leads the agent to collect more rewards in the second cycle. However, these findings with a simple minecraft environment with only few actions might not tell the overall performance of ROCCA. As a future work, further extensive experiments are needed to conclude the performance achieved.
 
 \section{Conclusion}
 
