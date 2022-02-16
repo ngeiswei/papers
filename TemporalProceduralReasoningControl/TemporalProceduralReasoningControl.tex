@@ -6,6 +6,7 @@
 %
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{bussproofs}
 \usepackage{cite}
 % Used for displaying a sample figure. If possible, figure files should
@@ -17,24 +18,50 @@
 
 % Commands for Atomese code
 \newcommand{\SP}{\;\;\;}
-\newcommand{\TTrue}{\textit True}
-\newcommand{\TFalse}{\textit False}
-\newcommand{\TAtom}{\textit Atom}
-\newcommand{\TEval}{\textit Evaluation}
-\newcommand{\TLamb}{\textit Lambda}
-\newcommand{\TAnd}{{\textit And}}
-\newcommand{\TNot}{{\textit Not}}
-\newcommand{\TImpl}{{\textit Implication}}
-\newcommand{\TPredImpl}{{\textit PredictiveImplication}}
-\newcommand{\TSeqAnd}{{\textit SequentialAnd}}
-\newcommand{\TTV}{\textit TV}
-\newcommand{\TTVPi}{\textit TV_i^P}
-\newcommand{\TTVQi}{\textit TV_i^Q}
+\newcommand{\TTrue}{\textit{True}}
+\newcommand{\TFalse}{\textit{False}}
+\newcommand{\TAtom}{\textit{Atom}}
+\newcommand{\TTime}{\textit{Time}}
+\newcommand{\TEval}{\textit{Evaluation}}
+\newcommand{\TList}{\textit{List}}
+\newcommand{\TLamb}{\textit{Lambda}}
+\newcommand{\TExec}{\textit{Execution}}
+\newcommand{\TAtTime}{\textit{AtTime}}
+\newcommand{\TAnd}{\textit{And}}
+\newcommand{\TNot}{\textit{Not}}
+\newcommand{\TImpl}{\textit{Implication}}
+\newcommand{\TPredImpl}{\textit{PredictiveImplication}}
+\newcommand{\TSeqAnd}{\textit{SequentialAnd}}
+\newcommand{\TLag}{\textit{Lag}}
+\newcommand{\TLead}{\textit{Lead}}
+\newcommand{\TTV}{\textit{TV}}
+\newcommand{\TTVPi}{\textit{TV}_i^P}
+\newcommand{\TTVQi}{\textit{TV}_i^Q}
+\newcommand{\TTVP}{\textit{TV}^P}
+\newcommand{\TTVQ}{\textit{TV}^Q}
+\newcommand{\TTVR}{\textit{TV}^R}
+\newcommand{\TTVPQ}{\textit{TV}^{PQ}}
+\newcommand{\TTVQR}{\textit{TV}^{QR}}
 \newcommand{\TBTV}{\langle \TTV \rangle}
 \newcommand{\TBTVPi}{\langle \TTVPi \rangle}
 \newcommand{\TBTVQi}{\langle \TTVQi \rangle}
+\newcommand{\TBTVP}{\langle \TTVP \rangle}
+\newcommand{\TBTVQ}{\langle \TTVQ \rangle}
+\newcommand{\TBTVR}{\langle \TTVR \rangle}
+\newcommand{\TBTVPQ}{\langle \TTVPQ \rangle}
+\newcommand{\TBTVQR}{\langle \TTVQR \rangle}
 \newcommand{\Tstrength}{\textit s}
 \newcommand{\Tconf}{\textit c}
+
+% Commands for mathematical notations
+\newcommand{\MPr}{\mathbf{Pr}}
+\newcommand{\MAnd}{\wedge}
+\newcommand{\MImpl}{\rightarrow}
+\newcommand{\MPredImpl}{\leadsto}
+\newcommand{\MSeqAnd}{\prec}
+\newcommand{\MDo}[1]{\widehat{#1}}
+%% \newcommand{\MDo}[1]{do(#1)}
+\newcommand{\MLead}[2]{\overleftarrow{#1}^{#2}}
 
 \begin{document}
 %
@@ -121,15 +148,8 @@ planning in that environment (using indirect introduction rules).
 Graphically speaking, PLN statements are
 sub-hypergraphs\footnote{because links can point to links, not just
 nodes} made of links and nodes, called \emph{Atoms}, decorated with
-\emph{Truth Values} that can be understood as probabilities
-incorporating uncertainties
-%% ,
-%% that can be understood as probabilities incorporating uncertainties,
-%% more specifically second order probability distributions\footnote{it
-%% should be noted that even though these predicates seems crisp, they
-%% are actually probabilistic because probabilities can be assigned to
-%% their evaluations, but that is not our concern for this paper}.
-\cite{TODO}.  Syntactically speaking however PLN statements are not
+\emph{Truth Values} that can be understood as uncertain probabilities
+\cite{TODO}.  Syntactically speaking however, PLN statements are not
 very different from statements expressed in another logic, except that
 they are usually formatted in prefixed-operator indented-argument
 style to emphasize their graphical nature and leave room for truth
@@ -153,10 +173,10 @@ subset we will need in the rest of the paper.
   \begin{array}{l}
     \TEval\ \TBTV\\
     \SP P\\
-    \SP e\\
+    \SP E\\
   \end{array}
   $$
-  states that $P(e)$ outputs $\TTrue$ to a degree set by the truth value
+  states that $P(E)$ outputs $\TTrue$ to a degree set by the truth value
   $\TTV$.
 \item Lambda:
   $$
@@ -168,7 +188,7 @@ subset we will need in the rest of the paper.
   $$
   is a predicate constructor with variable $x$ and predicate body
   $P(x)$, where the true value $\TTV$ corresponds to the probability
-  $\mathbf{Pr}(P)$ of $P(x)$ to output $\TTrue$ for a random input.
+  $\MPr(P)$ of $P(x)$ to output $\TTrue$ for a random input.
 \item Conjunction:
   $$
   \begin{array}{l}
@@ -181,7 +201,7 @@ subset we will need in the rest of the paper.
   $P$ and $Q$, or equivalently the indicator function corresponding to
   the intersection of the \emph{satisfying sets} of $P$ and $Q$.
   The truth value $\TTV$ then represents an estimate of the
-  probability $\mathbf{Pr}(P,Q)$ of the conjunction of $P$ and $Q$.
+  probability $\MPr(P,Q)$ of the conjunction of $P$ and $Q$.
 \item Negation:
   $$
   \begin{array}{l}
@@ -192,7 +212,7 @@ subset we will need in the rest of the paper.
   represents the negation of $P$, or equivalently the indicator
   function corresponding to the complement of the satisfying set of
   $P$. The truth value $\TTV$ then represents an estimate of
-  the probability $\mathbf{Pr}(\neg P)$ of the negation of $P$.
+  the probability $\MPr(\neg P)$ of the negation of $P$.
 \item Implication:
   $$
   \begin{array}{l}
@@ -204,11 +224,11 @@ subset we will need in the rest of the paper.
   represents the predicate $Q$ conditioned on $P$, that is only
   defined for instances $x$ for which $P(x)$ is $\TTrue$.  The truth
   value $\TTV$ then represents an estimate of the conditional
-  probability $\mathbf{Pr}(Q|P)$.  There is some subtleties to take
+  probability $\MPr(Q|P)$.  There is some subtleties to take
   into account due to the fact $P(x)$ can actually be partially true
-  (stated by the truth value of $\TEval$ as explained above), but this
-  all resolves nicely by assuming degrees of truth are probabilistic.
-  More is explained about that below.
+  (stated by the truth values of $\TEval$ links as explained above),
+  but this resolves nicely by assuming degrees of truth are
+  probabilistic.  More is explained about that below.
 \end{itemize}
 Truth values are fundamentally second order probability
 distributions. However in practice they are usually represented by two
@@ -234,8 +254,8 @@ only recall two which are needed for the paper:
 
 \subsubsection{The Implication Direct Introduction Rule (IDI)} takes $\TEval$
 links as premises and produces an $\TImpl$ link as conclusion,
-formally depicted as the proof tree
-{\small
+formally depicted by the following proof tree
+{\scriptsize
 \begin{prooftree}
   \AxiomC{$
     \begin{array}{l}
@@ -261,34 +281,344 @@ formally depicted as the proof tree
     \end{array}
     $}
 \end{prooftree}}
-Assuming perfectly reliable direct evidence\footnote{dealing with
+Assuming perfectly reliable direct evidence\footnote{Dealing with
 unreliable direct evidence involves expensive convolution products and
 is outside of the scope of this paper.} then the resulting truth value
 is calculated as follows
 $$\TTV.\Tstrength = \frac{\sum_{i=1}^n f_\wedge(\TTVPi.\Tstrength, \TTVQi.\Tstrength)}{\sum_{i=1}^n \TTVPi.\Tstrength}$$
 $$\TTV.\Tconf = \frac{n}{n+k}$$ where $\TTV.\Tstrength$ and
-$\TTV.\Tconf$ represents the strength and the confidence of $\TTV$
-respectively, $k$ is a system parameter, and $f_\wedge$ is a function
+$\TTV.\Tconf$ respectively represent the strength and the confidence
+of $\TTV$, $k$ is a system parameter, and $f_\wedge$ is a function
 embodying a probabilistic assumption about the intersection of the
 events corresponding to the \emph{probabilitized degrees of truth} of
-$P(E_i)$ and $Q(E_i)$.  Such function typically ranges from the product
-function (perfect independence) to the $\min$ function (perfect
-overlap).
+$P(E_i)$ and $Q(E_i)$.  Such function typically ranges from the
+product (perfect independence) to the $\min$ (perfect overlap).
 
-\subsubsection{The Deduction Rule}
-
-NEXT
+\subsubsection{The Deduction Rule (D)} takes two $\TImpl$ links as
+premises and produces a third one.  Depending on what assumption is
+made there exists different variations of that rule.  The simplest
+one, based on the Markov property
+$$\MPr(R|Q,P) = \MPr(R|Q)$$
+%% $$\MPr(R|\neg Q,P) = \MPr(R|\neg Q)$$
+can be formally depicted by the following proof tree
+{\scriptsize
+  \begin{prooftree}
+    \AxiomC{$
+      \begin{array}{l}
+        \TImpl\ \TBTVPQ\\
+        \SP P\\
+        \SP Q\\
+      \end{array}
+      $}
+    \AxiomC{$
+      \begin{array}{l}
+        \TImpl\ \TBTVQR\\
+        \SP Q\\
+        \SP R\\
+      \end{array}
+      $}
+    \AxiomC{$P \TBTVP$}
+    \AxiomC{$Q \TBTVQ$}
+    \AxiomC{$R \TBTVR$}
+    \RightLabel{(D)}
+    \QuinaryInfC{$
+      \begin{array}{l}
+        \TImpl\ \TBTV\\
+        \SP P\\
+        \SP R\\
+      \end{array}
+      $}
+  \end{prooftree}
+}
+%%  essentially expressing a probabilitized version of the transitivity
+%% of $\TImpl$ with a Markov property
+%% $$\MPr(R|Q,P) = \MPr(R|Q)$$
+%% $$\MPr(R|\neg Q,P) = \MPr(R|\neg Q)$$
+The reader may notice that three additional premises have been added,
+corresponding to the probabilities $\MPr(P)$, $\MPr(Q)$ and $\MPr(R)$.
+This is a consequence of the Markov property.  The exact formula for
+that variation will not be recalled\footnote{More information can be
+found in \cite{TODO}} here but it merely derives from
+$$\MPr(R|P) = \MPr(R|Q,P)\times\MPr(Q|P) + \MPr(R|\neg
+Q,P)\times\MPr(\neg Q|P)$$
 
 \section{Temporal Logic}
 
-The temporal logic used here builds upon what is described in the
-Chapter 14 of the PLN book [TODO: cite].  Let us define that
+The temporal logic define in \cite{TODO} is somewhat partial and
+ambiguous.  In that section we provide a possible completion.
+%% , showing how the two inference rules recalled
+%% above to carry out temporal reasoning.  Let us define that
+Let us begin by defining \emph{Temporal Predicates} as regular
+predicates with a temporal dimension
+$$P, Q, R, \hdots: \TAtom^n \times \TTime \mapsto \{\TTrue,
+\TFalse\}$$ $\TTime$ here is considered discrete, formally defined as
+a natural number.
 
-\subsection{Mapping Temporal into Atemporal Statements}
+\subsection{Temporal Operators}
+Given temporal predicates we can now define a small set of temporal
+operators.
 
+\subsubsection{$\TLead$} is a temporal operator used to shift the
+temporal dimension of a temporal predicate.  It is formally defined as
+follows
+$$
+\begin{array}{l}
+  \TLead\\
+  \SP P\\
+  \SP T\\
+\end{array}
+$$
+:=
+$$
+\begin{array}{l}
+  \TLamb\\
+  \SP x_1, ..., x_n, t\\
+  \SP P(x_1, ..., x_n, t+T)\\
+\end{array}
+$$ where the first line of the $\TLamb$ link is the variable
+declaration and the second line is the body representing a temporally
+shifted reconstruction of $P$.  Informally one might say the $\TLead$
+operator gives a peek into the future, or equivalently, that it brings
+the future into the present.
 
+\subsubsection{$\TSeqAnd$} is a temporal conjunction, formally defined
+as
+$$
+\begin{array}{l}
+  \TSeqAnd\\
+  \SP T\\
+  \SP P\\
+  \SP Q\\
+\end{array}
+$$
+:=
+$$
+\begin{array}{l}
+  \TAnd\\
+  \SP P\\
+  \SP \TLead\\
+  \SP \SP Q\\
+  \SP \SP T\\
+\end{array}
+$$
+resulting into a new temporal predicate, that in order to be true
+at some time $t$, requires that $P$ be true at time $t$ and $Q$ be
+true at time $t+T$.
 
-\section{Rational OpenCog Controlled Agent (ROCCA)}
+\subsubsection{$\TPredImpl$} likewise defines a temporal implication,
+formally
+$$
+\begin{array}{l}
+  \TPredImpl\\
+  \SP T\\
+  \SP P\\
+  \SP Q\\
+\end{array}
+$$
+:=
+$$
+\begin{array}{l}
+  \TImpl\\
+  \SP P\\
+  \SP \TLead\\
+  \SP \SP Q\\
+  \SP \SP T\\
+\end{array}
+$$
+resulting into a conditional predicate, that in order to be defined at
+time $t$ requires that $P$ be true at time $t$, and in order to be true
+at $t$ requires that $Q$ be true at $t+T$.
+
+We now have everything we need to define temporal inference rules, but
+before that let us first introduce some notations in order to be
+easier to lay out.
+
+\subsection{Notations}
+
+The following notations can afford to ignore truth values, that is
+because no new formula is required for temporal reasoning.  All that
+is required are the definitions above mapping temporal expressions
+into equivalent atemporal ones.  The notations are summarized in the
+table below, ranked by syntactic precedence to minimize the number of
+required parenthesis.
+$$
+\begin{array}{|c|c|c|}
+  \hline
+  \text{Atomese} & \text{Notation} & \text{Precedence} \\
+  \hline
+  \TEval(P, \TList(X_1, ..., X_n)) & P(X_1, ..., X_n) & 1 \\
+  \TLamb(t, \TAtTime(\TExec(A), t)) & \MDo{A} & 1 \\
+  \TLead(P, T) & \MLead{P}{T} & 1 \\
+  \TAnd(P, Q) & P \MAnd Q & 2 \\
+  \TSeqAnd(T, P, Q) & P \MSeqAnd^T Q & 3 \\
+  \TImpl(P, Q) & P \MImpl Q & 4 \\
+  \TPredImpl(T, P, Q) & P \MPredImpl^T Q & 4 \\
+  \hline
+\end{array}
+$$
+The precedence of everything else (predicates nodes, etc) is 0.
+
+\subsection{Temporal Rules}
+Given that we can now introduce our temporal rules, (PI), (IP), (S)
+and the most important one Temporal Deduction (TD)
+{\small
+  \begin{prooftree}
+    \AxiomC{$P \MPredImpl^{T_1} Q$}
+    \AxiomC{$Q \MPredImpl^{T_2} R$}
+    \AxiomC{$P$}
+    \AxiomC{$Q$}
+    \AxiomC{$R$}
+    \RightLabel{(TD)}
+    \QuinaryInfC{$P \MPredImpl^{T_1+T_2} R$}
+  \end{prooftree}
+}
+To determine the formula to calculate the resulting truth value of
+such rule, we only need to map such temporal deduction into a regular
+deduction as follows
+
+{\tiny
+  \begin{prooftree}
+    \AxiomC{$P \MPredImpl^{T_1} Q$}
+    \RightLabel{(PI)}
+    \UnaryInfC{$P \MImpl \MLead{Q}{T_1}$}
+    \AxiomC{$Q \MPredImpl^{T_2} R$}
+    \RightLabel{(PI)}
+    \UnaryInfC{$Q \MImpl \MLead{R}{T_2}$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\MLead{Q}{T_1} \MImpl \MLead{R}{T_1+T_2}$}
+    \AxiomC{$P$}
+    \AxiomC{$Q$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\MLead{Q}{T_1}$}
+    \AxiomC{$R$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\MLead{R}{T_1+T_2}$}
+    \RightLabel{(D)}
+    \QuinaryInfC{$P \MImpl \MLead{R}{T_1+T_2}$}
+    \RightLabel{(IP)}
+    \UnaryInfC{$P \MPredImpl^{T_1+T_2} R$}
+\end{prooftree}}
+
+\subsection{Procedural Reasoning}
+
+Likewise, we can use the same temporal to regular deduction mapping to
+build inference rules for procedural reasoning
+
+{\tiny
+  \begin{prooftree}
+    \AxiomC{$P \MAnd \MDo{A} \MPredImpl^{T_1} Q$}
+    \RightLabel{(PI)}
+    \UnaryInfC{$P \MAnd \MDo{A} \MImpl
+      \overleftarrow{Q}^{T_1}$}
+    \AxiomC{$\MDo{B}$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\overleftarrow{\MDo{B}}^{T_1}$}
+    \RightLabel{(C)}
+    \BinaryInfC{$P \MAnd \MDo{A} \MAnd
+      \overleftarrow{\MDo{B}}^{T_1} \MImpl
+      \overleftarrow{Q}^{T_1} \MAnd \overleftarrow{\MDo{B}}^{T_1}$}
+    \AxiomC{$Q \MAnd \MDo{B} \MPredImpl^{T_2} R$}
+    \RightLabel{(PI)}
+    \UnaryInfC{$Q \MAnd \MDo{B} \MImpl \overleftarrow{R}^{T_2}$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\overleftarrow{Q}^{T_1} \MAnd
+      \overleftarrow{\MDo{B}}^{T_1} \MImpl
+      \overleftarrow{R}^{T_1+T_2}$}
+    %% \AxiomC{$P \MAnd \MDo{A}$}
+    %% \AxiomC{$\overleftarrow{\MDo{B}}^{T_1}$}
+    %% \RightLabel{(C)}
+    \AxiomC{$P \MAnd \MDo{A} \MAnd \overleftarrow{\MDo{B}}^{T_1}$}
+    \AxiomC{$Q \MAnd \MDo{B}$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\overleftarrow{Q}^{T_1} \MAnd \overleftarrow{\MDo{B}}^{T_1}$}
+    \AxiomC{$R$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\overleftarrow{R}^{T_1+T_2}$}
+    \RightLabel{(D)}
+    \QuinaryInfC{$P \MAnd \MDo{A} \MAnd \overleftarrow{\MDo{B}}^{T_1} \MImpl \overleftarrow{R}^{T_1+T_2}$}
+    \RightLabel{(IP)}
+    \UnaryInfC{$P \MAnd \MDo{A} \MSeqAnd^{T_1}
+      \MDo{B} \MPredImpl^{T_1+T_2} R$}
+\end{prooftree}}
+
+\section{Rational OpenCog Controlled Agent}
+To experiment with temporal and procedural reasoning in the context of
+embodied virtual agents in unknown environments we have implemented a
+project called ROCCA, which stands for \emph{Rational OpenCog
+Controlled Agent}.  ROCCA essentially acts as an interface between
+virtual environments such as Malmo \cite{TODO} or OpenAI Gym
+\cite{TODO} and OpenCog.  It provides an Observation-Planning-Action
+control loop as well as various launchers to run OpenCog processes
+such as PLN reasoning, pattern mining, etc.
+%% During the life of the
+%% agent control and learning phases are alternated to simulate a form of
+%% online learning.
+Provided a top goal, such as maximizing a reward, ROCCA orchestrates
+the necessary learning and the planning to fulfill that goal.
+%% somewhat like a reinforcement learning agent.
+One may possibly see ROCCA as a reinforcement learning agent with the
+particularity that learning and planning are, at least in principle,
+entire done via reasoning.  In that respect it is similar in spirit to
+OpenNARS for Applications (ONA) \cite{TODO} but uses PLN as its core
+reasoning logic rather than NAL \cite{TODO}.
+%% Where it differs from a typical
+%% reinforcement learning agent in that both learning and planning are,
+
+ROCCA is composed of two main processes, one for real-time agent
+control and another one for non-reactive background learning.  In
+principle these two processes could happen in parallel, though as of
+right now they occur as distinct alternating phases.
+
+\subsection{Control Phase}
+The control phase is composed of control cycles, each decomposed into
+Observation, Planning and Acting steps, more precisely
+\begin{enumerate}
+\item Observation step:
+  \begin{enumerate}
+  \item receives and timestamps observations from the environment,
+  \item stores the timestamped observations in the atomspace.
+  \end{enumerate}
+\item Planning step:
+  \begin{enumerate}
+  \item selects the goal for that iteration,
+  \item finds plans fulfilling that goal,
+  \item given these plans, deduces a probabilistic distribution of
+    actions,
+  \item selects the next action according to the deduced probabilistic
+    distribution.
+  \end{enumerate}
+\item Acting step:
+  \begin{enumerate}
+  \item timestamps and stores in the atomspace the selected action,
+  \item runs the selected action and by that updates the environment,
+  \item receives the reward from the environment,
+  \item timestamps and stores the reward in the atomspace.
+  \end{enumerate}
+\end{enumerate}
+
+None of these steps are difficult to carry with the exception of
+deducing a probabilistic distribution of actions.  For that we use a
+variation of Solomonoff induction described in \cite{TODO} which is
+especially suited for plans described by conditional second order
+distributions, in other words $\TPredImpl$ links.  More specifically
+plans are $\TPredImpl$ links of the form
+$$C \MAnd A \MPredImpl^T G$$
+called \emph{Cognitive Schematics}.  Which can be read as \emph{``in some
+context $C$, if some action (elementary or composite) $A$ is executed,
+then after $T$ time units, the goal $G$ is likely to be fulfilled''}.
+The degree of expected fulfillment is specified by the truth value of
+the $\TPredImpl$ link, not indicated in that notational format but
+present in the extended Atomese format.  The difficulty then comes
+down to discovering cognitive schematics that are as informative and
+applicable as possible.
+
+\subsection{Learning Phase}
+As hinted above, the ultimate goal of the learning phase is to
+discover maximally useful cognitive schematics, and by useful it is
+specifically meant that they are as XXX and cover as many situations
+as possible.
+
+NEXT
 
 \section{Experiment with Simple Minecraft Environment}
 
