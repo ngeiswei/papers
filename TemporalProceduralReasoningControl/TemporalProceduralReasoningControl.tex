@@ -65,8 +65,8 @@
 
 \begin{document}
 %
-\title{Temporal and Procedural Reasoning for Rational Agent Control in
-  OpenCog}
+\title{Temporal and Procedural Reasoning with Probabilistic Logic
+  Networks for Agent Control}
 
 %\titlerunning{Abbreviated paper title}
 % If the paper title is too long for the running head, you can set
@@ -446,7 +446,7 @@ $$
   \hline
   \text{Atomese} & \text{Notation} & \text{Precedence} \\
   \hline
-  \TEval(P, \TList(X_1, ..., X_n)) & P(X_1, ..., X_n) & 1 \\
+  \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n) & 1 \\
   \TLamb(t, \TAtTime(\TExec(A), t)) & \MDo{A} & 1 \\
   \TLead(P, T) & \MLead{P}{T} & 1 \\
   \TAnd(P, Q) & P \MAnd Q & 2 \\
@@ -458,8 +458,16 @@ $$
 $$
 The precedence of everything else (predicates nodes, etc) is 0.
 
+TODO: show examples of notational format with the effect of precedence
+
 \subsection{Temporal Rules}
+
+TODO: $\TPredImpl$ direct introduction.
+
 Given that we can now introduce our temporal rules, (PI), (IP), (S)
+
+TODO: detail (PI), (IP), (S) rules
+
 and the most important one Temporal Deduction (TD)
 {\small
   \begin{prooftree}
@@ -502,44 +510,70 @@ deduction as follows
 \subsection{Procedural Reasoning}
 
 Likewise, we can use the same temporal to regular deduction mapping to
-build inference rules for procedural reasoning
+build inference rules for procedural reasoning.  Given two cognitive
+schematics
+$$P \MAnd \MDo{A} \MPredImpl^{T_1} Q$$
+expressing that executing $A$ in context $P$ likely leads to context
+$Q$ after $T_1$ time units, and
+$$Q \MAnd \MDo{B} \MPredImpl^{T_2} R$$
+expressing that executing $B$ in context $Q$ likely leads to context
+$R$ after $T_2$ time units, the question becomes how to infer the
+likelihood that executing $A$ and $B$ in sequence starting from
+context $P$ leads to context $R$ after $T_1+T_2$ time units,
+corresponding to the cognitive schematic
+$$P \MAnd \MDo{A} \MSeqAnd^{T_1} \MDo{B} \MPredImpl^{T_1+T_2} R$$
+
+Using the same rules to map $\TPredImpl$ to regular $\TImpl$ and vice
+versa, as well as rules about the $\TLead$ operator, we can construct
+the following inference tree, in fact the PLN engine can construct it
+for us
 
 {\tiny
   \begin{prooftree}
-    \AxiomC{$P \MAnd \MDo{A} \MPredImpl^{T_1} Q$}
+    \AxiomC{$P\!\MAnd\!\MDo{A} \MPredImpl^{T_1} Q$}
     \RightLabel{(PI)}
-    \UnaryInfC{$P \MAnd \MDo{A} \MImpl
-      \overleftarrow{Q}^{T_1}$}
-    \AxiomC{$\MDo{B}$}
-    \RightLabel{(S)}
-    \UnaryInfC{$\overleftarrow{\MDo{B}}^{T_1}$}
+    \UnaryInfC{$P\!\MAnd\!\MDo{A} \MImpl^{T_1} \MLead{Q}{T_1}$}
     \RightLabel{(C)}
-    \BinaryInfC{$P \MAnd \MDo{A} \MAnd
-      \overleftarrow{\MDo{B}}^{T_1} \MImpl
-      \overleftarrow{Q}^{T_1} \MAnd \overleftarrow{\MDo{B}}^{T_1}$}
-    \AxiomC{$Q \MAnd \MDo{B} \MPredImpl^{T_2} R$}
+    \UnaryInfC{$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1} \MImpl
+      \MLead{Q}{T_1}\!\MAnd\!\MLead{\MDo{B}}{T_1}$}
+    \AxiomC{$Q\!\MAnd\!\MDo{B} \MPredImpl^{T_2} R$}
     \RightLabel{(PI)}
-    \UnaryInfC{$Q \MAnd \MDo{B} \MImpl \overleftarrow{R}^{T_2}$}
+    \UnaryInfC{$Q\!\MAnd\!\MDo{B} \MImpl \MLead{R}{T_2}$}
     \RightLabel{(S)}
-    \UnaryInfC{$\overleftarrow{Q}^{T_1} \MAnd
-      \overleftarrow{\MDo{B}}^{T_1} \MImpl
-      \overleftarrow{R}^{T_1+T_2}$}
-    %% \AxiomC{$P \MAnd \MDo{A}$}
-    %% \AxiomC{$\overleftarrow{\MDo{B}}^{T_1}$}
+    \UnaryInfC{$\MLead{Q}{T_1}\!\MAnd\!\MLead{\MDo{B}}{T_1} \MImpl
+      \MLead{R}{T_1+T_2}$}
+    %% \AxiomC{$P\!\MAnd\!\MDo{A}$}
+    %% \AxiomC{$\MLead{\MDo{B}}{T_1}$}
     %% \RightLabel{(C)}
-    \AxiomC{$P \MAnd \MDo{A} \MAnd \overleftarrow{\MDo{B}}^{T_1}$}
-    \AxiomC{$Q \MAnd \MDo{B}$}
+    \AxiomC{$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1}$}
+    \AxiomC{$Q\!\MAnd\!\MDo{B}$}
     \RightLabel{(S)}
-    \UnaryInfC{$\overleftarrow{Q}^{T_1} \MAnd \overleftarrow{\MDo{B}}^{T_1}$}
+    \UnaryInfC{$\MLead{Q}{T_1}\!\MAnd\!\MLead{\MDo{B}}{T_1}$}
     \AxiomC{$R$}
     \RightLabel{(S)}
-    \UnaryInfC{$\overleftarrow{R}^{T_1+T_2}$}
+    \UnaryInfC{$\MLead{R}{T_1+T_2}$}
     \RightLabel{(D)}
-    \QuinaryInfC{$P \MAnd \MDo{A} \MAnd \overleftarrow{\MDo{B}}^{T_1} \MImpl \overleftarrow{R}^{T_1+T_2}$}
+    \QuinaryInfC{$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1} \MImpl \MLead{R}{T_1+T_2}$}
     \RightLabel{(IP)}
-    \UnaryInfC{$P \MAnd \MDo{A} \MSeqAnd^{T_1}
-      \MDo{B} \MPredImpl^{T_1+T_2} R$}
+    \UnaryInfC{$P\!\MAnd\!\MDo{A}\!\MSeqAnd^{T_1}\!\MDo{B} \MPredImpl^{T_1+T_2} R$}
 \end{prooftree}}
+which reduces to the following inference tree after retaining only the
+premises and the conclusion
+{\tiny
+  \begin{prooftree}
+    \AxiomC{$P\!\MAnd\!\MDo{A} \MPredImpl^{T_1} Q$}
+    \AxiomC{$Q\!\MAnd\!\MDo{B} \MPredImpl^{T_2} R$}
+    \AxiomC{$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1}$}
+    \AxiomC{$Q\!\MAnd\!\MDo{B}$}
+    \AxiomC{$R$}
+    \RightLabel{(ASD)}
+    \QuinaryInfC{$P\!\MAnd\!\MDo{A}\!\MSeqAnd^{T_1}\!\MDo{B} \MPredImpl^{T_1+T_2} R$}
+\end{prooftree}}
+providing an Action Sequence Deduction (ASD) rule ready to be used for
+procedural reasoning.  Three additional premises have been added
+$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1}$, $Q\!\MAnd\!\MDo{B}$
+and $R$.
+
 
 \section{Rational OpenCog Controlled Agent}
 To experiment with temporal and procedural reasoning in the context of
@@ -615,10 +649,10 @@ applicable as possible.
 \subsection{Learning Phase}
 As hinted above, the ultimate goal of the learning phase is to
 discover maximally useful cognitive schematics, and by useful it is
-specifically meant that they are as XXX and cover as many situations
+specifically meant that they are as predictive and cover as many cases
 as possible.
 
-NEXT
+TODO: pattern mining and reasoning.
 
 \section{Experiment with Simple Minecraft Environment}
 
@@ -642,6 +676,9 @@ $$\textit{inside}(\textit{self}, \textit{house}) \MAnd \MDo{\textit{go\_to}(\tex
 In this experiment, we measure the agent's performance by the cognitive schematics learned and accumulated rewards achieved. The ROCAA agent is successful in learning the required cognitive schematics which leads the agent to collect more rewards in the second cycle. However, these findings with a simple minecraft environment with only few actions might not tell the overall performance of ROCCA. As a future work, further extensive experiments are needed to conclude the performance achieved.
 
 \section{Conclusion}
+
+TODO: implement more temporal and procedural rules, support temporal
+intervals, behavior trees, introduce Temporal Truth Value.
 
 %
 % ---- Bibliography ----
