@@ -32,6 +32,8 @@
 \newcommand{\TImpl}{\textit{Implication}}
 \newcommand{\TPredImpl}{\textit{PredictiveImplication}}
 \newcommand{\TSeqAnd}{\textit{SequentialAnd}}
+\newcommand{\TBSeqAnd}{\textit{BackSequentialAnd}}
+\newcommand{\TFSeqAnd}{\textit{ForeSequentialAnd}}
 \newcommand{\TLag}{\textit{Lag}}
 \newcommand{\TLead}{\textit{Lead}}
 \newcommand{\TTV}{\textit{TV}}
@@ -61,6 +63,7 @@
 \newcommand{\MSeqAnd}{\prec}
 \newcommand{\MDo}[1]{\widehat{#1}}
 %% \newcommand{\MDo}[1]{do(#1)}
+\newcommand{\MLag}[2]{\overrightarrow{#1}^{#2}}
 \newcommand{\MLead}[2]{\overleftarrow{#1}^{#2}}
 
 \begin{document}
@@ -107,6 +110,11 @@ The agent starts in a completely unknown environment
 
 The idea is that reasoning is used at all levels, discovering patterns
 from raw observations, building plans and making decisions.
+
+\section{Related Work}
+
+Event Calculus.  Temporal Logic (Next operator).  Subjective logic and
+evidence-based subjective logic.
 
 \section{Contributions}
 
@@ -236,7 +244,8 @@ numbers, a strength and a confidence, both ranging from 0 to 1.  The
 strength represents a probability while the confidence represents a
 precision over that probability.  Underneath, strength and confidence
 can be mapped into a second order distribution such as a Beta
-distribution [TODO: add figure].
+distribution [TODO: add figure].  TODO: cite Subjective Logic and
+Chapt 4 of the PLN book.
 
 \subsection{Inference Rules}
 
@@ -348,8 +357,8 @@ The temporal logic define in \cite{TODO} is somewhat partial and
 ambiguous.  In that section we provide a possible completion.
 %% , showing how the two inference rules recalled
 %% above to carry out temporal reasoning.  Let us define that
-Let us begin by defining \emph{Temporal Predicates} as regular
-predicates with a temporal dimension
+Let us begin by defining \emph{Temporal Predicates}, also called
+\emph{Fluents}, as regular predicates with a temporal dimension
 $$P, Q, R, \hdots: \TAtom^n \times \TTime \mapsto \{\TTrue,
 \TFalse\}$$ $\TTime$ here is considered discrete, formally defined as
 a natural number.
@@ -358,9 +367,39 @@ a natural number.
 Given temporal predicates we can now define a small set of temporal
 operators.
 
-\subsubsection{$\TLead$} is a temporal operator used to shift the
-temporal dimension of a temporal predicate.  It is formally defined as
-follows
+\subsubsection{$\TLag$ and $\TLead$} are temporal operators to shift the
+time dimension of a temporal predicate.
+
+The $\TLag$ operator is formally defined as follows
+$$
+\begin{array}{l}
+  \TLag\\
+  \SP P\\
+  \SP T\\
+\end{array}
+$$
+:=
+$$
+\begin{array}{l}
+  \TLamb\\
+  \SP x_1, ..., x_n, t\\
+  \SP P(x_1, ..., x_n, t-T)\\
+\end{array}
+$$
+where the first line of the $\TLamb$ link is the variable
+declaration of the temporal predicate and the second line is the body
+representing a temporally shifted reconstruction of $P$.  Informally
+speaking, the $\TLag$ operator gives a peek into the past, or
+equivalently, brings the past into the present.  This is a major
+difference with \cite{PLN} that defined sequential and using notions
+of the Event Calculus \cite{TODO}.  Here we do not do that (TODO:
+maybe such operator should be called PrecedeAnd, or such).  That is
+because using this simpler notion of sequential and allows more
+flexibility to construct various forms of descriptions of how events
+initialization, termination, etc, are sequenced.
+
+The $\TLead$ operator is the inverse of the $\TLag$ operator and is
+formally defined as follows
 $$
 \begin{array}{l}
   \TLead\\
@@ -375,24 +414,60 @@ $$
   \SP x_1, ..., x_n, t\\
   \SP P(x_1, ..., x_n, t+T)\\
 \end{array}
-$$ where the first line of the $\TLamb$ link is the variable
-declaration and the second line is the body representing a temporally
-shifted reconstruction of $P$.  Informally one might say the $\TLead$
-operator gives a peek into the future, or equivalently, that it brings
-the future into the present.
-
-\subsubsection{$\TSeqAnd$} is a temporal conjunction, formally defined
-as
+$$ As the inverse of the $\TLag$ operator, the $\TLead$ operator gives
+a peek into the future, or equivalently, brings the future into the
+present.  Finally, as being the inverse of one another, the following
+equivalence holds
 $$
 \begin{array}{l}
-  \TSeqAnd\\
+  \TLag\\
+  \SP \TLead\\
+  \SP \SP P\\
+  \SP \SP T\\
+  \SP T\\
+\end{array}
+\equiv
+\begin{array}{l}
+  P\\
+\end{array}
+$$
+
+\subsubsection{$\TSeqAnd$} is a temporal conjunction where one of the
+temporal predicate arguments have been temporally shifted.  There are
+two variations one can define.  A $\TBSeqAnd$ variation where the past
+of one of the temporal predicates is brought into the present, using the
+$\TLag$ operator, formally defined as
+$$
+\begin{array}{l}
+  \TBSeqAnd\\
   \SP T\\
   \SP P\\
   \SP Q\\
 \end{array}
-$$
 :=
+\begin{array}{l}
+  \TAnd\\
+  \SP \TLag\\
+  \SP \SP P\\
+  \SP \SP T\\
+  \SP Q\\
+\end{array}
 $$
+resulting into a temporal predicate such that in order to be true
+at time $t$ requires that $P$ be true at time $t$ and $Q$ be true at
+time $t+T$.
+
+Inversely, there is a $\TFSeqAnd$ variation where the future of the
+other temporal predicate is brought into the present, formally defined
+as
+$$
+\begin{array}{l}
+  \TFSeqAnd\\
+  \SP T\\
+  \SP P\\
+  \SP Q\\
+\end{array}
+:=
 \begin{array}{l}
   \TAnd\\
   \SP P\\
@@ -401,9 +476,29 @@ $$
   \SP \SP T\\
 \end{array}
 $$
-resulting into a new temporal predicate, that in order to be true
-at some time $t$, requires that $P$ be true at time $t$ and $Q$ be
-true at time $t+T$.
+resulting into a temporal predicate such that in order to be true
+at time $t$ requires that $P$ be true at time $t-T$ and $Q$ be true at
+time $t$.
+
+Finally one may notice that $\TBSeqAnd$ and $\TFSeqAnd$ equivalent up
+to temporal shifting, as follows
+
+NEXT
+$$
+\begin{array}{l}
+  \TBSeqAnd\\
+  \SP T\\
+  \SP P\\
+  \SP Q\\
+\end{array}
+\equiv
+\begin{array}{l}
+  \TBSeqAnd\\
+  \SP T\\
+  \SP P\\
+  \SP Q\\
+\end{array}
+$$
 
 \subsubsection{$\TPredImpl$} likewise defines a temporal implication,
 formally
@@ -457,6 +552,35 @@ $$
 \end{array}
 $$
 The precedence of everything else (predicates nodes, etc) is 0.
+
+%% Note that, assuming a ForeSequentialAnd, whether it is right or left
+%% associative, changes whether the lag should be cumulative or not.
+%%
+%% Right-associative:
+%% C∧A₁≺ᵀA₂≺ᵁA₃
+%% C∧A₁≺ᵀ(A₂≺ᵁA₃)
+%% C∧A₁∧Lead(A₂≺ᵁA₃, T)
+%% C∧A₁∧Lead(A₂∧Lead(A₃, U), T)
+%% C∧A₁∧Lead(A₂,T)∧Lead(A₃,T+U)
+%%
+%% Left-associative:
+%% C∧A₁≺ᵀA₂≺ᵁA₃
+%% (C∧A₁≺ᵀA₂)≺ᵁA₃
+%% C∧A₁∧Lead(A₂,T)≺ᵁA₃
+%% C∧A₁∧Lead(A₂,T)∧Lead(A₃,U)
+%%
+%% Assuming a BackSequentialAnd, it is the opposite
+
+For instance
+
+%% $$
+%% \begin{array}{l}
+%%   \TPredImpl\ \TBTV\\
+%%   \SP \TSeqAnd\\
+%%   \SP
+%%   \SP E\\
+%% \end{array}
+%% $$
 
 TODO: show examples of notational format with the effect of precedence
 
@@ -678,7 +802,8 @@ In this experiment, we measure the agent's performance by the cognitive schemati
 \section{Conclusion}
 
 TODO: implement more temporal and procedural rules, support temporal
-intervals, behavior trees, introduce Temporal Truth Value.
+intervals, behavior trees, introduce Temporal Truth Value.  Integrate
+Event Calculus.
 
 %
 % ---- Bibliography ----
