@@ -368,7 +368,13 @@ Given temporal predicates we can now define a small set of temporal
 operators.
 
 \subsubsection{$\TLag$ and $\TLead$} are temporal operators to shift the
-time dimension of a temporal predicate.
+time dimension of a temporal predicate.  $\TLag$, respectively
+$\TLead$, is similar to the Yesterday $Y$, respectively Tomorrow $X$,
+operator of Linear Temporal Logic \cite{TODO}, with the difference
+that it applies over an expression of predicate type as opposed to an
+expression of boolean type.  It also takes a temporal difference as
+extra argument, which, in the case of a discrete time, would amount to
+calling the $Y$ or $X$ operators multiple times.
 
 The $\TLag$ operator is formally defined as follows
 $$
