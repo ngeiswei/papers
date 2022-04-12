@@ -111,6 +111,8 @@ The agent starts in a completely unknown environment
 The idea is that reasoning is used at all levels, discovering patterns
 from raw observations, building plans and making decisions.
 
+It is a work in progress.
+
 \section{Related Work}
 
 Event Calculus.  Temporal Logic (Next operator).  Subjective logic and
@@ -370,12 +372,12 @@ operators.
 
 \subsubsection{$\TLag$ and $\TLead$} are temporal operators to shift the
 time dimension of a temporal predicate.  $\TLag$, respectively
-$\TLead$, is similar to the Yesterday $Y$, respectively Tomorrow $X$,
-operator of Linear Temporal Logic \cite{TODO}, with the difference
-that it applies over an expression of predicate type as opposed to an
-expression of boolean type.  It also takes a temporal difference as
-extra argument, which, in the case of a discrete time, would amount to
-calling the $Y$ or $X$ operators multiple times.
+$\TLead$, is similar to the metric variation of the \emph{Past}
+operator denoted $P_n$, respectively the \emph{Future} operator
+denoted $F_n$, of Temporal Logic \cite{Prior 1967, Chapter VI}, with
+the distinction that it applies over an expression that evaluates into
+a temporal predicate, as opposed to an expression that evaluates into
+boolean.
 
 The $\TLag$ operator is formally defined as follows
 $$
