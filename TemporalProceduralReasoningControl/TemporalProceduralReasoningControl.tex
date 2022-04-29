@@ -9,6 +9,8 @@
 \usepackage{amssymb}
 \usepackage{bussproofs}
 \usepackage{cite}
+%% \usepackage{harpoon}
+%% \usepackage{accents}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
@@ -28,10 +30,12 @@
 \newcommand{\TExec}{\textit{Execution}}
 \newcommand{\TAtTime}{\textit{AtTime}}
 \newcommand{\TAnd}{\textit{And}}
+\newcommand{\TOr}{\textit{Or}}
 \newcommand{\TNot}{\textit{Not}}
 \newcommand{\TImpl}{\textit{Implication}}
 \newcommand{\TPredImpl}{\textit{PredictiveImplication}}
 \newcommand{\TSeqAnd}{\textit{SequentialAnd}}
+\newcommand{\TSeqOr}{\textit{SequentialOr}}
 \newcommand{\TBSeqAnd}{\textit{BackSequentialAnd}}
 \newcommand{\TFSeqAnd}{\textit{ForeSequentialAnd}}
 \newcommand{\TLag}{\textit{Lag}}
@@ -55,16 +59,42 @@
 \newcommand{\Tstrength}{\textit s}
 \newcommand{\Tconf}{\textit c}
 
-% Commands for mathematical notations
+% Commands for symbolic mathematical notations
 \newcommand{\MPr}{\mathbf{Pr}}
 \newcommand{\MAnd}{\wedge}
+\newcommand{\MOr}{\vee}
 \newcommand{\MImpl}{\rightarrow}
-\newcommand{\MPredImpl}{\leadsto}
-\newcommand{\MSeqAnd}{\prec}
+\newcommand{\MPredImpl}[1]{\leadsto^{#1}}
+%% \newcommand{\MSeqAnd}{\curlywedge}
+%% \newcommand{\MSeqOr}{\curlyvee}
+%% \newcommand{\MSeqAnd}{\stackrel{\wedge}{\prec}}
+%% \newcommand{\MSeqOr}{\stackrel{\vee}{\prec}}
+\newcommand{\MSeqAnd}[1]{\stackrel{\prec}{\wedge}^{#1}\!\!\!}
+\newcommand{\MSeqOr}[1]{\stackrel{\prec}{\vee}^{#1}\!\!\!}
+%% \newcommand{\MSeqAnd}{\accentset{\prec}{\wedge}}
+%% \newcommand{\MSeqOr}{\accentset{\prec}{\vee}}
+%% \newcommand{\MForeSeqAnd}{\underrightharpdown{^}}
+%% \newcommand{\MSeqAnd}{\underrightharpdown{$\wedge$}}
+%% \newcommand{\MSeqAnd}{\underset{\rightharpoondown}{\wedge}}
+%% \newcommand{\MSeqAnd}{\stackrel{\wedge}{\rightharpoondown}}
+\newcommand{\nstackrel}[2]{%
+  \mathrel{\vbox{\offinterlineskip\ialign{%
+    \hfil##\hfil\cr
+    $\scriptscriptstyle #1$\cr
+    \noalign{\kern-.01ex}
+    $#2$\cr
+}}}}
+%% \newcommand{\MSeqAnd}{\nstackrel{\wedge}{\prec}}
+%% \newcommand{\MSeqOr}{\nstackrel{\vee}{\prec}}
+%% \newcommand{\MSeqAnd}{\nstackrel{\prec}{\wedge}}
+%% \newcommand{\MSeqOr}{\nstackrel{\prec}{\vee}}
 \newcommand{\MDo}[1]{\widehat{#1}}
 %% \newcommand{\MDo}[1]{do(#1)}
 \newcommand{\MLag}[2]{\overrightarrow{#1}^{#2}}
 \newcommand{\MLead}[2]{\overleftarrow{#1}^{#2}}
+%% TODO: try to replace over right arrow by over right harp, etc
+%% \newcommand{\MLag}[2]{\accentset{\overrightharp}{#1}^{#2}}
+%% \newcommand{\MLead}[2]{\overleftharp{#1}^{#2}}
 
 \begin{document}
 %
@@ -112,6 +142,15 @@ The idea is that reasoning is used at all levels, discovering patterns
 from raw observations, building plans and making decisions.
 
 It is a work in progress.
+
+Neural networks are excellent at interpolation, but are rather poor at
+extrapolation, what we need for true intelligence is a system that
+thinks critically.
+
+Rarely do causes and effects take place over arbitrary temporal
+scales.  For instance it is unlikely to find a cause that may produce
+the same effect, or an effect at all, after 1ms, 1 century or any time
+in between.  For that reason we focus on a real time temporal logic.
 
 \section{Related Work}
 
@@ -552,11 +591,14 @@ $$
   \hline
   \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n) & 1 \\
   \TLamb(t, \TAtTime(\TExec(A), t)) & \MDo{A} & 1 \\
+  \TLag(P, T) & \MLag{P}{T} & 1 \\
   \TLead(P, T) & \MLead{P}{T} & 1 \\
   \TAnd(P, Q) & P \MAnd Q & 2 \\
-  \TSeqAnd(T, P, Q) & P \MSeqAnd^T Q & 3 \\
+  \TOr(P, Q) & P \MOr Q & 2 \\
+  \TSeqAnd(T, P, Q) & P \MSeqAnd{T} Q & 3 \\
+  \TSeqOr(T, P, Q) & P \MSeqOr{T} Q & 3 \\
   \TImpl(P, Q) & P \MImpl Q & 4 \\
-  \TPredImpl(T, P, Q) & P \MPredImpl^T Q & 4 \\
+  \TPredImpl(T, P, Q) & P \MPredImpl{T} \! \! Q & 4 \\
   \hline
 \end{array}
 $$
@@ -604,13 +646,13 @@ TODO: detail (PI), (IP), (S) rules
 and the most important one Temporal Deduction (TD)
 {\small
   \begin{prooftree}
-    \AxiomC{$P \MPredImpl^{T_1} Q$}
-    \AxiomC{$Q \MPredImpl^{T_2} R$}
+    \AxiomC{$P \MPredImpl{T_1} Q$}
+    \AxiomC{$Q \MPredImpl{T_2} R$}
     \AxiomC{$P$}
     \AxiomC{$Q$}
     \AxiomC{$R$}
     \RightLabel{(TD)}
-    \QuinaryInfC{$P \MPredImpl^{T_1+T_2} R$}
+    \QuinaryInfC{$P \MPredImpl{T_1+T_2} R$}
   \end{prooftree}
 }
 To determine the formula to calculate the resulting truth value of
@@ -619,10 +661,10 @@ deduction as follows
 
 {\tiny
   \begin{prooftree}
-    \AxiomC{$P \MPredImpl^{T_1} Q$}
+    \AxiomC{$P \MPredImpl{T_1} Q$}
     \RightLabel{(PI)}
     \UnaryInfC{$P \MImpl \MLead{Q}{T_1}$}
-    \AxiomC{$Q \MPredImpl^{T_2} R$}
+    \AxiomC{$Q \MPredImpl{T_2} R$}
     \RightLabel{(PI)}
     \UnaryInfC{$Q \MImpl \MLead{R}{T_2}$}
     \RightLabel{(S)}
@@ -637,7 +679,7 @@ deduction as follows
     \RightLabel{(D)}
     \QuinaryInfC{$P \MImpl \MLead{R}{T_1+T_2}$}
     \RightLabel{(IP)}
-    \UnaryInfC{$P \MPredImpl^{T_1+T_2} R$}
+    \UnaryInfC{$P \MPredImpl{T_1+T_2} R$}
 \end{prooftree}}
 
 \subsection{Procedural Reasoning}
@@ -645,16 +687,16 @@ deduction as follows
 Likewise, we can use the same temporal to regular deduction mapping to
 build inference rules for procedural reasoning.  Given two cognitive
 schematics
-$$P \MAnd \MDo{A} \MPredImpl^{T_1} Q$$
+$$P \MAnd \MDo{A} \MPredImpl{T_1} Q$$
 expressing that executing $A$ in context $P$ likely leads to context
 $Q$ after $T_1$ time units, and
-$$Q \MAnd \MDo{B} \MPredImpl^{T_2} R$$
+$$Q \MAnd \MDo{B} \MPredImpl{T_2} R$$
 expressing that executing $B$ in context $Q$ likely leads to context
 $R$ after $T_2$ time units, the question becomes how to infer the
 likelihood that executing $A$ and $B$ in sequence starting from
 context $P$ leads to context $R$ after $T_1+T_2$ time units,
 corresponding to the cognitive schematic
-$$P \MAnd \MDo{A} \MSeqAnd^{T_1} \MDo{B} \MPredImpl^{T_1+T_2} R$$
+$$P \MAnd \MDo{A} \MSeqAnd{T_1} \MDo{B} \MPredImpl{T_1+T_2} R$$
 
 Using the same rules to map $\TPredImpl$ to regular $\TImpl$ and vice
 versa, as well as rules about the $\TLead$ operator, we can construct
@@ -663,13 +705,13 @@ for us
 
 {\tiny
   \begin{prooftree}
-    \AxiomC{$P\!\MAnd\!\MDo{A} \MPredImpl^{T_1} Q$}
+    \AxiomC{$P\!\MAnd\!\MDo{A} \MPredImpl{T_1} Q$}
     \RightLabel{(PI)}
     \UnaryInfC{$P\!\MAnd\!\MDo{A} \MImpl^{T_1} \MLead{Q}{T_1}$}
     \RightLabel{(C)}
     \UnaryInfC{$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1} \MImpl
       \MLead{Q}{T_1}\!\MAnd\!\MLead{\MDo{B}}{T_1}$}
-    \AxiomC{$Q\!\MAnd\!\MDo{B} \MPredImpl^{T_2} R$}
+    \AxiomC{$Q\!\MAnd\!\MDo{B} \MPredImpl{T_2} R$}
     \RightLabel{(PI)}
     \UnaryInfC{$Q\!\MAnd\!\MDo{B} \MImpl \MLead{R}{T_2}$}
     \RightLabel{(S)}
@@ -688,19 +730,19 @@ for us
     \RightLabel{(D)}
     \QuinaryInfC{$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1} \MImpl \MLead{R}{T_1+T_2}$}
     \RightLabel{(IP)}
-    \UnaryInfC{$P\!\MAnd\!\MDo{A}\!\MSeqAnd^{T_1}\!\MDo{B} \MPredImpl^{T_1+T_2} R$}
+    \UnaryInfC{$P\!\MAnd\!\MDo{A}\!\MSeqAnd{T_1}\!\MDo{B} \MPredImpl{T_1+T_2} R$}
 \end{prooftree}}
 which reduces to the following inference tree after retaining only the
 premises and the conclusion
 {\tiny
   \begin{prooftree}
-    \AxiomC{$P\!\MAnd\!\MDo{A} \MPredImpl^{T_1} Q$}
-    \AxiomC{$Q\!\MAnd\!\MDo{B} \MPredImpl^{T_2} R$}
+    \AxiomC{$P\!\MAnd\!\MDo{A} \MPredImpl{T_1} Q$}
+    \AxiomC{$Q\!\MAnd\!\MDo{B} \MPredImpl{T_2} R$}
     \AxiomC{$P\!\MAnd\!\MDo{A}\!\MAnd\!\MLead{\MDo{B}}{T_1}$}
     \AxiomC{$Q\!\MAnd\!\MDo{B}$}
     \AxiomC{$R$}
     \RightLabel{(ASD)}
-    \QuinaryInfC{$P\!\MAnd\!\MDo{A}\!\MSeqAnd^{T_1}\!\MDo{B} \MPredImpl^{T_1+T_2} R$}
+    \QuinaryInfC{$P\!\MAnd\!\MDo{A}\!\MSeqAnd{T_1}\!\MDo{B} \MPredImpl{T_1+T_2} R$}
 \end{prooftree}}
 providing an Action Sequence Deduction (ASD) rule ready to be used for
 procedural reasoning.  Three additional premises have been added
@@ -769,7 +811,7 @@ variation of Solomonoff induction described in \cite{TODO} which is
 especially suited for plans described by conditional second order
 distributions, in other words $\TPredImpl$ links.  More specifically
 plans are $\TPredImpl$ links of the form
-$$C \MAnd A \MPredImpl^T G$$
+$$C \MAnd A \MPredImpl{T} G$$
 called \emph{Cognitive Schematics}.  Which can be read as \emph{``in some
 context $C$, if some action (elementary or composite) $A$ is executed,
 then after $T$ time units, the goal $G$ is likely to be fulfilled''}.
@@ -802,9 +844,9 @@ There are lists of allowed actions provided by minecraft that an agent can perfo
 We perform various experiments tuning different parameters. A typical experiment has two iterations of the learning-training process with a duration of fifty iterations for each training. In the first cycle the agent will not have prior knowledge hence no learning will take place. The agent pursues the environment and builds its knowledge base by trying a combination of fifty randomly weighted actions. At the end of the first cycle the agent will have enough background knowledge to apply Pattern miner and PLN temporal reasoning. Hence, during the second cycle, the agent will be able to learn and plan the desired cognitive schematics which leads to a positive goal of getting a reward.\\
 The ROCCA agent is able to learn the following cognitive schematics with higher strength.
 
-$$\textit{outside}(\textit{self}, \textit{house}) \MAnd \MDo{\textit{go\_to}(\textit{key})} \MPredImpl^1 \textit{hold}(\textit{self}, \textit{key})$$
-$$\textit{hold}(\textit{self}, \textit{key}) \MAnd \MDo{\textit{go\_to}(\textit{house})} \MPredImpl^1 \textit{inside}(\textit{self}, \textit{house})$$
-$$\textit{inside}(\textit{self}, \textit{house}) \MAnd \MDo{\textit{go\_to}(\textit{diamond})} \MPredImpl^1 \textit{reward}(1)$$
+$$\textit{outside}(\textit{self}, \textit{house}) \MAnd \MDo{\textit{go\_to}(\textit{key})} \MPredImpl{1} \textit{hold}(\textit{self}, \textit{key})$$
+$$\textit{hold}(\textit{self}, \textit{key}) \MAnd \MDo{\textit{go\_to}(\textit{house})} \MPredImpl{1} \textit{inside}(\textit{self}, \textit{house})$$
+$$\textit{inside}(\textit{self}, \textit{house}) \MAnd \MDo{\textit{go\_to}(\textit{diamond})} \MPredImpl{1} \textit{reward}(1)$$
 
 In this experiment, we measure the agent's performance by the cognitive schematics learned and accumulated rewards achieved. The ROCAA agent is successful in learning the required cognitive schematics which leads the agent to collect more rewards in the second cycle. However, these findings with a simple minecraft environment with only few actions might not tell the overall performance of ROCCA. As a future work, further extensive experiments are needed to conclude the performance achieved.
 
