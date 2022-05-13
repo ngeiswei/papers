@@ -9,6 +9,8 @@
 \usepackage{amssymb}
 \usepackage{bussproofs}
 \usepackage{cite}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows}
 
 % For ⩘ and ⩗ (requires the LuaLaTeX engine)
 \usepackage{unicode-math}
@@ -725,6 +727,36 @@ and $R$.
 
 
 \section{Rational OpenCog Controlled Agent}
+
+% See https://www.baeldung.com/cs/latex-flowcharts
+
+\tikzstyle{terminator} = [rectangle, draw, text centered, rounded
+  corners, minimum height=2em]
+\tikzstyle{data}=[trapezium, draw, text centered, trapezium left
+  angle=60, trapezium right angle=120, minimum height=2em]
+\tikzstyle{connector} = [draw, -latex']
+\tikzstyle{process} = [rectangle, draw, text centered, minimum
+  height=2em]
+\tikzstyle{decision} = [diamond, draw, text centered, minimum
+  height=2em]
+
+\begin{tikzpicture}
+\node [terminator, fill=blue!20] at (0,0) (start) {\textbf{Start}};
+\node [data, fill=blue!20] at (0,-2) (data) {Provide data};
+\node [decision, fill=blue!20] at (0,-5) (decision) {Valid data?};
+\node [process, fill=red!20] at (3.5,-5) (error) {Error};
+\node [process, fill=green!20] at (0,-8) (success) {Success};
+\node [terminator, fill=blue!20] at (0,-10) (end) {\textbf{End}};
+\node[draw=none] at (1.85, -4.75) (no) {No};
+\node[draw=none] at (0.35, -6.75) (yes) {Yes};
+\path [connector] (start) -- (data);
+\path [connector] (data) -- (decision);
+\path [connector] (decision) -- (error);
+\path [connector] (decision) -- (success);
+\path [connector] (error) |- (end);
+\path [connector] (success) -- (end);
+\end{tikzpicture}
+
 To experiment with temporal and procedural reasoning in the context of
 embodied virtual agents in unknown environments we have implemented a
 project called ROCCA, which stands for \emph{Rational OpenCog
