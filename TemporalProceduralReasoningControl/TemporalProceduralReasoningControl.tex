@@ -9,8 +9,6 @@
 \usepackage{amssymb}
 \usepackage{bussproofs}
 \usepackage{cite}
-\usepackage{tikz}
-\usetikzlibrary{shapes, arrows}
 
 % For ⩘ and ⩗ (requires the LuaLaTeX engine)
 \usepackage{unicode-math}
@@ -728,34 +726,7 @@ and $R$.
 
 \section{Rational OpenCog Controlled Agent}
 
-% See https://www.baeldung.com/cs/latex-flowcharts
-
-\tikzstyle{terminator} = [rectangle, draw, text centered, rounded
-  corners, minimum height=2em]
-\tikzstyle{data}=[trapezium, draw, text centered, trapezium left
-  angle=60, trapezium right angle=120, minimum height=2em]
-\tikzstyle{connector} = [draw, -latex']
-\tikzstyle{process} = [rectangle, draw, text centered, minimum
-  height=2em]
-\tikzstyle{decision} = [diamond, draw, text centered, minimum
-  height=2em]
-
-\begin{tikzpicture}
-\node [terminator, fill=blue!20] at (0,0) (start) {\textbf{Start}};
-\node [data, fill=blue!20] at (0,-2) (data) {Provide data};
-\node [decision, fill=blue!20] at (0,-5) (decision) {Valid data?};
-\node [process, fill=red!20] at (3.5,-5) (error) {Error};
-\node [process, fill=green!20] at (0,-8) (success) {Success};
-\node [terminator, fill=blue!20] at (0,-10) (end) {\textbf{End}};
-\node[draw=none] at (1.85, -4.75) (no) {No};
-\node[draw=none] at (0.35, -6.75) (yes) {Yes};
-\path [connector] (start) -- (data);
-\path [connector] (data) -- (decision);
-\path [connector] (decision) -- (error);
-\path [connector] (decision) -- (success);
-\path [connector] (error) |- (end);
-\path [connector] (success) -- (end);
-\end{tikzpicture}
+\includegraphics[width=1\textwidth]{pictures/rocca-chart.png}
 
 To experiment with temporal and procedural reasoning in the context of
 embodied virtual agents in unknown environments we have implemented a
@@ -841,7 +812,7 @@ In this experiment we built a minecraft environment using Malmo, which is a plat
 The aim of this experiment is to make the ROCCA agent learn from the actions and perceptions in the minecraft environment and do efficient planning so as to be able to collect as many diamonds as possible and accumulate reward. The ROCCA agent will be able to perform a series of possible actions with a goal of achieving a reward and learns from them by applying PLN (Probabilistic Logic Networks) and Pattern Miner, which can be seen as a specialized form of PLN reasoning. The Planning, the discovery of cognitive schematics, is also handled by PLN and its temporal reasoning rule base.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[scale=.2]{simple_demo.png}}
+\centerline{\includegraphics[scale=.2]{pictures/simple_demo.png}}
 \caption{Simple Minecraft demo with a house and a key.}
 \label{fig}
 \end{figure}
