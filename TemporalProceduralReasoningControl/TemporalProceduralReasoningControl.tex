@@ -178,13 +178,15 @@ values.  There is a large variety of constructs for PLN, here we will
 focus primarily on constructs for manipulating predicates.  Let us
 recall that predicates are functions that take tuples of Atoms and
 output boolean values
-$$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$ Within
-predicate constructs there are two classes of operators
+$$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$
+Predicate constructs can be grouped in two classes of operators
 \begin{enumerate}
 \item one for defining predicate from instances, such as $\TEval$ and
   $\TLamb$,
 \item and another for combining existing predicates, such as $\TAnd$,
-  $\TNot$ and $\TImpl$.
+  $\TOr$ and $\TNot$ (obtained by lifting their pointwise counterparts
+  to the predicate domain), and $\TImpl$ (for representing conditional
+  probabilities).
 \end{enumerate}
 Let us present these operators below, corresponding to the minimum
 subset we will need in the rest of the paper.
