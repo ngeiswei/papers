@@ -1,4 +1,4 @@
 for j in {1..3}; do
-    bibtex TemporalProceduralReasoningControl
-    lualatex TemporalProceduralReasoningControl.tex
+    bibtex TemporalProbabilisticLogicNetworks
+    lualatex TemporalProbabilisticLogicNetworks.tex
 done
