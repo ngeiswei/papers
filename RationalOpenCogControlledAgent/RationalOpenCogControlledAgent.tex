@@ -153,7 +153,7 @@ The contributions of that paper are:
 
 \section{Rational OpenCog Controlled Agent}
 
-\includegraphics[width=1\textwidth]{pictures/rocca-chart-v0.6.pdf}
+\includegraphics[width=1\textwidth]{pictures/rocca-chart-v0.7.pdf}
 
 To experiment with temporal and procedural reasoning in the context of
 embodied virtual agents in unknown environments we have implemented a
@@ -173,25 +173,54 @@ One may possibly see ROCCA as a reinforcement learning agent with the
 particularity that learning and planning are, at least in principle,
 entire done via reasoning.  In that respect it is similar in spirit to
 OpenNARS for Applications (ONA) \cite{TODO} but uses PLN as its core
-reasoning logic rather than NAL \cite{TODO}.
+reasoning logic rather than NAL \cite{TODO}.\\
 %% Where it differs from a typical
 %% reinforcement learning agent in that both learning and planning are,
 
-ROCCA is composed of two main processes, one for real-time agent
-control and another one for non-reactive background learning.  In
-principle these two processes could happen in parallel, though as of
-right now they occur as distinct alternating phases.
+\subsection{Memory}
 
-\subsection{Control Phase}
-The control phase is composed of control cycles, each decomposed into
-Observation, Planning and Acting steps, more precisely
+The memory of the agent is split into three AtomSpaces:
 \begin{enumerate}
-\item Observation step:
+\item The \emph{Percepta}\footnote{Percepta means percepts in Latin.
+    It is the plurial form of perceptum.  Latin was chosen over
+    English so that the difference between singular and plurial does
+    not reduce to a single letter, s, which can be prone to confusions
+    when reading and writing code.}  AtomSpace: holds timestamped
+  observations as they come into the system.
+\item The \emph{Working} AtomSpace: holds any kind of data, ranging
+  from timestamped observations to predictive implications.  Most
+  knowledge inferred during the course of learning are usually dumped
+  into this AtomSpace.
+\item The \emph{Schemata} AtomSpace: holds predictive implications
+  representing cognitive schematics.
+\end{enumerate}
+The reasons for such splitting are:
+\begin{enumerate}
+\item Increased \emph{efficiency}: both the Percepta and Schemata
+  AtomSpaces are specialized to hold only what is required for rapid
+  IO processing.
+\item Increased \emph{clarity}: troubleshooting and repairing is also
+  made easier that way.
+\end{enumerate}
+
+\subsection{Processes}
+
+ROCCA is composed of two main processes:
+\begin{enumerate}
+\item \emph{Control}: for real-time reactive agent control;
+\item \emph{Learning}: for non-reactive background process learning.
+\end{enumerate}
+
+\subsection{Control}
+The control process is composed of control cycles, each decomposed
+into Observation, Planning and Acting steps.  More precisely:
+\begin{enumerate}
+\item The \emph{Observation} step:
   \begin{enumerate}
   \item receives and timestamps observations from the environment,
-  \item stores the timestamped observations in the atomspace.
+  \item stores the timestamped observations in the percepta atomspace.
   \end{enumerate}
-\item Planning step:
+\item The \emph{Planning} step:
   \begin{enumerate}
   \item selects the goal for that iteration,
   \item finds plans fulfilling that goal,
@@ -200,38 +229,68 @@ Observation, Planning and Acting steps, more precisely
   \item selects the next action according to the deduced probabilistic
     distribution.
   \end{enumerate}
-\item Acting step:
+\item The \emph{Acting} step:
   \begin{enumerate}
-  \item timestamps and stores in the atomspace the selected action,
+  \item timestamps and stores in the percepta atomspace the selected
+    action,
   \item runs the selected action and by that updates the environment,
   \item receives the reward from the environment,
-  \item timestamps and stores the reward in the atomspace.
+  \item timestamps and stores the reward in the percepta atomspace.
   \end{enumerate}
 \end{enumerate}
-
-None of these steps are difficult to carry with the exception of
-deducing a probabilistic distribution of actions.  For that we use a
-variation of Solomonoff induction described in \cite{TODO} which is
-especially suited for plans described by conditional second order
-distributions, in other words $\TPredImpl$ links.  More specifically
-plans are $\TPredImpl$ links of the form
+None of these steps are computationally demanding with the exception
+of deducing a probabilistic distribution of actions.  For that we use
+a variation of Solomonoff induction described in
+\cite{Geisweiller2018} which is especially suited for plans described
+by conditional second order distributions, in other words predictive
+implication links.  More specifically plans are predictive implication
+links of the form
 $$C \land A \lpreimp{T} G$$
-called \emph{Cognitive Schematics}.  Which can be read as \emph{``in some
-context $C$, if some action (elementary or composite) $A$ is executed,
-then after $T$ time units, the goal $G$ is likely to be fulfilled''}.
-The degree of expected fulfillment is specified by the truth value of
-the $\TPredImpl$ link, not indicated in that notational format but
-present in the extended Atomese format.  The difficulty then comes
-down to discovering cognitive schematics that are as informative and
-applicable as possible.
+called \emph{Cognitive Schematics} or \emph{Schemata}.  Which can be
+read as \emph{``in some context $C$, if some action $A$ is executed,
+  then after $T$ time units, the goal $G$ is likely to be
+  fulfilled''}.  Note that $A$ does not need to be limited to
+elementary actions but can be composite as well, potential describing
+entire plans composed of action sequences, conditionals and such
+[NEXT: mention behavior tree].  In other words, Cognitive Schematics
+should be expressive enough for general decision making.  The
+likelihood of goal fulfillment is specified by the truth value of the
+predictive implication link, which is not indicated in that notational
+format but is present in the extended Atomese format.  The difficulty
+then comes down to discovering cognitive schematics that are as
+predictive and applicable as possible, which translates into
+predictive implication links which broad contexts, high strength and
+high confidence.  An example of an ideal cognitive schematic would be
+$$\mathbb{True} \land A \lpreimp{T} G$$
+that has a strength and confidence of one, and is universally
+applicable\footnote{$\mathbb{True}$ represents the predicate that is
+  always true}.  For real environments and goals however, such ideal
+is almost never reached.  More often than not we will have instead a
+large collection of cognitive schematics with narrow contexts and poor
+predictiveness.  To make the best of it, a mixture of second order
+distributions is built over all applicable cognitive schematics as
+described in~\cite{Geisweiller2018} and action selection is performed
+using Thompson Sampling, which has been proven to be asymptotically
+optimal in general environments~\cite{Leike2016}, and excellent at
+balancing exploitation and exploration in principle.
 
-\subsection{Learning Phase}
+\subsection{Learning}
 As hinted above, the ultimate goal of the learning phase is to
 discover maximally useful cognitive schematics, and by useful it is
 specifically meant that they are as predictive and cover as many cases
 as possible.
 
-TODO: pattern mining and reasoning.
+NEXT: pattern mining and reasoning.
+
+In principle these two processes, Control and Learning, could happen
+in parallel.  In practice though, purely for technical simplicity,
+they alternate in series.  Basically, the agent starts in a control
+phase, a number of control cycles occur as the agent interacts with
+its environment, gathers observations and takes (initially random)
+actions, which follows then by a long learning phase when the agent
+discover regularities in its environments and build plans, and finally
+resumes the control phase to test how the agent performs after
+learning.
 
 \section{Experiment with Simple Minecraft Environment}
 
@@ -255,6 +314,14 @@ $$\textit{inside}(\textit{self}, \textit{house}) \land \ldo{\textit{go\_to}(\tex
 In this experiment, we measure the agent's performance by the cognitive schematics learned and accumulated rewards achieved. The ROCAA agent is successful in learning the required cognitive schematics which leads the agent to collect more rewards in the second cycle. However, these findings with a simple minecraft environment with only few actions might not tell the overall performance of ROCCA. As a future work, further extensive experiments are needed to conclude the performance achieved.
 
 \section{Conclusion}
+
+\begin{enumerate}
+\item Forgetting
+\item Functional Pattern Mining
+\item Attention Allocation
+\item Inner actions
+\item Port to OpenCog Hyperon
+\end{enumerate}
 
 %
 % ---- Bibliography ----
