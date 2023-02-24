@@ -224,25 +224,24 @@ into Observation, Planning and Action phases, described below:
 \begin{enumerate}
 \item \emph{Observation}:
   \begin{enumerate}
-  \item receive and timestamps observations from the environment,
-  \item store the timestamped observations in the Percepta AtomSpace.
-  \item TODO: should storing action and reward be part of that phase?
+  \item receive and timestamp observations, reward included, from the
+    environment,
+  \item store the timestamped observations and reward in the Percepta
+    AtomSpace.
   \end{enumerate}
 \item \emph{Planning}:
   \begin{enumerate}
   \item select the goal for that iteration,
   \item find plans fulfilling that goal from the Schemata AtomSpace,
-  \item build a mixture distribution from these plans,
-  \item select the next action via Thompson Sampling according to that
-    mixture distribution.
+  \item build a mixture distribution from these plans.
   \end{enumerate}
 \item \emph{Action}:
   \begin{enumerate}
+  \item select the next action via Thompson Sampling according to that
+    mixture distribution,
   \item timestamp and store the selected action in the Percepta
     AtomSpace,
-  \item run the selected action, which updates the environment,
-  \item receive the reward from the environment,
-  \item timestamp and store the reward in the Percepta AtomSpace.
+  \item run the selected action and by that update the environment,
   \end{enumerate}
 \end{enumerate}
 None of these steps are computationally expensive and involve
@@ -279,13 +278,74 @@ are inserted to the Percepta AtomSpace.
 
 \subsubsection{Planning}
 
+The first step of the planning phase is to select a goal $G$ to
+fulfill.  That is an important step that has been elaborated in
+publications such as~\cite{TODO, TODO}.  In the current version of
+ROCCA though it merely returns a constant goal which is to gain a
+reward within a forward window.  Once a goal has been selected, the
+agent queries the Schemata AtomSpace with the following pattern
+matcher query
+$$\$C \land \$A \lpreimp{T} G$$
+where
+\begin{itemize}
+\item $\$C$ is a variable representing the context,
+\item $\$A$ is a variable representing the action or action
+  plan~\footnote{Variables are actually typed so that the pattern
+    matcher cannot confuse what is context and action.},
+\item $T$ is a time delta selected within that forward window,
+\item $G$ is a selected goal.
+\end{itemize}
+All returned candidates, predictive implications, are then filtered
+according to their contexts, only retaining the ones with contexts
+being evaluated to true at the current time.  Ideally a second order
+probability of a context being current true should be evaluated, but
+in the current version of ROCCA a crisp evaluation is used for the
+sake of simplicity.
 
+From this set of predictive implications with true contexts, a second
+order mixture distribution is built approximating very roughly a
+Solomonoff distribution as explained in~\cite{TODO}.
 
 \subsubsection{Action}
 
-NEXT: explain how second order distribution can be used for Thomspon
-Sampling.  0.51 vs 0.49, High strength with low confidence vs high
-confidence vs low strength.
+The Action phase consists of the following steps:
+\begin{enumerate}
+\item Select the next action via Thompson Sampling according to the
+  mixture distribution built during the planning phase.
+\item Timestamp and store the selected action in the Percepta
+  AtomSpace.
+\item Run the selected action and updates the environment.
+\end{enumerate}
+
+The trickiest step here is selecting the next action via Thompson
+Sampling.  The novelty is that the second order probabilities can be
+leveraged by Thompson Sampling.  For example, assume we have two
+actions to choose from, $A_1$ and $A_2$, among two predictive
+implications
+$$
+\begin{array}{c}
+  C_1 \land A_1 \lpreimp{T} G\ \measeq\ <\!0.7, 0.9\!> \\
+  C_2 \land A_2 \lpreimp{T} G\ \measeq\ <\!0.8, 0.1\!>
+\end{array}
+$$
+Using only first order probabilities, the choice is clear, action
+$A_2$ should be selected, because its probability of success, 0.8, is
+greater than that of $A_1$, 0.7.  However once introducing second
+order probabilities, that choice becomes less clear because the
+probability of success of $A_2$ has also a low confidence.  In that
+case what Thomspon Sampling does is to sample first order
+probabilities from the second order distributions.  Stated informally,
+the idea is to consider the possibilities that the agent might be
+living in a world where $A_2$ has a lower probability of success than
+$A_1$.  Figure~\ref{TODO} shows a graphical representation of the
+second order distributions of the probabilities of success of $A_1$
+and $A_2$.
+
+In this example above only two actions among two cognitive schematics
+are considered, but in practice we usually have a handful of actions
+among a potentially very large number of cognitive schematics.  How to
+deal with a multitude of cognitive schematics is treated
+in~\cite{Geisweiller2018} as mentioned above.
 
 For that we use a variation of Solomonoff induction described in
 \cite{Geisweiller2018} which is especially suited for plans described
@@ -349,7 +409,29 @@ we can have
 
 $$\lgo{x} \lpreimp{1} square(x)$$
 
+Pattern mining is a relatively inexpensive way to generate mono-action
+cognitive schematics.  Mining poly-action cognitive schematics is
+possible but it has two drawbacks
+\begin{enumerate}
+\item In the worse case, the computational cost of mining goes up
+  exponentially with the size of the action sequence to mine.
+\item The number of observations to accumulate in order to generate
+  cognitive schematics with decent confidences goes up exponentially
+  as well.
+\end{enumerate}
+The latter is really the most limiting factor because we cannot buy
+our way out of it.  If each percept takes a certain amount time to
+observe, determined by the control cycle period in the case of primary
+observations, then we have to do through them, we cannot speed time
+up.  This is even more true for abstract percepts that can only be
+observed at periods which are multiples of control cycle periods.  In
+order to address these limitations, and to build poly-action cognitive
+schematics with realistic probability estimates and confidences, we
+need reasoning.
+
 \subsubsection{Temporal and Procedural Reasoning}
+
+The most important
 
 \section{Experiment with Simple Minecraft Environment}
 
@@ -380,6 +462,7 @@ In this experiment, we measure the agent's performance by the cognitive schemati
 \item Attention Allocation
 \item Inner actions
 \item Port to OpenCog Hyperon
+\item Second order evaluation of context being currently true
 \end{enumerate}
 
 %
