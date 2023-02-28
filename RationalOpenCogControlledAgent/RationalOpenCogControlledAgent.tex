@@ -94,6 +94,7 @@
 %
 
 \begin{abstract}
+  
   TODO
 
   \keywords{Symbolic Reinforcement Learning \and Procedural Reasoning
@@ -139,6 +140,13 @@ in between.  For that reason we focus on a real time temporal logic.
 
 \subsection{Related Work}
 
+ROCCA is essentially a reboot of~\cite{Goertzel2011} using a
+modernized version of the OpenCog pattern miner, as well as a
+simplified version of OpenPsi~\cite{Cai2011, Cai2013} leaving aside
+various built-in urges and modulators from MicroPsi~\cite{Bach2012}
+and using an action selection policy based on Thompson
+Sampling~\cite{Leike2016}.
+
 \subsection{Contributions}
 
 The contributions of that paper are:
@@ -156,16 +164,21 @@ The contributions of that paper are:
 
 \section{Rational OpenCog Controlled Agent}
 
-\includegraphics[width=1\textwidth]{pictures/rocca-chart-v0.7.pdf}
+\begin{figure}
+  \centerline{\includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}}
+  \caption{Rational OpenCog Controlled Agent control and learning
+    cycles merged into a single loop}
+  \label{fig:rocca}
+\end{figure}
 
 To experiment with temporal and procedural reasoning in the context of
 embodied virtual agents in unknown environments we have implemented a
 project called ROCCA, which stands for \emph{Rational OpenCog
-Controlled Agent}.  ROCCA essentially acts as an interface between
-virtual environments such as Malmo \cite{TODO} or OpenAI Gym
-\cite{TODO} and OpenCog.  It provides an Observation-Planning-Action
-control loop as well as various launchers to run OpenCog processes
-such as PLN reasoning, pattern mining, etc.
+  Controlled Agent}.  ROCCA essentially acts as an interface between
+virtual environments such as Malmo \cite{Johnson2016} or OpenAI Gym
+\cite{Brockman2016} and OpenCog~\cite{Hart2008}.  It provides an
+Observation-Planning-Action control loop as well as various launchers
+to run OpenCog processes such as PLN reasoning, pattern mining, etc.
 %% During the life of the
 %% agent control and learning phases are alternated to simulate a form of
 %% online learning.
@@ -175,8 +188,9 @@ the necessary learning and the planning to fulfill that goal.
 One may possibly see ROCCA as a reinforcement learning agent with the
 particularity that learning and planning are, at least in principle,
 entire done via reasoning.  In that respect it is similar in spirit to
-OpenNARS for Applications (ONA) \cite{TODO} but uses PLN as its core
-reasoning logic rather than NAL \cite{TODO}.\\
+OpenNARS for Applications (ONA)~\cite{Hammer2020} but uses
+PLN~\cite{Goertzel2009} as its core
+reasoning logic rather than NAL~\cite{Wang2011}.\\
 %% Where it differs from a typical
 %% reinforcement learning agent in that both learning and planning are,
 
@@ -208,7 +222,7 @@ The reasons for such splitting are:
 
 \subsection{Processes}
 
-Figure~\ref{TODO} shows a large cycle moving through all phases
+Figure~\ref{fig:rocca} shows a large cycle moving through all phases
 sequentially.  In theory that is valid, but in practice we want to
 split processes, TODO.
 
@@ -247,13 +261,14 @@ into Observation, Planning and Action phases, described below:
 None of these steps are computationally expensive and involve
 algorithms that are at most linear with the size of the Percepta and
 Schemata AtomSpaces.  For real-time responsiveness however such
-control cycle must be temporally bound by a constant.  This may entail
-incorporating other mechanisms such as filtering and forgetting.  As
-important as this problem is however, it has been let aside for now
-and is left for future research.  Given the small environments ROCCA
-has been tested with, it has not been a practical problem at this
-point but will soon be.  More on the subject can be found in some of
-our previous publications~\cite{TODO: EAI}.
+control cycle must be temporally bound by a constant.  Achieving this
+may entail incorporating other mechanisms such as filtering and
+forgetting cognitive schematics.  As important as this problem is
+however, it has been let aside for now and is left for future
+research.  Given the small environments ROCCA has been tested with, it
+has not been a practical problem at this point but will soon be.  More
+on the subject of \emph{Attention Allocation} can be found in the
+Chapter 4 of~\cite{Goertzel2014EGI2}.
 
 Let us now provide a more detail account of these three phases.
 
@@ -279,12 +294,12 @@ are inserted to the Percepta AtomSpace.
 \subsubsection{Planning}
 
 The first step of the planning phase is to select a goal $G$ to
-fulfill.  That is an important step that has been elaborated in
-publications such as~\cite{TODO, TODO}.  In the current version of
-ROCCA though it merely returns a constant goal which is to gain a
-reward within a forward window.  Once a goal has been selected, the
-agent queries the Schemata AtomSpace with the following pattern
-matcher query
+fulfill.  That is an important step that has been elaborated
+in~\cite{Goertzel2014EGI1, Hahm2021}.  In the current version of ROCCA
+though it merely returns a constant goal which is to gain a reward
+within a forward window.  Once a goal has been selected, the agent
+queries the Schemata AtomSpace with the following pattern matcher
+query
 $$\$C \land \$A \lpreimp{T} G$$
 where
 \begin{itemize}
@@ -295,16 +310,15 @@ where
 \item $T$ is a time delta selected within that forward window,
 \item $G$ is a selected goal.
 \end{itemize}
-All returned candidates, predictive implications, are then filtered
-according to their contexts, only retaining the ones with contexts
-being evaluated to true at the current time.  Ideally a second order
-probability of a context being current true should be evaluated, but
-in the current version of ROCCA a crisp evaluation is used for the
-sake of simplicity.
+All returned candidates are then filtered according to their contexts,
+only retaining the ones with contexts being evaluated to true at the
+current time.  Ideally a second order probability of a context being
+current true would be used, but in the current version of ROCCA a
+crisp evaluation is used for the sake of simplicity.
 
 From this set of predictive implications with true contexts, a second
 order mixture distribution is built approximating very roughly a
-Solomonoff distribution as explained in~\cite{TODO}.
+Solomonoff distribution as explained in~\cite{Geisweiller2018}.
 
 \subsubsection{Action}
 
@@ -316,7 +330,6 @@ The Action phase consists of the following steps:
   AtomSpace.
 \item Run the selected action and updates the environment.
 \end{enumerate}
-
 The trickiest step here is selecting the next action via Thompson
 Sampling.  The novelty is that the second order probabilities can be
 leveraged by Thompson Sampling.  For example, assume we have two
@@ -324,62 +337,90 @@ actions to choose from, $A_1$ and $A_2$, among two predictive
 implications
 $$
 \begin{array}{c}
-  C_1 \land A_1 \lpreimp{T} G\ \measeq\ <\!0.7, 0.9\!> \\
-  C_2 \land A_2 \lpreimp{T} G\ \measeq\ <\!0.8, 0.1\!>
+  C_1 \land A_1 \lpreimp{T} G \measeq\ <\!0.6, 0.9\!> \\
+  C_2 \land A_2 \lpreimp{T} G \measeq\ <\!0.7, 0.1\!>
 \end{array}
 $$
-Using only first order probabilities, the choice is clear, action
-$A_2$ should be selected, because its probability of success, 0.8, is
-greater than that of $A_1$, 0.7.  However once introducing second
-order probabilities, that choice becomes less clear because the
-probability of success of $A_2$ has also a low confidence.  In that
-case what Thomspon Sampling does is to sample first order
-probabilities from the second order distributions.  Stated informally,
-the idea is to consider the possibilities that the agent might be
-living in a world where $A_2$ has a lower probability of success than
-$A_1$.  Figure~\ref{TODO} shows a graphical representation of the
-second order distributions of the probabilities of success of $A_1$
-and $A_2$.
+Using only the strengths as proxy for probabilities, the choice is
+clear.  Action $A_2$ should be selected, because its probability of
+success, which is 0.7, is greater than that of $A_1$, which is 0.6.
+However once introducing second order probabilities, that choice
+becomes less clear because the truth value of success of $A_2$ has a
+low confidence of 0.1.  In that case, first order probabilities are
+first sampled from their corresponding second order distributions,
+% associated to the truth values of success of $A_1$ and $A_2$,
+and then these probabilities are compared.  The action with the
+maximum probability wins.  That is the essence of Thompson Sampling.
+More informally stated, the idea is to consider the possibilities that
+the agent might be living in a world where $A_2$ has a lower
+probability of success than $A_1$.
+\begin{figure}
+  \centerline{\includegraphics[width=0.8\textwidth]{pictures/actiondist.pdf}}
+  \caption{Second order distributions of the probability of success of
+    actions $A_1$ and $A_2$, using as parameters of the beta
+    distribution $\alpha(s, c)=\alpha_0 + \frac{s.c.K}{1-c}$ and
+    $\beta(s, c)=\beta_0 + \frac{(1-s).c.K}{1-c}$} where $K$, the
+  \emph{lookahead}, is set to 100, and $\alpha_0$ and $\beta_0$ are
+  set to Jeffreys prior.
+  \label{fig:actiondist}
+\end{figure}
+Figure~\ref{fig:actiondist} shows the second order distributions of
+the probabilities of success of $A_1$, in blue, and $A_2$, in red, for
+these truth values.  As one may notice, the area under the red curve
+situated at the left of the blue curve is non-negligible.  Meaning
+that the probability of being in a world where $A_1$ has a higher
+probability of success than $A_2$ is non-negligible as well.  Because
+these strengths and confidences are periodically updated during the
+lifetime of the agent, one can see how Thompson Sampling is a great
+alternative compared to $\varepsilon$-greedy, offering a
+parameter-free mechanism to balance exploration and exploitation that
+dynamically adapts with the knowledge of the agent.
 
-In this example above only two actions among two cognitive schematics
-are considered, but in practice we usually have a handful of actions
-among a potentially very large number of cognitive schematics.  How to
-deal with a multitude of cognitive schematics is treated
-in~\cite{Geisweiller2018} as mentioned above.
+Note that in this example above only two actions among two cognitive
+schematics are considered, but in practice there usually is a handful
+of actions among a potentially very large number of cognitive
+schematics, with overlapping, possibly conflicting, contexts and
+goals.  The resulting distributions of success of each actions in
+those cases are typically multi-modal and do not reduce to beta
+distributions.  How to deal with such multitude of cognitive
+schematics is treated in~\cite{Geisweiller2018}.
 
-For that we use a variation of Solomonoff induction described in
-\cite{Geisweiller2018} which is especially suited for plans described
-by conditional second order distributions, in other words predictive
-implication links.  More specifically plans are predictive implication
-links of the form
-$$C \land A \lpreimp{T} G$$
+For that we use a variation of Solomonoff induction described
+in~\cite{Geisweiller2018} which is especially suited for plans
+described by conditional second order distributions, in other words
+predictive implications.  More specifically plans are predictive
+implication links of the form
+$$C \land A \lpreimp{T} G \measeq \textit{TV}$$
 called \emph{Cognitive Schematics} or \emph{Schemata}.  Which can be
 read as \emph{``in some context $C$, if some action $A$ is executed,
-  then after $T$ time units, the goal $G$ is likely to be
-  fulfilled''}.  Note that $A$ does not need to be limited to
-elementary actions but can be composite as well, potential describing
-entire plans composed of action sequences, conditionals and such
-[NEXT: mention behavior tree].  In other words, Cognitive Schematics
-should be expressive enough for general decision making.  The
-likelihood of goal fulfillment is specified by the truth value of the
-predictive implication link, which is not indicated in that notational
-format but is present in the extended Atomese format.  The difficulty
-then comes down to discovering cognitive schematics that are as
-predictive and applicable as possible, which translates into
-predictive implication links which broad contexts, high strength and
-high confidence.  An example of an ideal cognitive schematic would be
-$$\mathbb{True} \land A \lpreimp{T} G$$
+  then after $T$ time units, the goal $G$ is likely to be fulfilled,
+  with probability described by $\textit{TV}$''}.  Note that $A$ does
+not need to be limited to elementary actions but can be composite as
+well, potential describing entire plans composed of action sequences,
+conditionals and such, akin to behavior trees.  In other words,
+Cognitive Schematics should be expressive enough for general decision
+making.
+% The likelihood of goal fulfillment is specified by the truth
+% value of the predictive implication link, which is not indicated in
+% that notational format but is present in the extended Atomese format.
+The difficulty then comes down to discovering cognitive schematics
+that are as predictive and widely applicable as possible, which
+translates into predictive implications which broad contexts, high
+strength and high confidence.  An example of an ideal cognitive
+schematic would be
+$$\mathbb{True} \land A \lpreimp{T} G \measeq\ <\! 1, 1\! >$$
 that has a strength and confidence of one, and is universally
 applicable\footnote{$\mathbb{True}$ represents the predicate that is
   always true}.  For real environments and goals however, such ideal
-is almost never reached.  More often than not we will have instead a
-large collection of cognitive schematics with narrow contexts and poor
+is beyond reach.  More often than not we will have instead a large
+collection of cognitive schematics with narrow contexts and poor
 predictiveness.  To make the best of it, a mixture of second order
-distributions is built over all applicable cognitive schematics as
-described in~\cite{Geisweiller2018} and action selection is performed
-using Thompson Sampling, which has been proven to be asymptotically
-optimal in general environments~\cite{Leike2016}, and excellent at
-balancing exploitation and exploration in principle.
+distributions is built over all applicable cognitive schematics, in a
+manner that approximates a Solomonoff distribution, as described
+in~\cite{Geisweiller2018}.  Action selection is then performed based
+on that mixture using Thompson Sampling~\cite{Leike2016}.
+% , and
+% excellent at balancing exploitation and exploration in principle.
 
 \subsection{Learning}
 As hinted above, the ultimate goal of the learning phase is to
@@ -399,19 +440,22 @@ learning.
 
 \subsubsection{Pattern Mining}
 
-The advantage of using Pattern Mining is that already at this stage,
-abstract rules can be induced.  For instance instead of having
-
+The advantage of using pattern mining is that already at this stage,
+abstract rules can be induced.  For instance the pattern miner can
+discover temporal relationships between predicates, such as
 $$\lgo{\textit{right}} \lpreimp{1} square(right)$$
 $$go(left) \lpreimp{1} square(left)$$
-
-we can have
-
+meaning that if the agent goes to the right (resp. left), at the next
+time unit, it will be located on the right (resp. left) square.  But
+it can also discover abstractions such as
 $$\lgo{x} \lpreimp{1} square(x)$$
+The pattern mining algorithm used in ROCCA is actually a specialized
+form of reasoning, that is easily interlaced with more general forms
+of reasoning~\cite{Geisweiller2019}.
 
-Pattern mining is a relatively inexpensive way to generate mono-action
-cognitive schematics.  Mining poly-action cognitive schematics is
-possible but it has two drawbacks
+As it stands, pattern mining can be a relatively inexpensive way to
+generate mono-action cognitive schematics.  Mining poly-action
+cognitive schematics is possible but has two drawbacks:
 \begin{enumerate}
 \item In the worse case, the computational cost of mining goes up
   exponentially with the size of the action sequence to mine.
@@ -420,28 +464,46 @@ possible but it has two drawbacks
   as well.
 \end{enumerate}
 The latter is really the most limiting factor because we cannot buy
-our way out of it.  If each percept takes a certain amount time to
-observe, determined by the control cycle period in the case of primary
+our way out of it.  If each observation takes a certain amount time,
+determined by the control cycle period in the case of primary
 observations, then we have to do through them, we cannot speed time
 up.  This is even more true for abstract percepts that can only be
-observed at periods which are multiples of control cycle periods.  In
-order to address these limitations, and to build poly-action cognitive
-schematics with realistic probability estimates and confidences, we
-need reasoning.
+observed at periods which are multiples of control cycle periods.
+Also, in some cases, a particular action sequence may even never be
+observed at all, yet we still would like to have a way to estimate the
+likelihood of its success.  In order to address these limitations, and
+to build complex cognitive schematics with good probability estimates
+and confidences, we need reasoning.
 
 \subsubsection{Temporal and Procedural Reasoning}
 
-The most important
+ROCCA uses a temporal extension of PLN, described in detail
+in~\cite{Geisweiller2023TPLN}, to infer new cognitive schematics, not
+only from direct observations, or also based on other cognitive
+schematics and background knowledge.  An example would be to combine
+mono-action plans to infer poly-action plans.  Another example would
+be to specialize a context or a goal.  As for now three temporal rules
+are integrated into ROCCA:
+
+\begin{enumerate}
+\item Predictive Implication Direct Introduction: TODO.
+\item Temporal Conditional Conjunction Introduction: TODO.
+\item Temporal Deduction: TODO.
+\end{enumerate}
+
+The precise semantics of these rules is detailed
+in~\cite{Geisweiller2023TPLN}.  An example of how these rules are used
+in ROCCA is detailed in Section~\ref{sec:minecraft}.
 
 \section{Experiment with Simple Minecraft Environment}
-
+\label{sec:minecraft}
 In this experiment we built a minecraft environment using Malmo, which is a platform for Artificial Intelligence experimentation and research built on top of Minecraft. The demo environment consists of a small house with a locked door, diamonds inside and a key to get into the house. The agent, initially located outside of the house, can perform different actions like getting a key, opening a door of the house and collecting the diamonds in order to achieve a reward. \par
 The aim of this experiment is to make the ROCCA agent learn from the actions and perceptions in the minecraft environment and do efficient planning so as to be able to collect as many diamonds as possible and accumulate reward. The ROCCA agent will be able to perform a series of possible actions with a goal of achieving a reward and learns from them by applying PLN (Probabilistic Logic Networks) and Pattern Miner, which can be seen as a specialized form of PLN reasoning. The Planning, the discovery of cognitive schematics, is also handled by PLN and its temporal reasoning rule base.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[scale=.2]{pictures/simple_demo.png}}
 \caption{Simple Minecraft demo with a house and a key.}
-\label{fig}
+\label{fig:minecraft}
 \end{figure}
 
 There are lists of allowed actions provided by minecraft that an agent can perform like moving, turning, picking etc.. but due to the limited processing capacity we have to handle the observations from each action and to reduce complexity, we proposed to have an abstract action and perception where unnecessary details have been omitted. With that we generate three abstract actions namely go-to-key, go-to-house, go-to-diamonds where each of them contains a series of actions and returns an abstract perception about where the agent is (inside house, outside house, next to closed door etc..), about its inventory (has key, diamond pickaxe etc..) and the reward of completing a given action. \par
@@ -455,15 +517,47 @@ $$\textit{inside}(\textit{self}, \textit{house}) \land \ldo{\textit{go\_to}(\tex
 In this experiment, we measure the agent's performance by the cognitive schematics learned and accumulated rewards achieved. The ROCAA agent is successful in learning the required cognitive schematics which leads the agent to collect more rewards in the second cycle. However, these findings with a simple minecraft environment with only few actions might not tell the overall performance of ROCCA. As a future work, further extensive experiments are needed to conclude the performance achieved.
 
 \section{Conclusion}
+\label{sec:conclusion}
+We have introduced an agent called ROCCA that leverages the OpenCog
+framework for controlling an agent in unknown and uncertain
+environments.  ROCCA is meant to be as rationally as possible, at the
+expense of efficiency when needed.  For now it is only able to operate
+is very simple environments involving a handful of actions and
+observations.  The type of learning used is however meant be
+open-ended, even though for now it is limited to syntactic hypergraph
+pattern mining and other limited form of temporal reasoning.  As of
+now it is able to build mine small plan from direct observations and
+larger plans from smaller plans using probabilistic reasoning.
 
+This is a preparatory work of a greater goal, which is to explore
+deeper forms of meta-learning and introspective reasoning.  Towards
+that end the remaining milestones are:
 \begin{enumerate}
-\item Forgetting
-\item Functional Pattern Mining
-\item Attention Allocation
-\item Inner actions
-\item Port to OpenCog Hyperon
-\item Second order evaluation of context being currently true
+\item Support temporal intervals and scales and add more temporal, as
+  well as spatial inference rules.
+\item Integrate ECAN~\cite{TODO} for \emph{Attention Allocation}, as
+  well as record attention spreading to learn Hebbian links and
+  improve attention allocation.
+\item Carry out concept creation and schematization, also called
+  crystallized attention allocation, to speed up repetitive
+  information processing even further.  It should be noted that this
+  done well should also provide a solution for the problem of creating
+  abstract observations and actions.
+\item Record more internal processes, not just attention spreading, as
+  internal percepta to enable deeper forms of introspection.
+\item Plan internal actions, not just external, to enable self-growth.
 \end{enumerate}
+
+% \begin{enumerate}
+% \item Forgetting
+% \item Functional Pattern Mining
+% \item Attention Allocation
+% \item Inner actions
+% \item Port to OpenCog Hyperon
+% \item Higher level percepts
+% \item Second order evaluation of context being currently true
+% \item Time interval
+% \end{enumerate}
 
 %
 % ---- Bibliography ----
