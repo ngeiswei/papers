@@ -103,11 +103,43 @@
 
 \section{Introduction}
 
-The goal of this project is to make an agent as rational as possible,
-not necessarily as efficient as possible.  This stems from the concern
-that in order to autonomously gain efficiency the agent must first be
-able to make the best possible decisions, starting first in the outer
-world, and then in the inner world.
+This paper describes an attempt to leverage the OpenCog
+framework~\cite{Hart2008} for controlling agents in uncertain
+environments.  It can be seen as a reboot of previous
+attempts~\cite{Goertzel2008, Goertzel2011, Cai2011, Cai2013} relying
+on more mature components such as
+\begin{itemize}
+\item a hypergraph pattern miner~\cite{Geisweiller2019} and a version
+  of PLN~\cite{Goertzel2009} both implemented on top of OpenCog's
+  Unified Rule Engine endowed with an inference control mechanism;
+\item a temporal and procedural extension of
+  PLN~\cite{Geisweiller2023TPLN};
+\item a simplified version of OpenPsi~\cite{Cai2011, Cai2013} leaving
+  aside built-in urges and modulators from MicroPsi~\cite{Bach2012}
+  and using an action selection policy based on Thompson
+  Sampling~\cite{Leike2016}.
+\end{itemize}
+It is comparable to OpenNARS for Applications (ONA)~\cite{Hammer2020}
+but, among other differences, uses PLN~\cite{Goertzel2009} as its core
+logic rather than NAL~\cite{Wang2011}.
+
+The ultimate goal of this project is to provide a technology to enable
+us to experiment with high forms of meta-learning and introspective
+reasoning for self-improvements and growth.  The rational for using a
+logic-based system is that it offers maximum transparency and is thus
+more amenable to reflectivity and introspection~\cite{Schmidhuber2003,
+  Goertzel2014EGI1}.  The work that is described in this paper is only
+the premise of that goal.  No meta-learning is taking place yet.  The
+objective for now is to build an agent that is able to discover its
+environment and acts rationally.  In a strong sense, the whole system
+is reasoning-based, from learning to planning.  The resulting software
+is called ROCCA for \emph{Rational OpenCog Controlled Agent}.
+
+% But before to make an agent as rational as possible, not necessarily as
+% efficient as possible.  This stems from the concern that in order to
+% autonomously gain efficiency the agent must first be able to make the
+% best possible decisions, starting first in the outer world, and then
+% in the inner world.
 
 % Inner actions could be as transitory as bringing a piece of
 % knowledge to the attentional focus, and as profound as rewriting a
@@ -120,50 +152,55 @@ world, and then in the inner world.
 % reasons ROCCA may well be seen as an approximated combination of
 % AI\Xi and a Goedel Machine.
 
-The paper presents
+% The paper presents
 
-The agent starts in a completely unknown environment
+% The agent starts in a completely unknown environment
 
-The idea is that reasoning is used at all levels, discovering patterns
-from raw observations, building plans and making decisions.
+% The idea is that reasoning is used at all levels, discovering patterns
+% from raw observations, building plans and making decisions.
 
-It is a work in progress.
+% It is a work in progress.
 
-Neural networks are excellent at interpolation, but are rather poor at
-extrapolation, what we need for true intelligence is a system that
-thinks critically.
+% Neural networks are excellent at interpolation, but are rather poor at
+% extrapolation, what we need for true intelligence is a system that
+% thinks critically.
 
-Rarely do causes and effects take place over arbitrary temporal
-scales.  For instance it is unlikely to find a cause that may produce
-the same effect, or an effect at all, after 1ms, 1 century or any time
-in between.  For that reason we focus on a real time temporal logic.
+% Rarely do causes and effects take place over arbitrary temporal
+% scales.  For instance it is unlikely to find a cause that may produce
+% the same effect, or an effect at all, after 1ms, 1 century or any time
+% in between.  For that reason we focus on a real time temporal logic.
 
-\subsection{Related Work}
+% \subsection{Related Work}
 
-ROCCA is essentially a reboot of~\cite{Goertzel2011} using a
-modernized version of the OpenCog pattern miner, as well as a
-simplified version of OpenPsi~\cite{Cai2011, Cai2013} leaving aside
-various built-in urges and modulators from MicroPsi~\cite{Bach2012}
-and using an action selection policy based on Thompson
-Sampling~\cite{Leike2016}.
+% ROCCA is essentially a reboot of~\cite{Goertzel2011} using a
+% modernized version of the OpenCog pattern miner, as well as a
+% simplified version of OpenPsi~\cite{Cai2011, Cai2013} leaving aside
+% various built-in urges and modulators from MicroPsi~\cite{Bach2012}
+% and using an action selection policy based on Thompson
+% Sampling~\cite{Leike2016}.
 
-\subsection{Contributions}
+% \subsection{Contributions}
 
-The contributions of that paper are:
-\begin{enumerate}
-\item Design an architecture for controlling an agent based on that
-  temporal reasoning extension.
-\end{enumerate}
+% The contributions of that paper are:
+% \begin{enumerate}
+% \item Design an architecture for controlling an agent based on that
+%   temporal reasoning extension.
+% \end{enumerate}
 
-\subsection{Outline}
+The rest of the paper is organized as follows.  The ROCCA software is
+described in Section~\ref{sec:rocca}.  An experiment using it to
+control an agent in Minecraft is described in
+Section~\ref{sec:minecraft}.  Finally a conclusion including future
+work and directions is given in Section~\ref{sec:conclusion}.
+% \subsection{Outline}
 
-\begin{enumerate}
-\item ROCCA
-\item Minecraft experiment
-\end{enumerate}
+% \begin{enumerate}
+% \item ROCCA
+% \item Minecraft experiment
+% \end{enumerate}
 
 \section{Rational OpenCog Controlled Agent}
-
+\label{sec:rocca}
 \begin{figure}
   \centerline{\includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}}
   \caption{Rational OpenCog Controlled Agent control and learning
@@ -187,10 +224,11 @@ the necessary learning and the planning to fulfill that goal.
 %% somewhat like a reinforcement learning agent.
 One may possibly see ROCCA as a reinforcement learning agent with the
 particularity that learning and planning are, at least in principle,
-entire done via reasoning.  In that respect it is similar in spirit to
-OpenNARS for Applications (ONA)~\cite{Hammer2020} but uses
-PLN~\cite{Goertzel2009} as its core
-reasoning logic rather than NAL~\cite{Wang2011}.\\
+entire done via reasoning.
+% In that respect it is similar in spirit to
+% OpenNARS for Applications (ONA)~\cite{Hammer2020} but uses
+% PLN~\cite{Goertzel2009} as its core
+% reasoning logic rather than NAL~\cite{Wang2011}.\\
 %% Where it differs from a typical
 %% reinforcement learning agent in that both learning and planning are,
 
