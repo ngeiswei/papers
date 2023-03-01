@@ -94,9 +94,7 @@
 %
 
 \begin{abstract}
-  
   TODO
-
   \keywords{Symbolic Reinforcement Learning \and Procedural Reasoning
     \and OpenCog \and Minecraft}
 \end{abstract}
@@ -131,9 +129,10 @@ more amenable to reflectivity and introspection~\cite{Schmidhuber2003,
   Goertzel2014EGI1}.  The work that is described in this paper is only
 the premise of that goal.  No meta-learning is taking place yet.  The
 objective for now is to build an agent that is able to discover its
-environment and acts rationally.  In a strong sense, the whole system
-is reasoning-based, from learning to planning.  The resulting software
-is called ROCCA for \emph{Rational OpenCog Controlled Agent}.
+environment and acts rationally, even at the expense of efficiency.
+In a strong sense, the whole system is reasoning-based, from learning
+to planning.  The resulting software is called ROCCA for
+\emph{Rational OpenCog Controlled Agent}.
 
 % But before to make an agent as rational as possible, not necessarily as
 % efficient as possible.  This stems from the concern that in order to
@@ -187,9 +186,10 @@ is called ROCCA for \emph{Rational OpenCog Controlled Agent}.
 %   temporal reasoning extension.
 % \end{enumerate}
 
-The rest of the paper is organized as follows.  The ROCCA software is
-described in Section~\ref{sec:rocca}.  An experiment using it to
-control an agent in Minecraft is described in
+The rest of the paper is organized as follows.  A recall of the
+OpenCog framework is provided in Section~\ref{sec:opencog}.  The ROCCA
+software is described in Section~\ref{sec:rocca}.  An experiment using
+it to control an agent in Minecraft is described in
 Section~\ref{sec:minecraft}.  Finally a conclusion including future
 work and directions is given in Section~\ref{sec:conclusion}.
 % \subsection{Outline}
@@ -199,6 +199,76 @@ work and directions is given in Section~\ref{sec:conclusion}.
 % \item Minecraft experiment
 % \end{enumerate}
 
+\section{OpenCog Framework Recall}
+\label{sec:opencog}
+OpenCog~\cite{Hart2008} is a framework offering a hypergraph database
+technology with a query language and a collection of programs built on
+top of it to perform cognitive functions such as learning, reasoning,
+spreading attention and more.  Knowledge is stored in
+\emph{AtomSpaces}, hypergraphs composed of atoms, links and nodes,
+where links can connect to other atoms.  Values can be attached to
+atoms to holding probability, confidence, importance and more.  Values
+and atoms can be of various types.  Let us recall the types we need
+for the rest of paper.
+\begin{itemize}
+\item A \emph{TruthValue} is a second order probability distribution,
+  i.e. the probability of a probability.
+\item A \emph{SimpleTrueValue} is a particular TruthValue where the
+  second order distribution is represented by a beta distribution of
+  parameters controlled by a \emph{strength}, a proxy for a
+  probability, and a \emph{confidence} over that probability.  It is
+  denoted $<\!s, c\!>$ where $s$ is the strength and $c$ is the
+  confidence.
+\item A \emph{Predicate} is function from a domain $D$ to $Boolean$.
+  A TruthValue can be attached to a predicate, representing the
+  prevalence of its satisfied inputs.  For instance
+  $P \measeq\ <\!0.4, 0.1\!>$ represents that $P$ tends to evaluate to
+  $\textit{True}$ 40\% of the time, but there is a small confidence of
+  0.1 over that 40\%.  A TrueValue can be attached to individual
+  evaluations as well.  For instance $P(a) \measeq\ <\!0.9, 1\!>$
+  represents that the probability of $P(a)$ evaluating to
+  $\textit{True}$ is 0.9, and we are certain about it.
+\item A \emph{Conjunction} is a link between two predicates,
+  representing the predicate resulting from the pointwise conjunction
+  of these two predicates.  For instance
+  $P \land Q \measeq\ <\!0.2, 0.3\!>$ represents the prevalence, with
+  strength 0.2 and confidence 0.3, of the pointwise conjunction of $P$
+  and $Q$.
+\item An \emph{Implication} is a link between two predicates,
+  semantically representing the conditional probability between two
+  events represented by these predicates.  For instance
+  $P \limp Q \measeq\ <\!0.7, 0.4\!>$ indicates that if $P(x)$ is
+  $\textit{True}$ then there is a 70\% change with a 0.4 confidence,
+  that $Q(x)$ is also $\textit{True}$.
+\end{itemize}
+Additionally we use the following types for temporal reasoning.
+\begin{itemize}
+\item A \emph{Sequential Conjunction} is a link between two temporal
+  predicates, representing the predicate resulting from the pointwise
+  conjunction of these predicates while the second one is lagging by a
+  certain time.  For instance $P \lseqand{T} Q$ is the pointwise
+  conjunction of $P$ and a lagging $Q$ by $T$ time units.
+\item A \emph{Predictive Implication} is a link between two temporal
+  predicates, representing the conditional probability between two
+  events lagging by a certain time.  For instance
+  $P \lpreimp{T} Q \measeq\ <\!0.8, 0.5\!>$ indicates that if $P(x)$
+  is $\textit{True}$ then there is a 80\% chance with a 0.5
+  confidence, that after $T$ time units $Q(x)$ will also be
+  $\textit{True}$.
+\end{itemize}
+The difference between a temporal and an atemporal predicate is in its
+domain.  The domain of a temporal predicate must have a dimension
+respecting certain properties such as having a total order and such.
+More detail about the temporal types and their associated inference
+rules is provided in~\cite{Geisweiller2023TPLN}.
+
+% that query and modify one or several atomspaces. There is an
+% overhaul remaking of OpenCog called Hyperon, but we will not touch
+% upon that in that paper as ROCCA is built on top of what we may call
+% OpenCog Classic,
+% % ~\footnote{OpenCog Classic is still
+% %   and will remain in development for the foreseeable future}
+% the predecessor of Hyperon.
 \section{Rational OpenCog Controlled Agent}
 \label{sec:rocca}
 \begin{figure}
@@ -207,7 +277,6 @@ work and directions is given in Section~\ref{sec:conclusion}.
     cycles merged into a single loop}
   \label{fig:rocca}
 \end{figure}
-
 To experiment with temporal and procedural reasoning in the context of
 embodied virtual agents in unknown environments we have implemented a
 project called ROCCA, which stands for \emph{Rational OpenCog
@@ -224,7 +293,7 @@ the necessary learning and the planning to fulfill that goal.
 %% somewhat like a reinforcement learning agent.
 One may possibly see ROCCA as a reinforcement learning agent with the
 particularity that learning and planning are, at least in principle,
-entire done via reasoning.
+done via reasoning.
 % In that respect it is similar in spirit to
 % OpenNARS for Applications (ONA)~\cite{Hammer2020} but uses
 % PLN~\cite{Goertzel2009} as its core
