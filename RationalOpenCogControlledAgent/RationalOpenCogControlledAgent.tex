@@ -9,6 +9,8 @@
 \usepackage{amssymb}
 \usepackage{bussproofs}
 \usepackage{cite}
+\usepackage{wrapfig}
+\usepackage{sidecap}
 
 % For ⩘ and ⩗ (requires the LuaLaTeX engine)
 \usepackage{unicode-math}
@@ -59,8 +61,8 @@
 \newcommand{\prob}{\mathbf{Pr}}
 \newcommand{\limp}{\rightarrow}
 \newcommand{\lpreimp}[1]{\leadsto^{#1}}
-\newcommand{\lseqor}[1]{\bigslopedvee^{#1}}
-\newcommand{\lseqand}[1]{\bigslopedwedge^{#1}}
+\newcommand{\lseqor}[1]{\!\bigslopedvee^{#1}\!}
+\newcommand{\lseqand}[1]{\!\bigslopedwedge^{#1}\!}
 \newcommand{\ldo}[1]{\widehat{#1}}
 \newcommand{\llag}[2]{\overrightarrow{#1}^{#2}}
 \newcommand{\llead}[2]{\overleftarrow{#1}^{#2}}
@@ -95,8 +97,10 @@
 
 \begin{abstract}
   TODO
-  \keywords{Symbolic Reinforcement Learning \and Procedural Reasoning
-    \and OpenCog \and Minecraft}
+
+  \keywords{Symbolic Reinforcement Learning \and Pattern Mining \and
+    Temporal Reasoning \and Thompson Sampling \and OpenCog \and
+    Minecraft}
 \end{abstract}
 
 \section{Introduction}
@@ -105,11 +109,11 @@ This paper describes an attempt to leverage the OpenCog
 framework~\cite{Hart2008} for controlling agents in uncertain
 environments.  It can be seen as a reboot of previous
 attempts~\cite{Goertzel2008, Goertzel2011, Cai2011, Cai2013} relying
-on more mature components such as
+on new or improved components such as
 \begin{itemize}
 \item a hypergraph pattern miner~\cite{Geisweiller2019} and a version
   of PLN~\cite{Goertzel2009} both implemented on top of OpenCog's
-  Unified Rule Engine endowed with an inference control mechanism;
+  Unified Rule Engine equipped with an inference control mechanism;
 \item a temporal and procedural extension of
   PLN~\cite{Geisweiller2023TPLN};
 \item a simplified version of OpenPsi~\cite{Cai2011, Cai2013} leaving
@@ -124,15 +128,31 @@ logic rather than NAL~\cite{Wang2011}.
 The ultimate goal of this project is to provide a technology to enable
 us to experiment with high forms of meta-learning and introspective
 reasoning for self-improvements and growth.  The rational for using a
-logic-based system is that it offers maximum transparency and is thus
-more amenable to reflectivity and introspection~\cite{Schmidhuber2003,
-  Goertzel2014EGI1}.  The work that is described in this paper is only
-the premise of that goal.  No meta-learning is taking place yet.  The
-objective for now is to build an agent that is able to discover its
-environment and acts rationally, even at the expense of efficiency.
-In a strong sense, the whole system is reasoning-based, from learning
-to planning.  The resulting software is called ROCCA for
-\emph{Rational OpenCog Controlled Agent}.
+reasoning-based system is that it offers maximum transparency and is
+thus more amenable to reflectivity and
+introspection~\cite{Schmidhuber2003, Goertzel2014EGI1}.  The work that
+is described in this paper is only the premise of that goal.  No
+meta-learning is taking place yet.  The objective for now is to build
+an agent that is able to discover regularities from its environment
+and acts rationally, possibly at the expense of efficiency, at least
+initially.  For discovering regularities, the agent uses a
+reasoning-based pattern miner~\cite{Geisweiller2019}.  Then combine
+these regularities to form plans using temporal and procedural
+reasoning.  More specifically plans are predictive implications of the
+form
+$$C \land A \lpreimp{T} G \measeq \textit{TV}$$
+called \emph{Cognitive Schematics} or \emph{Schemata}.  Which can be
+read as \emph{``in some context $C$, if some, possibly composite,
+  action $A$ is executed, then after $T$ time units, the goal $G$ is
+  likely to be fulfilled, with second order probability described by
+  $\textit{TV}$''}.  These plans are then combined to into a mixture
+that grossly approximates Solomonoff
+distribution~\cite{Geisweiller2018}.  Finally, the next action is
+selected using Thompson Sampling~\cite{Leike2016}.
+% So in a strong sense,
+% the whole system is reasoning-based, from learning to planning.
+The resulting software is called ROCCA for \emph{Rational OpenCog
+  Controlled Agent}.
 
 % But before to make an agent as rational as possible, not necessarily as
 % efficient as possible.  This stems from the concern that in order to
@@ -190,8 +210,8 @@ The rest of the paper is organized as follows.  A recall of the
 OpenCog framework is provided in Section~\ref{sec:opencog}.  The ROCCA
 software is described in Section~\ref{sec:rocca}.  An experiment using
 it to control an agent in Minecraft is described in
-Section~\ref{sec:minecraft}.  Finally a conclusion including future
-work and directions is given in Section~\ref{sec:conclusion}.
+Section~\ref{sec:minecraft}.  A conclusion including future work and
+directions is given in Section~\ref{sec:conclusion}.
 % \subsection{Outline}
 
 % \begin{enumerate}
@@ -217,17 +237,18 @@ for the rest of paper.
   second order distribution is represented by a beta distribution of
   parameters controlled by a \emph{strength}, a proxy for a
   probability, and a \emph{confidence} over that probability.  It is
-  denoted $<\!s, c\!>$ where $s$ is the strength and $c$ is the
+  denoted $<s, c>$ where $s$ is the strength and $c$ is the
   confidence.
 \item A \emph{Predicate} is function from a domain $D$ to $Boolean$.
   A TruthValue can be attached to a predicate, representing the
   prevalence of its satisfied inputs.  For instance
   $P \measeq\ <\!0.4, 0.1\!>$ represents that $P$ tends to evaluate to
-  $\textit{True}$ 40\% of the time, but there is a small confidence of
+  $\TTrue$ 40\% of the time, but there is a small confidence of
   0.1 over that 40\%.  A TrueValue can be attached to individual
   evaluations as well.  For instance $P(a) \measeq\ <\!0.9, 1\!>$
-  represents that the probability of $P(a)$ evaluating to
-  $\textit{True}$ is 0.9, and we are certain about it.
+  represents that the probability of $P(a)$ evaluating over a
+  particular $a$ to $\TTrue$, is 0.9 and we are certain about
+  it.
 \item A \emph{Conjunction} is a link between two predicates,
   representing the predicate resulting from the pointwise conjunction
   of these two predicates.  For instance
@@ -238,29 +259,31 @@ for the rest of paper.
   semantically representing the conditional probability between two
   events represented by these predicates.  For instance
   $P \limp Q \measeq\ <\!0.7, 0.4\!>$ indicates that if $P(x)$ is
-  $\textit{True}$ then there is a 70\% change with a 0.4 confidence,
-  that $Q(x)$ is also $\textit{True}$.
+  $\TTrue$ then there is a 70\% change with a 0.4 confidence,
+  that $Q(x)$ is also $\TTrue$.
 \end{itemize}
 Additionally we use the following types for temporal reasoning.
 \begin{itemize}
 \item A \emph{Sequential Conjunction} is a link between two temporal
   predicates, representing the predicate resulting from the pointwise
-  conjunction of these predicates while the second one is lagging by a
+  conjunction of these predicates while the second one leads by a
   certain time.  For instance $P \lseqand{T} Q$ is the pointwise
-  conjunction of $P$ and a lagging $Q$ by $T$ time units.
+  conjunction of $P$ and a leading $Q$ by $T$ time units.  Meaning
+  that for $(P \lseqand{T} Q)(x, t)$ to be $\TTrue$, requires that
+  $P(x, t)$ and $Q(x, t+T)$ be $\TTrue$ as well.
 \item A \emph{Predictive Implication} is a link between two temporal
   predicates, representing the conditional probability between two
   events lagging by a certain time.  For instance
   $P \lpreimp{T} Q \measeq\ <\!0.8, 0.5\!>$ indicates that if $P(x)$
-  is $\textit{True}$ then there is a 80\% chance with a 0.5
+  is $\TTrue$ then there is a 80\% chance with a 0.5
   confidence, that after $T$ time units $Q(x)$ will also be
-  $\textit{True}$.
+  $\TTrue$.
 \end{itemize}
-The difference between a temporal and an atemporal predicate is in its
+The difference between a temporal and an atemporal predicate is its
 domain.  The domain of a temporal predicate must have a dimension
-respecting certain properties such as having a total order and such.
-More detail about the temporal types and their associated inference
-rules is provided in~\cite{Geisweiller2023TPLN}.
+respecting certain properties such as having a total order.  More
+detail about the temporal types and their associated inference rules
+is provided in~\cite{Geisweiller2023TPLN}.
 
 % that query and modify one or several atomspaces. There is an
 % overhaul remaking of OpenCog called Hyperon, but we will not touch
@@ -271,29 +294,53 @@ rules is provided in~\cite{Geisweiller2023TPLN}.
 % the predecessor of Hyperon.
 \section{Rational OpenCog Controlled Agent}
 \label{sec:rocca}
+ROCCA is implemented as an observation-planning-action loop
+interleaved with learning and reasoning.  It provides an interfacing
+between OpenCog and environments such as Malmo \cite{Johnson2016} or
+OpenAI Gym \cite{Brockman2016}.  It is written in Python which is both
+supported by these environments and OpenCog.  Figure~\ref{fig:rocca}
+provide a graphical representation of ROCCA as if it was a single loop
+incorporating all steps.
+% \begin{wrapfigure}{l}{0.58\textwidth}
+%   \vspace{-30pt}
+%   \begin{center}
+%     \includegraphics[width=0.58\textwidth]{pictures/rocca-chart-v0.7.pdf}
+%   \end{center}
+%   \vspace{-20pt}
+%   \caption{Rational OpenCog Controlled Agent control and learning
+%     cycles merged into a single loop.}
+%   \vspace{-20pt}
+%   \label{fig:rocca}
+% \end{wrapfigure}
+% \begin{SCfigure}
+%   \centering
+%   \includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}
+%   \caption{Rational OpenCog Controlled Agent control and learning
+%     cycles merged into a single loop.}
+%   \label{fig:rocca}
+% \end{SCfigure}
 \begin{figure}
-  \centerline{\includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}}
-  \caption{Rational OpenCog Controlled Agent control and learning
-    cycles merged into a single loop}
+  \centering
+  \includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}
+  \caption{ROCCA control and learning loops merged into one.}
   \label{fig:rocca}
 \end{figure}
-To experiment with temporal and procedural reasoning in the context of
-embodied virtual agents in unknown environments we have implemented a
-project called ROCCA, which stands for \emph{Rational OpenCog
-  Controlled Agent}.  ROCCA essentially acts as an interface between
-virtual environments such as Malmo \cite{Johnson2016} or OpenAI Gym
-\cite{Brockman2016} and OpenCog~\cite{Hart2008}.  It provides an
-Observation-Planning-Action control loop as well as various launchers
-to run OpenCog processes such as PLN reasoning, pattern mining, etc.
+% To experiment with temporal and procedural reasoning in the context of
+% embodied virtual agents in unknown environments we have implemented a
+% project called ROCCA, which stands for \emph{Rational OpenCog
+%   Controlled Agent}.  ROCCA essentially acts as an interface between
+% virtual environments such as Malmo \cite{Johnson2016} or OpenAI Gym
+% \cite{Brockman2016} and OpenCog~\cite{Hart2008}.
 %% During the life of the
 %% agent control and learning phases are alternated to simulate a form of
 %% online learning.
-Provided a top goal, such as maximizing a reward, ROCCA orchestrates
-the necessary learning and the planning to fulfill that goal.
+% Ideally, the user should just provide a top goal and ROCCA should
+% autonomously orchestrates the necessary learning and the planning to
+% fulfill that goal.
 %% somewhat like a reinforcement learning agent.
-One may possibly see ROCCA as a reinforcement learning agent with the
-particularity that learning and planning are, at least in principle,
-done via reasoning.
+% One may possibly see ROCCA as a reinforcement learning agent with the
+% particularity that learning and planning are, at least in principle,
+% done via reasoning.
 % In that respect it is similar in spirit to
 % OpenNARS for Applications (ONA)~\cite{Hammer2020} but uses
 % PLN~\cite{Goertzel2009} as its core
@@ -301,92 +348,101 @@ done via reasoning.
 %% Where it differs from a typical
 %% reinforcement learning agent in that both learning and planning are,
 
-\subsection{Memory}
+% TODO: explain cognitive schematics
 
-The memory of the agent is split into three AtomSpaces:
+\subsection{Memory}
+For better efficiency and clarity, the memory of the agent is split
+into three.
 \begin{enumerate}
-\item The \emph{Percepta}\footnote{Percepta means percepts in Latin.
-    It is the plurial form of perceptum.  Latin was chosen over
-    English so that the difference between singular and plurial does
-    not reduce to a single letter, s, which can be prone to error when
-    reading and writing code.}  AtomSpace holds timestamped
+\item The \emph{Percepta}% \footnote{Percepta means percepts in Latin.
+    % It is the plurial form of perceptum.  Latin was chosen over
+    % English so that the difference between singular and plurial does
+    % not reduce to a single letter which can be prone to error when
+    % reading and writing code.}
+  AtomSpace holds timestamped
   observations as they come into the system.
 \item The \emph{Working} AtomSpace holds any kind of data, ranging
   from timestamped observations to predictive implications.  Most
   knowledge used and inferred during the course of learning are
   usually dumped into this AtomSpace.
-\item The \emph{Schemata} AtomSpace holds predictive implications
-  representing cognitive schematics.
+\item The \emph{Schemata} AtomSpace holds \emph{Cognitive Schematics},
+  which are predictive implications relating contexts, actions and
+  goals.%  These may describe how the world work, and may be turned
+  %into usable plans as well.
 \end{enumerate}
-The reasons for such splitting are:
-\begin{enumerate}
-\item Increased \emph{efficiency}, both the Percepta and Schemata
-  AtomSpaces are specialized to hold only what is required for rapid
-  IO processing.
-\item Increased \emph{clarity}, troubleshooting and repairing is
-  easier that way.
-\end{enumerate}
+% The reasons for such splitting are:
+% \begin{enumerate}
+% \item Increased \emph{efficiency}, both the Percepta and Schemata
+%   AtomSpaces are specialized to hold only what is required for rapid
+%   IO processing.
+% \item Increased \emph{clarity}, troubleshooting and repairing is
+%   easier that way.
+% \end{enumerate}
 
 \subsection{Processes}
-
-Figure~\ref{fig:rocca} shows a large cycle moving through all phases
-sequentially.  In theory that is valid, but in practice we want to
-split processes, TODO.
-
-ROCCA is composed of two main processes:
+% Figure~\ref{fig:rocca} shows a large cycle moving through all phases
+% sequentially.  In theory that is valid, but in practice we want to
+% split processes, TODO.
+The agent runs two main processes:
 \begin{enumerate}
-\item \emph{Control} for real-time reactive agent control;
+\item \emph{Control} for real-time reactive agent control.
 \item \emph{Learning} for non-reactive background learning.
 \end{enumerate}
+In principle these two processes should happen in parallel.  For now
+they alternate in series.  The agent starts in a control phase.  A
+number of control cycles occur as the agent motor-babbles through its
+environment.  It then follows by a learning phase when the agent
+discover regularities and build plans.  And finally repeats the
+control phase to test how it performs after learning.
 
 \subsection{Control}
 The control process is composed of control cycles, each decomposed
-into Observation, Planning and Action phases, described below:
+into \emph{Observation}, \emph{Planning} and \emph{Action} phases, as
+described below.
 \begin{enumerate}
 \item \emph{Observation}:
   \begin{enumerate}
-  \item receive and timestamp observations, reward included, from the
-    environment,
-  \item store the timestamped observations and reward in the Percepta
-    AtomSpace.
+  \item Receive and timestamp observations, reward included, from the
+    environment.
+  \item Store the timestamped observations in the Percepta AtomSpace.
   \end{enumerate}
 \item \emph{Planning}:
   \begin{enumerate}
-  \item select the goal for that iteration,
-  \item find plans fulfilling that goal from the Schemata AtomSpace,
-  \item build a mixture distribution from these plans.
+  \item Select the goal for that cycle.
+  \item Find plans fulfilling that goal from the Schemata AtomSpace.
+  \item Build a mixture distribution from these plans.
   \end{enumerate}
 \item \emph{Action}:
   \begin{enumerate}
-  \item select the next action via Thompson Sampling according to that
-    mixture distribution,
-  \item timestamp and store the selected action in the Percepta
-    AtomSpace,
-  \item run the selected action and by that update the environment,
+  \item Select the next action via Thompson Sampling according to that
+    mixture distribution.
+  \item Timestamp and store the selected action in the Percepta
+    AtomSpace.
+  \item Run the selected action and by that update the environment.
   \end{enumerate}
 \end{enumerate}
-None of these steps are computationally expensive and involve
+None of these steps are computationally expensive.  They involve
 algorithms that are at most linear with the size of the Percepta and
-Schemata AtomSpaces.  For real-time responsiveness however such
-control cycle must be temporally bound by a constant.  Achieving this
-may entail incorporating other mechanisms such as filtering and
-forgetting cognitive schematics.  As important as this problem is
-however, it has been let aside for now and is left for future
-research.  Given the small environments ROCCA has been tested with, it
-has not been a practical problem at this point but will soon be.  More
-on the subject of \emph{Attention Allocation} can be found in the
-Chapter 4 of~\cite{Goertzel2014EGI2}.
-
-Let us now provide a more detail account of these three phases.
+Schemata AtomSpaces.  As time goes and knowledge accumulates however,
+it will progressively slow down.  Indeed, for real-time responsiveness
+such control cycle must be bound by a constant.  Achieving this may
+require to incorporate other mechanisms such as filtering and
+forgetting.  This problem, as important as it is, for now is left for
+future research. %   Discussions about that problem can be found
+% in~\cite{Goertzel2014EGI2}.
+Given the small environments ROCCA has
+been tested with, it has not been a problem so far.
+% More on the
+% subject of \emph{Attention Allocation} can be found in the Chapter 4
+% of~\cite{Goertzel2014EGI2}.
+Let us now provide more details about these three phases.
 
 \subsubsection{Observation}
 During the observation phase, data coming from the environment are
-timestamped and stored in the Percepta AtomSpace.  The format used in
-this paper to represent that is \texttt{datum@timestamp}.  For
-instance if at cycle 10 the agent observes
-\texttt{outside(house)} and
-\texttt{hold(key)}, then \texttt{outside(house)@10} and
-\texttt{hold(key)@10}
+timestamped and stored in the Percepta AtomSpace.  The format used to
+represent that is \textit{datum@timestamp}.  For instance if at cycle
+3 the agent observes \textit{outside(house)} and \textit{hold(key)},
+then \textit{outside(house)@3} and \textit{hold(key)@3}
 % \begin{itemize}
 % \item \texttt{outside(house)}
 % \item \texttt{hold(key)}
@@ -396,17 +452,15 @@ instance if at cycle 10 the agent observes
 % \item \texttt{outside(house)@10}
 % \item \texttt{hold(key)@10}
 % \end{itemize}
-are inserted to the Percepta AtomSpace.
+are inserted into the Percepta AtomSpace.
 
 \subsubsection{Planning}
-
 The first step of the planning phase is to select a goal $G$ to
 fulfill.  That is an important step that has been elaborated
 in~\cite{Goertzel2014EGI1, Hahm2021}.  In the current version of ROCCA
 though it merely returns a constant goal which is to gain a reward
 within a forward window.  Once a goal has been selected, the agent
-queries the Schemata AtomSpace with the following pattern matcher
-query
+search the Schemata AtomSpace with the following pattern matcher query
 $$\$C \land \$A \lpreimp{T} G$$
 where
 \begin{itemize}
@@ -415,24 +469,28 @@ where
   plan~\footnote{Variables are actually typed so that the pattern
     matcher cannot confuse what is context and action.},
 \item $T$ is a time delta selected within that forward window,
-\item $G$ is a selected goal.
+\item $G$ is the selected goal.
 \end{itemize}
 All returned candidates are then filtered according to their contexts,
-only retaining the ones with contexts being evaluated to true at the
-current time.  Ideally a second order probability of a context being
-current true would be used, but in the current version of ROCCA a
-crisp evaluation is used for the sake of simplicity.
-
-From this set of predictive implications with true contexts, a second
-order mixture distribution is built approximating very roughly a
-Solomonoff distribution as explained in~\cite{Geisweiller2018}.
+only retaining those for which the context is evaluated to $\TTrue$ at
+the current time.  Ideally, such crisp evaluation should be replaced
+by a second order probability evaluation of a context being $\TTrue$.
+This is important for contexts that have elements of uncertainty.  But
+for the sake of simplicity, in our experiments so far, all contexts
+are crisply evaluated.  Then from the set of valid cognitive
+schematics, a second order mixture distribution is built and handed to
+the next phase for performing action selection.  The calculations used
+to build that second order mixture distribution is detailed
+in~\cite{Geisweiller2018}.
+% approximating very roughly a Solomonoff
+% distribution as explained in~\cite{Geisweiller2018}.
 
 \subsubsection{Action}
-
 The Action phase consists of the following steps:
 \begin{enumerate}
-\item Select the next action via Thompson Sampling according to the
-  mixture distribution built during the planning phase.
+\item Select the next action via Thompson Sampling~\cite{Leike2016}
+  according to the mixture distribution built during the planning
+  phase.
 \item Timestamp and store the selected action in the Percepta
   AtomSpace.
 \item Run the selected action and updates the environment.
@@ -440,30 +498,29 @@ The Action phase consists of the following steps:
 The trickiest step here is selecting the next action via Thompson
 Sampling.  The novelty is that the second order probabilities can be
 leveraged by Thompson Sampling.  For example, assume we have two
-actions to choose from, $A_1$ and $A_2$, among two predictive
-implications
+actions, $A_1$ and $A_2$, to choose among two predictive implications
 $$
 \begin{array}{c}
   C_1 \land A_1 \lpreimp{T} G \measeq\ <\!0.6, 0.9\!> \\
   C_2 \land A_2 \lpreimp{T} G \measeq\ <\!0.7, 0.1\!>
 \end{array}
 $$
-Using only the strengths as proxy for probabilities, the choice is
-clear.  Action $A_2$ should be selected, because its probability of
-success, which is 0.7, is greater than that of $A_1$, which is 0.6.
-However once introducing second order probabilities, that choice
-becomes less clear because the truth value of success of $A_2$ has a
-low confidence of 0.1.  In that case, first order probabilities are
-first sampled from their corresponding second order distributions,
+Using only the strengths of the truth values as proxy for probability
+of success, the choice is clear.  Action $A_2$ should be selected,
+because its probability of success, which is 0.7, is greater than that
+of $A_1$, which is 0.6.  However once introducing confidence, that
+choice becomes less clear because the truth value of success of $A_2$
+has a low confidence of 0.1.  In that case, first order probabilities
+are sampled from their corresponding second order distributions,
 % associated to the truth values of success of $A_1$ and $A_2$,
 and then these probabilities are compared.  The action with the
-maximum probability wins.  That is the essence of Thompson Sampling.
-More informally stated, the idea is to consider the possibilities that
-the agent might be living in a world where $A_2$ has a lower
-probability of success than $A_1$.
+maximum probability gets selected.  Informally, the idea is to
+consider the possibilities that the agent might be living in a world
+where $A_2$ has a lower probability of success than $A_1$.  That is
+the essence of Thompson Sampling.
 \begin{figure}
   \centerline{\includegraphics[width=0.8\textwidth]{pictures/actiondist.pdf}}
-  \caption{Second order distributions of the probability of success of
+  \caption{Second order probability distributions of success of
     actions $A_1$ and $A_2$, using as parameters of the beta
     distribution $\alpha(s, c)=\alpha_0 + \frac{s.c.K}{1-c}$ and
     $\beta(s, c)=\beta_0 + \frac{(1-s).c.K}{1-c}$} where $K$, the
@@ -479,90 +536,92 @@ that the probability of being in a world where $A_1$ has a higher
 probability of success than $A_2$ is non-negligible as well.  Because
 these strengths and confidences are periodically updated during the
 lifetime of the agent, one can see how Thompson Sampling is a great
-alternative compared to $\varepsilon$-greedy, offering a
-parameter-free mechanism to balance exploration and exploitation that
-dynamically adapts with the knowledge of the agent.
+alternative to $\varepsilon$-greedy, as it offers a parameter-free
+mechanism to balance exploration and exploitation that dynamically
+adapts with the knowledge of the agent.
 
-Note that in this example above only two actions among two cognitive
-schematics are considered, but in practice there usually is a handful
+Note that in this example only two actions among two cognitive
+schematics are considered, but in practice there is usually a handful
 of actions among a potentially very large number of cognitive
-schematics, with overlapping, possibly conflicting, contexts and
-goals.  The resulting distributions of success of each actions in
-those cases are typically multi-modal and do not reduce to beta
-distributions.  How to deal with such multitude of cognitive
-schematics is treated in~\cite{Geisweiller2018}.
+schematics with overlapping contexts and conflicting goals.  The
+resulting distribution of success of each action is typically
+multi-modal and do not reduce to a beta distribution.  How to deal
+with such a multitude of cognitive schematics is treated
+in~\cite{Geisweiller2018}.
 
-For that we use a variation of Solomonoff induction described
-in~\cite{Geisweiller2018} which is especially suited for plans
-described by conditional second order distributions, in other words
-predictive implications.  More specifically plans are predictive
-implication links of the form
-$$C \land A \lpreimp{T} G \measeq \textit{TV}$$
-called \emph{Cognitive Schematics} or \emph{Schemata}.  Which can be
-read as \emph{``in some context $C$, if some action $A$ is executed,
-  then after $T$ time units, the goal $G$ is likely to be fulfilled,
-  with probability described by $\textit{TV}$''}.  Note that $A$ does
-not need to be limited to elementary actions but can be composite as
-well, potential describing entire plans composed of action sequences,
-conditionals and such, akin to behavior trees.  In other words,
-Cognitive Schematics should be expressive enough for general decision
-making.
+% For that we use a variation of Solomonoff induction described
+% in~\cite{Geisweiller2018} which is especially suited for plans
+% described by conditional second order distributions, in other words
+% predictive implications.  More specifically plans are predictive
+% implications of the form
+% $$C \land A \lpreimp{T} G \measeq \textit{TV}$$
+% called \emph{Cognitive Schematics} or \emph{Schemata}.  Which can be
+% read as \emph{``in some context $C$, if some action $A$ is executed,
+%   then after $T$ time units, the goal $G$ is likely to be fulfilled,
+%   with probability described by $\textit{TV}$''}.  Note that $A$ does
+% not need to be limited to elementary actions but can be composite as
+% well, potential describing entire plans composed of action sequences,
+% conditionals and such, akin to behavior trees.  In other words,
+% Cognitive Schematics should be expressive enough for general decision
+% making.
 % The likelihood of goal fulfillment is specified by the truth
 % value of the predictive implication link, which is not indicated in
 % that notational format but is present in the extended Atomese format.
-The difficulty then comes down to discovering cognitive schematics
-that are as predictive and widely applicable as possible, which
-translates into predictive implications which broad contexts, high
-strength and high confidence.  An example of an ideal cognitive
-schematic would be
-$$\mathbb{True} \land A \lpreimp{T} G \measeq\ <\! 1, 1\! >$$
-that has a strength and confidence of one, and is universally
-applicable\footnote{$\mathbb{True}$ represents the predicate that is
-  always true}.  For real environments and goals however, such ideal
-is beyond reach.  More often than not we will have instead a large
-collection of cognitive schematics with narrow contexts and poor
-predictiveness.  To make the best of it, a mixture of second order
-distributions is built over all applicable cognitive schematics, in a
-manner that approximates a Solomonoff distribution, as described
-in~\cite{Geisweiller2018}.  Action selection is then performed based
-on that mixture using Thompson Sampling~\cite{Leike2016}.
+% The difficulty then comes down to discovering cognitive schematics
+% that are as predictive and widely applicable as possible, which
+% translates into predictive implications which broad contexts, high
+% strength and high confidence.  An example of an ideal cognitive
+% schematic would be
+% $$\mathbb{True} \land A \lpreimp{T} G \measeq\ <\! 1, 1\! >$$
+% that has a strength and confidence of one, and is universally
+% applicable\footnote{$\mathbb{True}$ represents the predicate that is
+%   always true}.  For real environments and goals however, such ideal
+% is beyond reach.  More often than not we will have instead a large
+% collection of cognitive schematics with narrow contexts and poor
+% predictiveness.  To make the best of it, a mixture of second order
+% distributions is built over all applicable cognitive schematics, in a
+% manner that approximates a Solomonoff distribution, as described
+% in~\cite{Geisweiller2018}.  Action selection is then performed based
+% on that mixture using Thompson Sampling~\cite{Leike2016}.
 % , and
 % excellent at balancing exploitation and exploration in principle.
 
 \subsection{Learning}
-As hinted above, the ultimate goal of the learning phase is to
-discover maximally useful cognitive schematics, and by useful it is
-specifically meant that they are as predictive and cover as many cases
-as possible.
-
-In principle these two processes, Control and Learning, could happen
-in parallel.  In practice though, purely for technical simplicity,
-they alternate in series.  Basically, the agent starts in a control
-phase, a number of control cycles occur as the agent interacts with
-its environment, gathers observations and takes (initially random)
-actions, which follows then by a long learning phase when the agent
-discover regularities in its environments and build plans, and finally
-resumes the control phase to test how the agent performs after
-learning.
+The difficulty then comes down to discovering cognitive schematics
+that are as predictive and widely applicable as possible.  For that
+ROCCA uses a combination of pattern mining and reasoning.
+% This
+% translates into predictive implications which broad contexts, high
+% strength and high confidence.
+% As hinted above, the ultimate goal of the learning phase is to
+% discover maximally useful cognitive schematics, and by useful it is
+% specifically meant that they are as predictive and cover as many cases
+% as possible.
 
 \subsubsection{Pattern Mining}
-
-The advantage of using pattern mining is that already at this stage,
-abstract rules can be induced.  For instance the pattern miner can
-discover temporal relationships between predicates, such as
-$$\lgo{\textit{right}} \lpreimp{1} square(right)$$
-$$go(left) \lpreimp{1} square(left)$$
-meaning that if the agent goes to the right (resp. left), at the next
-time unit, it will be located on the right (resp. left) square.  But
-it can also discover abstractions such as
+A relatively inexpensive way to discover regularities in the
+environment is to mine the Percepta AtomSpace.  For instance, given
+the following observation records
+$$\{\textit{go(right)@0},\ \textit{square(right)@1},\
+\textit{go(left)@1},\ \textit{square(left)@2}, \dots\}$$ the pattern
+miner can discover temporal relationships such as
+$$
+\begin{array}{c}
+  \lgo{\textit{right}} \lpreimp{1} square(right) \\
+  \lgo{\textit{left}} \lpreimp{1} square(left)
+\end{array}
+$$
+as well as more abstract forms such as
 $$\lgo{x} \lpreimp{1} square(x)$$
-The pattern mining algorithm used in ROCCA is actually a specialized
-form of reasoning, that is easily interlaced with more general forms
-of reasoning~\cite{Geisweiller2019}.
-
-As it stands, pattern mining can be a relatively inexpensive way to
-generate mono-action cognitive schematics.  Mining poly-action
-cognitive schematics is possible but has two drawbacks:
+The pattern mining algorithm used by ROCCA is detailed
+in~\cite{Geisweiller2019}.  This is a generic hypergraph pattern
+miner, not specialized for temporal patterns.  In order to mine
+temporal patterns with it, timestamps are represented as naturals.  0
+is presented by $Z$, 1 by $S(Z)$, 2 by $S(S(Z))$, etc.  This provides
+the needed structure to discover temporal relationships between
+events.  As it currently stands, the pattern miner can efficiently
+discover mono-action plans.  Mining poly-action plans is also possible
+but has two problems:
 \begin{enumerate}
 \item In the worse case, the computational cost of mining goes up
   exponentially with the size of the action sequence to mine.
@@ -570,37 +629,37 @@ cognitive schematics is possible but has two drawbacks:
   cognitive schematics with decent confidences goes up exponentially
   as well.
 \end{enumerate}
-The latter is really the most limiting factor because we cannot buy
-our way out of it.  If each observation takes a certain amount time,
+The latter is really the most problematic because we cannot buy our
+way out of it.  If each observation takes a certain amount time,
 determined by the control cycle period in the case of primary
-observations, then we have to do through them, we cannot speed time
+observations, then we have to go through them, we cannot speed time
 up.  This is even more true for abstract percepts that can only be
-observed at periods which are multiples of control cycle periods.
-Also, in some cases, a particular action sequence may even never be
+observed at periods that are multiples of control cycle periods.
+Also, in some cases, a particular action sequence may never be
 observed at all, yet we still would like to have a way to estimate the
-likelihood of its success.  In order to address these limitations, and
-to build complex cognitive schematics with good probability estimates
-and confidences, we need reasoning.
+likelihood of its success.  In order to address these limitations and
+more, we need reasoning.
 
-\subsubsection{Temporal and Procedural Reasoning}
-
-ROCCA uses a temporal extension of PLN, described in detail
-in~\cite{Geisweiller2023TPLN}, to infer new cognitive schematics, not
-only from direct observations, or also based on other cognitive
-schematics and background knowledge.  An example would be to combine
-mono-action plans to infer poly-action plans.  Another example would
-be to specialize a context or a goal.  As for now three temporal rules
-are integrated into ROCCA:
-
+\subsubsection{Temporal Reasoning}
+ROCCA uses a temporal extension of PLN described
+in~\cite{Geisweiller2023TPLN} to update existing cognitive schematics
+obtained by pattern mining, and discover new cognitive schematics by
+combining existing ones.  For instance it can infer poly-action plans
+by stringing mono-action plans together, as well as generalize or
+specialize their contexts or goals.  Temporal rules integrated into
+ROCCA include:
 \begin{enumerate}
-\item Predictive Implication Direct Introduction: TODO.
-\item Temporal Conditional Conjunction Introduction: TODO.
-\item Temporal Deduction: TODO.
+\item \emph{Predictive Implication Direct Introduction} to infer the
+  truth value of a predictive implication from direct observations.
+\item \emph{Temporal Conditional Conjunction Introduction} to
+  specialize a goal within a plan by considering the conjunction of
+  existing cognitive schematics goals.
+\item \emph{Temporal Deduction} to string together plans to form
+  bigger ones.
 \end{enumerate}
-
 The precise semantics of these rules is detailed
-in~\cite{Geisweiller2023TPLN}.  An example of how these rules are used
-in ROCCA is detailed in Section~\ref{sec:minecraft}.
+in~\cite{Geisweiller2023TPLN}.  An example of how they are used is
+presented in Section~\ref{sec:minecraft}.
 
 \section{Experiment with Simple Minecraft Environment}
 \label{sec:minecraft}

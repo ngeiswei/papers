@@ -43,4 +43,6 @@ A₂(x):=pdf_beta(x, A2_a, A2_b);
 /* Plot */
 plot2d([A₁, A₂],
        [Probability, 0, 1],
-       [title, "Second order distributions of success of actions A₁ and A₂"]);
+       [y, 0, 25],
+       [ylabel, "Probability Density"],
+       [title, "Second order probabilities of success of actions A₁ and A₂"]);
