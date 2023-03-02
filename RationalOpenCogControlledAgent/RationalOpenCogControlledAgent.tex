@@ -108,8 +108,8 @@
 This paper describes an attempt to leverage the OpenCog
 framework~\cite{Hart2008} for controlling agents in uncertain
 environments.  It can be seen as a reboot of previous
-attempts~\cite{Goertzel2008, Goertzel2011, Cai2011, Cai2013} relying
-on new or improved components such as
+attempts~\cite{Goertzel2008, Goertzel2011CSP, Goertzel2011ICI,
+  Cai2011, Cai2013} relying on new or improved components such as
 \begin{itemize}
 \item a hypergraph pattern miner~\cite{Geisweiller2019} and a version
   of PLN~\cite{Goertzel2009} both implemented on top of OpenCog's
@@ -149,8 +149,6 @@ read as \emph{``in some context $C$, if some, possibly composite,
 that grossly approximates Solomonoff
 distribution~\cite{Geisweiller2018}.  Finally, the next action is
 selected using Thompson Sampling~\cite{Leike2016}.
-% So in a strong sense,
-% the whole system is reasoning-based, from learning to planning.
 The resulting software is called ROCCA for \emph{Rational OpenCog
   Controlled Agent}.
 
@@ -354,11 +352,11 @@ incorporating all steps.
 For better efficiency and clarity, the memory of the agent is split
 into three.
 \begin{enumerate}
-\item The \emph{Percepta}% \footnote{Percepta means percepts in Latin.
-    % It is the plurial form of perceptum.  Latin was chosen over
-    % English so that the difference between singular and plurial does
-    % not reduce to a single letter which can be prone to error when
-    % reading and writing code.}
+\item The \emph{Percepta}~\footnote{Percepta means percepts in Latin.
+    It is the plurial form of perceptum.  Latin was chosen over
+    English so that the difference between singular and plurial does
+    not reduce to a single letter which can be prone to error when
+    reading and writing code.}
   AtomSpace holds timestamped
   observations as they come into the system.
 \item The \emph{Working} AtomSpace holds any kind of data, ranging
@@ -633,7 +631,7 @@ The latter is really the most problematic because we cannot buy our
 way out of it.  If each observation takes a certain amount time,
 determined by the control cycle period in the case of primary
 observations, then we have to go through them, we cannot speed time
-up.  This is even more true for abstract percepts that can only be
+up.  This is even more true for abstract percepta that can only be
 observed at periods that are multiples of control cycle periods.
 Also, in some cases, a particular action sequence may never be
 observed at all, yet we still would like to have a way to estimate the
@@ -684,34 +682,30 @@ In this experiment, we measure the agent's performance by the cognitive schemati
 
 \section{Conclusion}
 \label{sec:conclusion}
-We have introduced an agent called ROCCA that leverages the OpenCog
-framework for controlling an agent in unknown and uncertain
-environments.  ROCCA is meant to be as rationally as possible, at the
-expense of efficiency when needed.  For now it is only able to operate
-is very simple environments involving a handful of actions and
-observations.  The type of learning used is however meant be
-open-ended, even though for now it is limited to syntactic hypergraph
-pattern mining and other limited form of temporal reasoning.  As of
-now it is able to build mine small plan from direct observations and
-larger plans from smaller plans using probabilistic reasoning.
-
-This is a preparatory work of a greater goal, which is to explore
-deeper forms of meta-learning and introspective reasoning.  Towards
-that end the remaining milestones are:
+ROCCA, a system that leverages the OpenCog framework for controlling
+an agent in uncertain environments has been presented.  This agent is
+in a strong sense fully reasoning-based, from learning to planning.
+The advantage we believe of such approach, in spite of its current
+inefficiencies, is to offer greater transparency and enable greater
+capabilities for meta-learning and self-growth.  As such, we are only
+at the start of our endeavor.  Towards that end, future directions
+include:
 \begin{enumerate}
-\item Support temporal intervals and scales and add more temporal, as
-  well as spatial inference rules.
-\item Integrate ECAN~\cite{TODO} for \emph{Attention Allocation}, as
-  well as record attention spreading to learn Hebbian links and
-  improve attention allocation.
+% \item Support temporal intervals and scales and add more temporal, as
+%   well as spatial inference rules.
+\item Integrate \emph{Economic Attention Networks}~\cite{Pitt2009} for
+  \emph{Attention Allocation}.  Record attentional spreading as
+  percepta to learn Hebbian links~\cite{Pitt2009} and improve
+  attention allocation in return.
 \item Carry out concept creation and schematization, also called
   crystallized attention allocation, to speed up repetitive
-  information processing even further.  It should be noted that this
-  done well should also provide a solution for the problem of creating
-  abstract observations and actions.
-\item Record more internal processes, not just attention spreading, as
+  information processing.  This done well should also provide a
+  solution to the problem of creating hierarchies of abstract
+  observations and actions.
+\item Record more internal processes, not just attentional spreading, as
   internal percepta to enable deeper forms of introspection.
-\item Plan internal actions, not just external, to enable self-growth.
+\item Plan with internal actions, not just external, such as parameter
+  fine-tuning and code rewriting to enable self-improvements.
 \end{enumerate}
 
 % \begin{enumerate}
