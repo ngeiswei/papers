@@ -64,6 +64,7 @@
 \newcommand{\Tconf}{\textit c}
 
 % Commands for symbolic mathematical notations
+\newcommand{\sat}{\mathcal{Sat}}
 \newcommand{\prob}{\mathcal{Pr}}
 \newcommand{\limp}{\rightarrow}
 \newcommand{\lpreimp}[1]{\leadsto^{#1}}
@@ -152,7 +153,7 @@ evidence-based subjective logic.
 
 \section{Contributions}
 
-The contributions of that paper are:
+The contributions of this paper are:
 \begin{enumerate}
 \item Build upon existing temporal reasoning framework defined in
   Chap.14 [TODO: cite PLN book].
@@ -181,7 +182,7 @@ and planning in that environment.  All it needs is to be properly
 equipped with a vocabulary for representing temporal and procedural
 knowledge.  The Chapter 14 of the PLN book~\cite{Goertzel09PLN} does
 just that.  However we found that definitions are sometimes ambiguous
-or incorrect.  That paper has been written to remedy that.
+or incorrect.  This paper has been written to remedy that.
 
 \subsection{Elementary Notions}
 
@@ -230,7 +231,7 @@ There is a large variety of constructs for PLN.  Here, we will focus
 primarily on the ones for handling predicates.  Let us recall that
 predicates are functions that output Boolean values.  The domain of a
 predicate can be arbitrarily defined, but its range is always Boolean.
-In that paper, the capital letters $A$, $B$, $C$ represent atoms of
+In this paper, the capital letters $A$, $B$, $C$ represent atoms of
 any type, $X$, $Y$, $Z$ represent atoms that are variables, while $P$,
 $Q$, $R$, $\dots$ represent atoms that are predicates, typed as follows:
 % $$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$
@@ -248,8 +249,9 @@ that probability.  Such truth values are called \emph{Simple Truth
 $$<\!s, c\!>$$
 Alternatively, the strength and the confidence of a simple truth value
 $\TTV$ can be denoted $\TTV.s$ and $\TTV.c$ respectively.  Underneath,
-a simple truth value corresponds to a beta distribution~\cite{TODO}
-with parameters $\alpha(s, c)=\alpha_0 + \frac{s.c.k}{1-c}$ and
+a simple truth value corresponds to a beta
+distribution~\cite{Abourizk94Fitting} with parameters
+$\alpha(s, c)=\alpha_0 + \frac{s.c.k}{1-c}$ and
 $\beta(s, c)=\beta_0 + \frac{(1-s).c.k}{1-c}$, where $k$ is a PLN
 parameter called the \emph{Lookahead}, and $\alpha_0$ and $\beta_0$
 are usually set to 0.5 corresponding to Jeffreys prior.  For truth
@@ -264,7 +266,7 @@ while what we really mean is \emph{second order probability
 
 % TODO: cite Subjective Logic and Chapt 4 of the PLN book.
 
-% The constructs of interest covered in that paper are
+% The constructs of interest covered in this paper are
 % \begin{enumerate}
 % \item $\TEval$ which can be used to define predicates from instances.
 % \item $\TLamb$ which can be used to define predicates using
@@ -275,7 +277,7 @@ while what we really mean is \emph{second order probability
 %   where their truth values represent conditional probabilities.
 % \end{enumerate}
 
-Below is a table of the constructs used in that paper with their
+Below is a table of the constructs used in this paper with their
 flattened and symbolic representations, as well as precedence to
 minimize parenthesis usage when using the symbolic representation.
 \renewcommand{\arraystretch}{1.5}
@@ -291,16 +293,16 @@ $$
   \TAnd(P, Q) & P \land Q & 2 \\
   \TOr(P, Q) & P \lor Q & 2 \\
   \TImpl(P, Q) & P \limp Q & 4 \\
-  A \TBTV & A \measeq \TTV & 10 \\
+  A \TBTV & A \measeq \TTV & 5 \\
   \hline
 \end{array}
 $$
 \renewcommand{\arraystretch}{1}
 
-For representing n-ary predicates one may simply use
-$P(A_1, \dots, A_n)$ which may be understood as unary predicates
-applied on tuples.  Let us now explain their semantics and how to
-interpret their truth values.
+For representing n-ary predicates one may use $P(A_1, \dots, A_n)$
+which may simply be understood as unary predicates applied to tuples.
+Let us now explain their semantics and how their truth values are
+interpreted.
 % The following uses unary predicates, n-ary predicates
 % may be understood as unary predicates applied on tuples.
 % especially as they each of them below with their corresponding truth
@@ -386,8 +388,10 @@ interpret their truth values.
   $P \limp Q \measeq \TTV$ states that if $P(A)$ is $\TTrue$ for some
   $A$ in the domain of $P$, then $Q(A)$ is $\TTrue$ with a second
   order probability described by $\TTV$.  In simple probability terms,
-  it represents $\prob(Q|P)$, the conditional probability of $Q$
-  knowing $P$, referring to their satisfying sets to be precise.
+  it represents $\prob(Q|P)$~\footnote{To be precise, $\prob(Q|P)$
+    should be understood as $\prob(\sat(Q)|\sat(P))$, where $\sat(P)$
+    and $\sat(Q)$ are the satisfying sets of $P$ and $Q$
+    respectively.}, the conditional probability of $Q$ knowing $P$.
   % represents the predicate $Q$ conditioned on $P$, that is
   % only defined for instances $x$ for which $P(x)$ is $\TTrue$.  The
   % truth value $\TTV$ then represents an estimate of the conditional
@@ -397,9 +401,9 @@ interpret their truth values.
   % but this resolves nicely by assuming degrees of truth are
   % probabilistic.  More is explained about that below.
 \item $P \measeq \TTV$ states that the prevalence of $P$ being
-  $\TTrue$ has the second order probability described by $\TTV$.
+  $\TTrue$ is described by $\TTV$.
   % It is
-  % equivalent to $P \limp \mathbb{True} \measeq \TTV$ where
+  % equivalent to $\mathbb{True} \limp P \measeq \TTV$ where
   % $\mathbb{True}$ is the predicate that is $\TTrue$ for any input.
 \end{itemize}
 
@@ -407,16 +411,16 @@ interpret their truth values.
 Inferences rules are used to construct PLN statements and calculate
 their truth values.  They fall into two groups, direct evidence based
 or otherwise.  Rules from the former group infer abstract knowledge
-from direct evidence, while rules from the latter infer knowledge by
-combining existing abstractions.  There are dozens of inference rules,
-for now we only recall two, \emph{Implication Direct Introduction} and
-\emph{Deduction}.
+from direct evidence, while rules from the latter group infer
+knowledge by combining existing abstractions.  There are dozens of
+inference rules, for now we only recall two, \emph{Implication Direct
+  Introduction} and \emph{Deduction}.
 
 \subsubsection{The Implication Direct Introduction Rule (IDI)} takes
 evaluations
 % $\TEval$
 % links
-as premises and produces an implication as conclusion, formally
+as premises and produces an implication as conclusion.  It is formally
 depicted by the following proof tree
 % {\scriptsize
 % \begin{prooftree}
@@ -452,11 +456,11 @@ depicted by the following proof tree
   \RightLabel{(IDI)}
   \TrinaryInfC{$P\limp Q \measeq \TTV$}
 \end{prooftree}}
-\noindent Assuming perfectly reliable direct
-evidence\footnote{Perfectly reliable evidence have a confidence of 1.
-  Dealing with unreliable evidence involves using convolution products
-  and is outside of the scope of this paper.}  then the resulting
-simple truth value can be calculated as follows
+\noindent Assuming perfectly reliable direct evidence\footnote{A
+  perfectly reliable piece of evidence has a confidence of 1.  Dealing
+  with unreliable evidence involves using convolution products and is
+  outside of the scope of this paper.}  then the resulting simple
+truth value can be calculated as follows
 $$\TTV.\Tstrength = \frac{\sum_{i=1}^n f_\wedge(\TTVPi.\Tstrength,
   \TTVQi.\Tstrength)}{\sum_{i=1}^n \TTVPi.\Tstrength}\ \ \ \ \ \ \ \ \
 \ \ \ \ \ \TTV.\Tconf = \frac{n}{n+k}$$
@@ -494,19 +498,24 @@ which gives rise to the rule depicted by the following proof tree
 %% of $\TImpl$ with a Markov property
 %% $$\prob(R|Q,P) = \prob(R|Q)$$
 %% $$\prob(R|\neg Q,P) = \prob(R|\neg Q)$$
-\noindent The reader may notice that three additional premises have been added,
-corresponding to the probabilities $\prob(P)$, $\prob(Q)$ and
-$\prob(R)$.  This is a consequence of the Markov property.  The exact
-formula for that variation will not be recalled here but it merely
+\noindent The reader may notice that three additional premises have
+been added, corresponding to the probabilities $\prob(P)$, $\prob(Q)$
+and $\prob(R)$.  This is a consequence of the Markov property.  The
+exact formula for that variation is not recalled here but it merely
 derives from
 $$\prob(R|P) = \prob(R|Q,P)\times\prob(Q|P) + \prob(R|\neg
-Q,P)\times\prob(\neg Q|P)$$
-More information can be found in Chapter X of~\cite{TODO}.
+Q,P)\times\prob(\neg Q|P)$$ More information about this derivation can
+be found in Chapter 5, Section 5.3 of~\cite{Goertzel09PLN}.  Finally,
+one may notice that the same conclusion may be inferred by different
+inference paths leading to different truth values.  How to properly
+aggregate these truth values is not the subject of this paper and is
+discussed in Chapter 5, Section 5.10 of~\cite{Goertzel09PLN}.
 
-\section{Temporal Logic}
+\section{Temporal Probabilistic Logic Networks}
 
-The temporal logic define in \cite{TODO} is somewhat partial and
-ambiguous.  In that section we provide a possible completion.
+The temporal extension of PLN defined in~\cite{TODO} is somewhat
+partial and ambiguous.  In that section we provide a possible
+completion.
 %% , showing how the two inference rules recalled
 %% above to carry out temporal reasoning.  Let us define that
 Let us begin by defining \emph{Temporal Predicates}, also called
