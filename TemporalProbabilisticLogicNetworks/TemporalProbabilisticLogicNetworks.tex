@@ -37,15 +37,23 @@
 \newcommand{\TLag}{\textit{Lag}}
 \newcommand{\TLead}{\textit{Lead}}
 \newcommand{\TTV}{\textit{TV}}
+\newcommand{\TTVPo}{\textit{TV}_1^P}
+\newcommand{\TTVQo}{\textit{TV}_1^Q}
 \newcommand{\TTVPi}{\textit{TV}_i^P}
 \newcommand{\TTVQi}{\textit{TV}_i^Q}
+\newcommand{\TTVPn}{\textit{TV}_n^P}
+\newcommand{\TTVQn}{\textit{TV}_n^Q}
 \newcommand{\TTVP}{\textit{TV}^P}
 \newcommand{\TTVQ}{\textit{TV}^Q}
 \newcommand{\TTVR}{\textit{TV}^R}
 \newcommand{\TTVPQ}{\textit{TV}^{PQ}}
 \newcommand{\TTVQR}{\textit{TV}^{QR}}
 \newcommand{\TBTV}{\langle \TTV \rangle}
+\newcommand{\TBTVPo}{\langle \TTVPo \rangle}
+\newcommand{\TBTVQo}{\langle \TTVQo \rangle}
 \newcommand{\TBTVPi}{\langle \TTVPi \rangle}
+\newcommand{\TBTVQn}{\langle \TTVQn \rangle}
+\newcommand{\TBTVPn}{\langle \TTVPn \rangle}
 \newcommand{\TBTVQi}{\langle \TTVQi \rangle}
 \newcommand{\TBTVP}{\langle \TTVP \rangle}
 \newcommand{\TBTVQ}{\langle \TTVQ \rangle}
@@ -56,7 +64,7 @@
 \newcommand{\Tconf}{\textit c}
 
 % Commands for symbolic mathematical notations
-\newcommand{\prob}{\mathbf{Pr}}
+\newcommand{\prob}{\mathcal{Pr}}
 \newcommand{\limp}{\rightarrow}
 \newcommand{\lpreimp}[1]{\leadsto^{#1}}
 \newcommand{\lseqor}[1]{\bigslopedvee^{#1}}
@@ -67,6 +75,9 @@
 %% TODO: try to replace over right arrow by over right harp, etc
 %% \newcommand{\llag}[2]{\accentset{\overrightharp}{#1}^{#2}}
 %% \newcommand{\llead}[2]{\overleftharp{#1}^{#2}}
+
+\newcommand{\ltrue}{\top}
+\newcommand{\lfalse}{\bottom}
 
 \begin{document}
 %
@@ -153,23 +164,24 @@ The contributions of that paper are:
 
 \begin{enumerate}
 \item Temporal reasoning
-\item ROCCA
-\item Minecraft experiment
 \end{enumerate}
 
-\section{Recall: Probabilistic Logic Networks}
+\section{Probabilistic Logic Networks Recall}
 
-PLN, which stands for Probabilistic Logic Networks, is a mixture of
-predicate and term logic that has been probabilitized to properly
-handle uncertainty.  It has two types of rules
+PLN stands for \emph{Probabilistic Logic
+  Networks}~\cite{Goertzel09PLN}.  It is a mixture of predicate and
+term logic that has been probabilitized to handle uncertainty.  It has
+at least two types of rules for inferring relationships
 \begin{enumerate}
-\item one type for introducing relationships from direct observations,
-\item the other for introducing relationships from existing
-  relationships.
+\item from direct observations,
+\item from existing relationships.
 \end{enumerate}
-As such it is especially suited for building an ongoing understanding
-of an unknown environment (using direct introduction rules), and then
-planning in that environment (using indirect introduction rules).
+As such it is well suited for building a model of a given environment,
+and planning in that environment.  All it needs is to be properly
+equipped with a vocabulary for representing temporal and procedural
+knowledge.  The Chapter 14 of the PLN book~\cite{Goertzel09PLN} does
+just that.  However we found that definitions are sometimes ambiguous
+or incorrect.  That paper has been written to remedy that.
 
 \subsection{Elementary Notions}
 
@@ -192,203 +204,304 @@ planning in that environment (using indirect introduction rules).
 
 Graphically speaking, PLN statements are
 sub-hypergraphs\footnote{because links can point to links, not just
-nodes} made of links and nodes, called \emph{Atoms}, decorated with
-\emph{Truth Values} that can be understood as uncertain probabilities
-\cite{TODO}.  Syntactically speaking however, PLN statements are not
-very different from statements expressed in another logic, except that
-they are usually formatted in prefixed-operator indented-argument
-style to emphasize their graphical nature and leave room for truth
-values.  There is a large variety of constructs for PLN, here we will
-focus primarily on constructs for manipulating predicates.  Let us
-recall that predicates are functions that take tuples of Atoms and
-output boolean values
-$$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$
-Predicate constructs can be grouped in two classes of operators
-\begin{enumerate}
-\item one for defining predicate from instances, such as $\TEval$ and
-  $\TLamb$,
-\item and another for combining existing predicates, such as $\TAnd$,
-  $\TOr$ and $\TNot$ (obtained by lifting their pointwise counterparts
-  to the predicate domain), and $\TImpl$ (for representing conditional
-  probabilities).
-\end{enumerate}
-Let us present these operators below, corresponding to the minimum
-subset we will need in the rest of the paper.
+  nodes} made of \emph{Links} and \emph{Nodes}, called \emph{Atoms},
+decorated with \emph{Truth Values}.  Syntactically speaking, PLN
+statements are not very different from statements expressed in another
+logic, except that they are usually formatted in prefixed-operator
+with a tree-style indentation to emphasize their graphical nature and
+to leave room for their truth values.  For instance
+$$
+\begin{array}{l}
+  \TImpl\ \TBTV\\
+  \SP P\\
+  \SP Q\\
+\end{array}
+$$
+represents an implication link between $P$ and $Q$ with truth value
+$\TTV$.  For sake of conciseness we also adopt the following
+representations.  We adopt a flattened, as opposed to a tree-style,
+representation.  For instance the implication link above is
+represented as
+$$\TImpl(P, Q)\ \TBTV$$
+We adopt a more mathematically looking symbolic representation.  For
+instance that same implication can be represented as
+$$P \limp Q \measeq \TTV$$
+There is a large variety of constructs for PLN.  Here, we will focus
+primarily on the ones for handling predicates.  Let us recall that
+predicates are functions that output Boolean values.  The domain of a
+predicate can be arbitrarily defined, but its range is always Boolean.
+In that paper, the capital letters $A$, $B$, $C$ represent atoms of
+any type, $X$, $Y$, $Z$ represent atoms that are variables, while $P$,
+$Q$, $R$, $\dots$ represent atoms that are predicates, typed as follows:
+% $$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$
+$$P, Q, R, \hdots: \textit{Domain} \mapsto \{\TTrue, \TFalse\}$$
+Note that in PLN, predicates are not necessarily crisp because their
+outputs can be totally or partially unknown, thus potentially
+described by probabilities.
+
+Truth values are, in essence, probability distributions of
+probabilities, also called second order probability distributions.
+They are often described by two numbers: a strength, $s$, representing
+a probability, and a confidence, $c$, representing the confidence over
+that probability.  Such truth values are called \emph{Simple Truth
+  Values} and are denoted as follows
+$$<\!s, c\!>$$
+Alternatively, the strength and the confidence of a simple truth value
+$\TTV$ can be denoted $\TTV.s$ and $\TTV.c$ respectively.  Underneath,
+a simple truth value corresponds to a beta distribution~\cite{TODO}
+with parameters $\alpha(s, c)=\alpha_0 + \frac{s.c.k}{1-c}$ and
+$\beta(s, c)=\beta_0 + \frac{(1-s).c.k}{1-c}$, where $k$ is a PLN
+parameter called the \emph{Lookahead}, and $\alpha_0$ and $\beta_0$
+are usually set to 0.5 corresponding to Jeffreys prior.  For truth
+values obtained from direct evidence, a simple truth value makes
+perfect theoretical sense~\cite{TODO}.  For truth values obtained from
+indirect evidence, not so much, even though they are often used in
+practice.  When more precision is needed, to represent a multi-modal
+truth value for instance, a mixture of simple truth values can be
+used.  Through out the paper, sometimes we may say \emph{probability},
+while what we really mean is \emph{second order probability
+  distribution}.
+
+% TODO: cite Subjective Logic and Chapt 4 of the PLN book.
+
+% The constructs of interest covered in that paper are
+% \begin{enumerate}
+% \item $\TEval$ which can be used to define predicates from instances.
+% \item $\TLamb$ which can be used to define predicates using
+%   operational definitions.
+% \item $\TAnd$, $\TOr$ and $\TNot$ which are pointwise counterparts of
+%   the usual logical connectors.
+% \item $\TImpl$ which can be used to define conditional predicates,
+%   where their truth values represent conditional probabilities.
+% \end{enumerate}
+
+Below is a table of the constructs used in that paper with their
+flattened and symbolic representations, as well as precedence to
+minimize parenthesis usage when using the symbolic representation.
+\renewcommand{\arraystretch}{1.5}
+$$
+\begin{array}{|c|c|c|}
+  \hline
+  \text{Flattened} & \text{Symbolic} & \text{Precedence} \\
+  \hline
+  % \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n) & 0 \\
+  \TEval(P, A) & P(A) & 0 \\
+  % \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n)=True & 0 \\
+  \TNot(P) & \lnot P & 1 \\
+  \TAnd(P, Q) & P \land Q & 2 \\
+  \TOr(P, Q) & P \lor Q & 2 \\
+  \TImpl(P, Q) & P \limp Q & 4 \\
+  A \TBTV & A \measeq \TTV & 10 \\
+  \hline
+\end{array}
+$$
+\renewcommand{\arraystretch}{1}
+
+For representing n-ary predicates one may simply use
+$P(A_1, \dots, A_n)$ which may be understood as unary predicates
+applied on tuples.  Let us now explain their semantics and how to
+interpret their truth values.
+% The following uses unary predicates, n-ary predicates
+% may be understood as unary predicates applied on tuples.
+% especially as they each of them below with their corresponding truth
+% values
+% Let us present these operators below, corresponding to the minimum
+% subset we will need in the rest of the paper.
 \begin{itemize}
-\item Evaluation:
-  $$
-  \begin{array}{l}
-    \TEval\ \TBTV\\
-    \SP P\\
-    \SP E\\
-  \end{array}
-  $$
-  states that $P(E)$ outputs $\TTrue$ to a degree set by the truth value
-  $\TTV$.
-\item Lambda:
-  $$
-  \begin{array}{l}
-    \TLamb\ \TBTV\\
-    \SP x\\
-    \SP P(x)\\
-  \end{array}
-  $$
-  is a predicate constructor with variable $x$ and predicate body
-  $P(x)$, where the true value $\TTV$ corresponds to the probability
-  $\prob(P)$ of $P(x)$ to output $\TTrue$ for a random input.
-\item Conjunction:
-  $$
-  \begin{array}{l}
-    \TAnd\ \TBTV\\
-    \SP P\\
-    \SP Q\\
-  \end{array}
-  $$
-  represents the predicate obtained by taking the conjunction of
-  $P$ and $Q$, or equivalently the indicator function corresponding to
-  the intersection of the \emph{satisfying sets} of $P$ and $Q$.
-  The truth value $\TTV$ then represents an estimate of the
-  probability $\prob(P,Q)$ of the conjunction of $P$ and $Q$.
-\item Negation:
-  $$
-  \begin{array}{l}
-    \TNot\ \TBTV\\
-    \SP P\\
-  \end{array}
-  $$
-  represents the negation of $P$, or equivalently the indicator
-  function corresponding to the complement of the satisfying set of
-  $P$. The truth value $\TTV$ then represents an estimate of
-  the probability $\prob(\neg P)$ of the negation of $P$.
-\item Implication:
-  $$
-  \begin{array}{l}
-    \TImpl\ \TBTV\\
-    \SP P\\
-    \SP Q\\
-  \end{array}
-  $$
-  represents the predicate $Q$ conditioned on $P$, that is only
-  defined for instances $x$ for which $P(x)$ is $\TTrue$.  The truth
-  value $\TTV$ then represents an estimate of the conditional
-  probability $\prob(Q|P)$.  There is some subtleties to take
-  into account due to the fact $P(x)$ can actually be partially true
-  (stated by the truth values of $\TEval$ links as explained above),
-  but this resolves nicely by assuming degrees of truth are
-  probabilistic.  More is explained about that below.
+\item $\lnot P$ is the predicate resulting from the pointwise negation
+  of $P$.
+  % Negation:
+  % $$
+  % \begin{array}{l}
+  %   \TNot\ \TBTV\\
+  %   \SP P\\
+  % \end{array}
+  % $$
+  % represents the negation of $P$, or equivalently the indicator
+  % function corresponding to the complement of the satisfying set of
+  % $P$. The truth value $\TTV$ then represents an estimate of
+  % the probability $\prob(\neg P)$ of the negation of $P$.
+\item
+  % Conjunction:
+  % $$
+  % \begin{array}{l}
+  %   \TAnd\ \TBTV\\
+  %   \SP P\\
+  %   \SP Q\\
+  % \end{array}
+  % $$
+  $P \land Q$ is the predicate resulting from the pointwise
+  conjunction of $P$ and $Q$.
+  % , or equivalently the indicator function
+  % corresponding to the intersection of the \emph{satisfying sets} of
+  % $P$ and $Q$.  The truth value $\TTV$ then represents an estimate of
+  % the probability $\prob(P,Q)$ of the conjunction of $P$ and $Q$.
+\item
+  % Conjunction:
+  % $$
+  % \begin{array}{l}
+  %   \TAnd\ \TBTV\\
+  %   \SP P\\
+  %   \SP Q\\
+  % \end{array}
+  % $$
+  $P \lor Q$ is the predicate resulting from the pointwise disjunction
+  of $P$ and $Q$.
+  % , or equivalently the indicator function
+  % corresponding to the intersection of the \emph{satisfying sets} of
+  % $P$ and $Q$.  The truth value $\TTV$ then represents an estimate of
+  % the probability $\prob(P,Q)$ of the conjunction of $P$ and $Q$.
+\item $P(A) \measeq \TTV$ states that $P(A)$ outputs $\TTrue$ with a
+  second order probability described by $\TTV$.
+  % Evaluation:
+  % $$
+  % \begin{array}{l}
+  %   \TEval\ \TBTV\\
+  %   \SP P\\
+  %   \SP E\\
+  % \end{array}
+  % $$
+  % states that $P(E)$ outputs $\TTrue$ to a degree set by the truth value
+  % $\TTV$.
+% \item Lambda:
+%   $$
+%   \begin{array}{l}
+%     \TLamb\ \TBTV\\
+%     \SP x\\
+%     \SP P(x)\\
+%   \end{array}
+%   $$
+%   is a predicate constructor with variable $x$ and predicate body
+%   $P(x)$, where the true value $\TTV$ corresponds to the probability
+%   $\prob(P)$ of $P(x)$ to output $\TTrue$ for a random input.
+\item
+  % Implication:
+  % $$
+  % \begin{array}{l}
+  %   \TImpl\ \TBTV\\
+  %   \SP P\\
+  %   \SP Q\\
+  % \end{array}
+  % $$
+  $P \limp Q \measeq \TTV$ states that if $P(A)$ is $\TTrue$ for some
+  $A$ in the domain of $P$, then $Q(A)$ is $\TTrue$ with a second
+  order probability described by $\TTV$.  In simple probability terms,
+  it represents $\prob(Q|P)$, the conditional probability of $Q$
+  knowing $P$, referring to their satisfying sets to be precise.
+  % represents the predicate $Q$ conditioned on $P$, that is
+  % only defined for instances $x$ for which $P(x)$ is $\TTrue$.  The
+  % truth value $\TTV$ then represents an estimate of the conditional
+  % probability $\prob(Q|P)$.  There is some subtleties to take into
+  % account due to the fact $P(x)$ can actually be partially true
+  % (stated by the truth values of $\TEval$ links as explained above),
+  % but this resolves nicely by assuming degrees of truth are
+  % probabilistic.  More is explained about that below.
+\item $P \measeq \TTV$ states that the prevalence of $P$ being
+  $\TTrue$ has the second order probability described by $\TTV$.
+  % It is
+  % equivalent to $P \limp \mathbb{True} \measeq \TTV$ where
+  % $\mathbb{True}$ is the predicate that is $\TTrue$ for any input.
 \end{itemize}
-Truth values are fundamentally second order probability
-distributions. However in practice they are usually represented by two
-numbers, a strength and a confidence, both ranging from 0 to 1.  The
-strength represents a probability while the confidence represents a
-precision over that probability.  Underneath, strength and confidence
-can be mapped into a second order distribution such as a Beta
-distribution [TODO: add figure].  TODO: cite Subjective Logic and
-Chapt 4 of the PLN book.
 
 \subsection{Inference Rules}
+Inferences rules are used to construct PLN statements and calculate
+their truth values.  They fall into two groups, direct evidence based
+or otherwise.  Rules from the former group infer abstract knowledge
+from direct evidence, while rules from the latter infer knowledge by
+combining existing abstractions.  There are dozens of inference rules,
+for now we only recall two, \emph{Implication Direct Introduction} and
+\emph{Deduction}.
 
-Beside operators, inferences rules are used to construct PLN
-statements and calculate their truth values.  They mainly fall into
-two categories, direct and indirect.  Direct rules infer abstract
-knowledge from direct evidence, while indirect rules infer knowledge
-by combining existing abstractions, themselves inferred directly or
-indirectly.  There are dozens of inference rules but for now we will
-only recall two which are needed for the paper:
-\begin{enumerate}
-\item \emph{Implication Direct Introduction Rule}
-\item \emph{Deduction Rule}
-\end{enumerate}
-
-\subsubsection{The Implication Direct Introduction Rule (IDI)} takes $\TEval$
-links as premises and produces an $\TImpl$ link as conclusion,
-formally depicted by the following proof tree
-{\scriptsize
+\subsubsection{The Implication Direct Introduction Rule (IDI)} takes
+evaluations
+% $\TEval$
+% links
+as premises and produces an implication as conclusion, formally
+depicted by the following proof tree
+% {\scriptsize
+% \begin{prooftree}
+%   \AxiomC{$
+%     \begin{array}{l}
+%       \TEval\ \TBTVPi\\
+%       \SP P\\
+%       \SP E_i\\
+%     \end{array}
+%     $}
+%   \AxiomC{$\hdots$}
+%   \AxiomC{$
+%     \begin{array}{l}
+%       \TEval\ \TBTVQi\\
+%       \SP Q\\
+%       \SP E_i\\
+%     \end{array}
+%     $}
+%   \RightLabel{(IDI)}
+%   \TrinaryInfC{$
+%     \begin{array}{l}
+%       \TImpl\ \TBTV\\
+%       \SP P\\
+%       \SP Q\\
+%     \end{array}
+%     $}
+% \end{prooftree}}
+{\small
 \begin{prooftree}
-  \AxiomC{$
-    \begin{array}{l}
-      \TEval\ \TBTVPi\\
-      \SP P\\
-      \SP E_i\\
-    \end{array}
-    $}
+  \AxiomC{$P(A_1) \measeq \TTVPo$}
   \AxiomC{$\hdots$}
-  \AxiomC{$
-    \begin{array}{l}
-      \TEval\ \TBTVQi\\
-      \SP Q\\
-      \SP E_i\\
-    \end{array}
-    $}
+  \AxiomC{$P(A_n) \measeq \TTVPn$}
   \RightLabel{(IDI)}
-  \TrinaryInfC{$
-    \begin{array}{l}
-      \TImpl\ \TBTV\\
-      \SP P\\
-      \SP Q\\
-    \end{array}
-    $}
+  \TrinaryInfC{$P\limp Q \measeq \TTV$}
 \end{prooftree}}
-Assuming perfectly reliable direct evidence\footnote{Dealing with
-unreliable direct evidence involves expensive convolution products and
-is outside of the scope of this paper.} then the resulting truth value
-is calculated as follows
-$$\TTV.\Tstrength = \frac{\sum_{i=1}^n f_\wedge(\TTVPi.\Tstrength, \TTVQi.\Tstrength)}{\sum_{i=1}^n \TTVPi.\Tstrength}$$
-$$\TTV.\Tconf = \frac{n}{n+k}$$ where $\TTV.\Tstrength$ and
-$\TTV.\Tconf$ respectively represent the strength and the confidence
-of $\TTV$, $k$ is a system parameter, and $f_\wedge$ is a function
-embodying a probabilistic assumption about the intersection of the
-events corresponding to the \emph{probabilitized degrees of truth} of
-$P(E_i)$ and $Q(E_i)$.  Such function typically ranges from the
-product (perfect independence) to the $\min$ (perfect overlap).
+\noindent Assuming perfectly reliable direct
+evidence\footnote{Perfectly reliable evidence have a confidence of 1.
+  Dealing with unreliable evidence involves using convolution products
+  and is outside of the scope of this paper.}  then the resulting
+simple truth value can be calculated as follows
+$$\TTV.\Tstrength = \frac{\sum_{i=1}^n f_\wedge(\TTVPi.\Tstrength,
+  \TTVQi.\Tstrength)}{\sum_{i=1}^n \TTVPi.\Tstrength}\ \ \ \ \ \ \ \ \
+\ \ \ \ \ \TTV.\Tconf = \frac{n}{n+k}$$
+where % $\TTV.\Tstrength$ and
+% $\TTV.\Tconf$ respectively represent the strength and the confidence
+% of $\TTV$, $k$ is the lookahead, and
+$f_\wedge$ is a function embodying a probabilistic assumption about
+the conjunction of the events.  Such function typically ranges from
+the product (perfect independence) to the $\min$ (perfect overlap).
+Note that this inference rule takes an arbitrary number of premises.
+In practice it is not a problem as it is decomposed into two rules
+covering the base and the recursive cases, while storing evidence to
+avoid double counting.
 
-\subsubsection{The Deduction Rule (D)} takes two $\TImpl$ links as
-premises and produces a third one.  Depending on what assumption is
-made there exists different variations of that rule.  The simplest
-one, based on the Markov property
+\subsubsection{The Deduction Rule (D)} takes two implications as
+premises and produces a third one.  Depending on the assumptions made
+there exists different variations of that rule.  The simplest one is
+based on the Markov property % assuming that the probability of $R$
+% knowing $P$ and $Q$ equals to the probability of $R$ knowing only $Q$.
 $$\prob(R|Q,P) = \prob(R|Q)$$
 %% $$\prob(R|\neg Q,P) = \prob(R|\neg Q)$$
-can be formally depicted by the following proof tree
-{\scriptsize
+which gives rise to the rule depicted by the following proof tree
+{\small
   \begin{prooftree}
-    \AxiomC{$
-      \begin{array}{l}
-        \TImpl\ \TBTVPQ\\
-        \SP P\\
-        \SP Q\\
-      \end{array}
-      $}
-    \AxiomC{$
-      \begin{array}{l}
-        \TImpl\ \TBTVQR\\
-        \SP Q\\
-        \SP R\\
-      \end{array}
-      $}
-    \AxiomC{$P \TBTVP$}
-    \AxiomC{$Q \TBTVQ$}
-    \AxiomC{$R \TBTVR$}
+    \AxiomC{$P \limp Q \measeq \TTVPQ$}
+    \AxiomC{$Q \limp R \measeq \TTVQR$}
+    \AxiomC{$P \measeq \TTVP$}
+    \AxiomC{$Q \measeq \TTVQ$}
+    \AxiomC{$R \measeq \TTVR$}
     \RightLabel{(D)}
-    \QuinaryInfC{$
-      \begin{array}{l}
-        \TImpl\ \TBTV\\
-        \SP P\\
-        \SP R\\
-      \end{array}
-      $}
+    \QuinaryInfC{$P \limp R \measeq \TTV$}
   \end{prooftree}
 }
 %%  essentially expressing a probabilitized version of the transitivity
 %% of $\TImpl$ with a Markov property
 %% $$\prob(R|Q,P) = \prob(R|Q)$$
 %% $$\prob(R|\neg Q,P) = \prob(R|\neg Q)$$
-The reader may notice that three additional premises have been added,
-corresponding to the probabilities $\prob(P)$, $\prob(Q)$ and $\prob(R)$.
-This is a consequence of the Markov property.  The exact formula for
-that variation will not be recalled\footnote{More information can be
-found in \cite{TODO}} here but it merely derives from
+\noindent The reader may notice that three additional premises have been added,
+corresponding to the probabilities $\prob(P)$, $\prob(Q)$ and
+$\prob(R)$.  This is a consequence of the Markov property.  The exact
+formula for that variation will not be recalled here but it merely
+derives from
 $$\prob(R|P) = \prob(R|Q,P)\times\prob(Q|P) + \prob(R|\neg
 Q,P)\times\prob(\neg Q|P)$$
+More information can be found in Chapter X of~\cite{TODO}.
 
 \section{Temporal Logic}
 
@@ -597,6 +710,7 @@ $$
   \TSeqAnd(T, P, Q) & P \lseqand{T} Q & 3 \\
   \TSeqOr(T, P, Q) & P \lseqor{T} Q & 3 \\
   \TImpl(P, Q) & P \limp Q & 4 \\
+  \TPredImpl(T, P, Q) & P \lpreimp{T} \! \! Q & 4 \\
   \TPredImpl(T, P, Q) & P \lpreimp{T} \! \! Q & 4 \\
   \hline
 \end{array}
