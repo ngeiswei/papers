@@ -110,7 +110,7 @@
 \end{abstract}
 
 \section{Introduction}
-
+\label{sec:intro}
 The goal of this project is to make an agent as rational as possible,
 not necessarily as efficient as possible.  This stems from the concern
 that in order to autonomously gain efficiency the agent must first be
@@ -148,8 +148,8 @@ in between.  For that reason we focus on a real time temporal logic.
 
 % \section{Related Work}
 
-% TODO: Event Calculus.  Temporal Logic (Next operator).  Subjective
-% logic and evidence-based subjective logic.
+% TODO: Event Calculus.  Temporal Logic (Next operator).  and
+% evidence-based subjective logic.
 
 % \section{Contributions}
 
@@ -168,7 +168,7 @@ in between.  For that reason we focus on a real time temporal logic.
 % \end{enumerate}
 
 \section{Probabilistic Logic Networks Recall}
-
+\label{sec:recall}
 PLN stands for \emph{Probabilistic Logic
   Networks}~\cite{Goertzel09PLN}.  It is a mixture of predicate and
 term logic that has been probabilitized to handle uncertainty.  It has
@@ -219,7 +219,7 @@ $$
 \end{array}
 $$
 represents an implication link between $P$ and $Q$ with truth value
-$\TTV$.  For sake of conciseness we also adopt the following
+$\TTV$.  For the sake of conciseness we also adopt the following
 representations.  We adopt a flattened, as opposed to a tree-style,
 representation.  For instance the implication link above is
 represented as
@@ -231,38 +231,42 @@ There is a large variety of constructs for PLN.  Here, we will focus
 primarily on the ones for handling predicates.  Let us recall that
 predicates are functions that output Boolean values.  The domain of a
 predicate can be arbitrarily defined, but its range is always Boolean.
-In this paper, the capital letters $A$, $B$, $C$ represent atoms of
-any type, $X$, $Y$, $Z$ represent atoms that are variables, while $P$,
-$Q$, $R$, $\dots$ represent atoms that are predicates, typed as follows:
+% TODO In this paper, the capital letters $A$, $B$, $C$ represent atoms of
+In this paper, the letters $a$, $b$, $c$ represent atoms of
+% any type, $X$, $Y$, $Z$ represent atoms that are variables, while $P$,
+any type, $x$, $y$, $z$ represent atoms that are variables, while the
+capital letter $P$, $Q$, $R$, $\dots$ represent atoms that are
+predicates, typed as follows:
 % $$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$
 $$P, Q, R, \hdots: \textit{Domain} \mapsto \{\TTrue, \TFalse\}$$
 Note that in PLN, predicates are not necessarily crisp because their
 outputs can be totally or partially unknown, thus potentially
 described by probabilities.
 
-Truth values are, in essence, probability distributions of
-probabilities, also called second order probability distributions.
-They are often described by two numbers: a strength, $s$, representing
-a probability, and a confidence, $c$, representing the confidence over
-that probability.  Such truth values are called \emph{Simple Truth
-  Values} and are denoted as follows
+Truth values are, in essence, second order probability distributions,
+or probability distributions of probabilities.  They are often
+described by two numbers: a strength, $s$, representing a probability,
+and a confidence, $c$, representing the confidence over that
+probability.  Such truth values are called \emph{Simple Truth Values}
+and are denoted as follows
 $$<\!s, c\!>$$
 Alternatively, the strength and the confidence of a simple truth value
 $\TTV$ can be denoted $\TTV.s$ and $\TTV.c$ respectively.  Underneath,
-a simple truth value corresponds to a beta
-distribution~\cite{Abourizk94Fitting} with parameters
-$\alpha(s, c)=\alpha_0 + \frac{s.c.k}{1-c}$ and
-$\beta(s, c)=\beta_0 + \frac{(1-s).c.k}{1-c}$, where $k$ is a PLN
+a simple truth value is a beta distribution~\cite{Abourizk94Fitting},
+similarly to an \emph{opinion} in Subjective Logic~\cite{Josang2026}.
+The parameters of the corresponding beta distribution can be obtained
+as follows
+$$\alpha(s, c)=\alpha_0 + \frac{s.c.k}{1-c}\ \ \ \ \ \ \ \ \ \ \
+\beta(s, c)=\beta_0 + \frac{(1-s).c.k}{1-c}$$ where $k$ is a PLN
 parameter called the \emph{Lookahead}, and $\alpha_0$ and $\beta_0$
 are usually set to 0.5 corresponding to Jeffreys prior.  For truth
 values obtained from direct evidence, a simple truth value makes
-perfect theoretical sense~\cite{TODO}.  For truth values obtained from
-indirect evidence, not so much, even though they are often used in
-practice.  When more precision is needed, to represent a multi-modal
-truth value for instance, a mixture of simple truth values can be
-used.  Through out the paper, sometimes we may say \emph{probability},
-while what we really mean is \emph{second order probability
-  distribution}.
+perfect theoretical sense.  For truth values obtained from indirect
+evidence, not so much, even though they are often used in practice.
+When more precision is needed, to represent a multi-modal truth value
+for instance, a mixture of simple truth values can be used.  Through
+out the paper, sometimes we may say \emph{probability}, while what we
+really mean is \emph{second order probability distribution}.
 
 % TODO: cite Subjective Logic and Chapt 4 of the PLN book.
 
@@ -278,8 +282,8 @@ while what we really mean is \emph{second order probability
 % \end{enumerate}
 
 Below is a table of the constructs used in this paper with their
-flattened and symbolic representations, as well as precedence to
-minimize parenthesis usage when using the symbolic representation.
+flattened and symbolic representations, as well as precedence values
+to minimize parenthesis usage with the symbolic representation.
 \renewcommand{\arraystretch}{1.5}
 $$
 \begin{array}{|c|c|c|}
@@ -287,19 +291,19 @@ $$
   \text{Flattened} & \text{Symbolic} & \text{Precedence} \\
   \hline
   % \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n) & 0 \\
-  \TEval(P, A) & P(A) & 0 \\
+  \TEval(P, a) & P(a) & 0 \\
   % \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n)=True & 0 \\
   \TNot(P) & \lnot P & 1 \\
   \TAnd(P, Q) & P \land Q & 2 \\
   \TOr(P, Q) & P \lor Q & 2 \\
   \TImpl(P, Q) & P \limp Q & 4 \\
-  A \TBTV & A \measeq \TTV & 5 \\
+  a \TBTV & a \measeq \TTV & 5 \\
   \hline
 \end{array}
 $$
 \renewcommand{\arraystretch}{1}
 
-For representing n-ary predicates one may use $P(A_1, \dots, A_n)$
+For representing n-ary predicates one may use $P(a_1, \dots, a_n)$
 which may simply be understood as unary predicates applied to tuples.
 Let us now explain their semantics and how their truth values are
 interpreted.
@@ -353,7 +357,7 @@ interpreted.
   % corresponding to the intersection of the \emph{satisfying sets} of
   % $P$ and $Q$.  The truth value $\TTV$ then represents an estimate of
   % the probability $\prob(P,Q)$ of the conjunction of $P$ and $Q$.
-\item $P(A) \measeq \TTV$ states that $P(A)$ outputs $\TTrue$ with a
+\item $P(a) \measeq \TTV$ states that $P(a)$ outputs $\TTrue$ with a
   second order probability described by $\TTV$.
   % Evaluation:
   % $$
@@ -385,13 +389,15 @@ interpreted.
   %   \SP Q\\
   % \end{array}
   % $$
-  $P \limp Q \measeq \TTV$ states that if $P(A)$ is $\TTrue$ for some
-  $A$ in the domain of $P$, then $Q(A)$ is $\TTrue$ with a second
+  $P \limp Q \measeq \TTV$ states that if $P(a)$ is $\TTrue$ for some
+  $a$ in the domain of $P$, then $Q(a)$ is $\TTrue$ with a second
   order probability described by $\TTV$.  In simple probability terms,
   it represents $\prob(Q|P)$~\footnote{To be precise, $\prob(Q|P)$
     should be understood as $\prob(\sat(Q)|\sat(P))$, where $\sat(P)$
     and $\sat(Q)$ are the satisfying sets of $P$ and $Q$
     respectively.}, the conditional probability of $Q$ knowing $P$.
+  We may also say that such implication is a conditional predicate
+  where $Q$ is conditioned by $P$.
   % represents the predicate $Q$ conditioned on $P$, that is
   % only defined for instances $x$ for which $P(x)$ is $\TTrue$.  The
   % truth value $\TTV$ then represents an estimate of the conditional
@@ -450,11 +456,13 @@ depicted by the following proof tree
 % \end{prooftree}}
 {\small
 \begin{prooftree}
-  \AxiomC{$P(A_1) \measeq \TTVPo$}
+  \AxiomC{$P(a_1) \measeq \TTVPo$}
+  \AxiomC{$Q(a_1) \measeq \TTVQo$}
   \AxiomC{$\hdots$}
-  \AxiomC{$P(A_n) \measeq \TTVPn$}
+  \AxiomC{$P(a_n) \measeq \TTVPn$}
+  \AxiomC{$Q(a_n) \measeq \TTVQn$}
   \RightLabel{(IDI)}
-  \TrinaryInfC{$P\limp Q \measeq \TTV$}
+  \QuinaryInfC{$P\limp Q \measeq \TTV$}
 \end{prooftree}}
 \noindent Assuming perfectly reliable direct evidence\footnote{A
   perfectly reliable piece of evidence has a confidence of 1.  Dealing
@@ -512,7 +520,7 @@ aggregate these truth values is not the subject of this paper and is
 discussed in Chapter 5, Section 5.10 of~\cite{Goertzel09PLN}.
 
 \section{Temporal Probabilistic Logic Networks}
-
+\label{sec:tpln}
 The temporal extension of PLN defined in~\cite{TODO} is somewhat
 partial and ambiguous.  In that section we provide a possible
 completion.
@@ -521,211 +529,154 @@ completion.
 Let us begin by defining \emph{Temporal Predicates}, also called
 \emph{Fluents} as predicates tends to denote atemporal relationships,
 as regular predicates with a temporal dimension
-$$P, Q, R, \hdots: \TAtom^n \times \TTime \mapsto \{\TTrue,
-\TFalse\}$$ $\TTime$ here is considered discrete, formally defined as
+$$P, Q, R, \hdots: \textit{Domain} \times \TTime \mapsto \{\TTrue,
+\TFalse\}$$
+$\TTime$
+% $$P, Q, R, \hdots: \TAtom^n \times \TTime \mapsto \{\TTrue,
+% \TFalse\}$$ $\TTime$
+TODO:list properties here is considered discrete, formally defined as
 a natural number.
 
 \subsection{Temporal Operators}
-Given temporal predicates we can now define a small set of temporal
-operators.
+Given temporal predicates we can now define a set of temporal operators.
 
-\subsubsection{$\TLag$ and $\TLead$} are temporal operators to shift the
-time dimension of a temporal predicate.  $\TLag$, respectively
-$\TLead$, is similar to the metric variation of the \emph{Past}
-operator denoted $P_n$, respectively the \emph{Future} operator
-denoted $F_n$, of Temporal Logic \cite{Prior 1967, Chapter VI}, with
-the distinction that it applies over an expression that evaluates into
-a temporal predicate, as opposed to an expression that evaluates into
-boolean.
-
-The $\TLag$ operator is formally defined as follows
-$$
-\begin{array}{l}
-  \TLag\\
-  \SP P\\
-  \SP T\\
-\end{array}
-$$
-:=
-$$
-\begin{array}{l}
-  \TLamb\\
-  \SP x_1, ..., x_n, t\\
-  \SP P(x_1, ..., x_n, t-T)\\
-\end{array}
-$$
-where the first line of the $\TLamb$ link is the variable
-declaration of the temporal predicate and the second line is the body
-representing a temporally shifted reconstruction of $P$.  Informally
-speaking, the $\TLag$ operator gives a peek into the past, or
-equivalently, brings the past into the present.  This is a major
-difference with \cite{PLN} that defined sequential and using notions
-of the Event Calculus \cite{TODO}.  Here we do not do that (TODO:
-maybe such operator should be called PrecedeAnd, or such).  That is
-because using this simpler notion of sequential and allows more
-flexibility to construct various forms of descriptions of how events
-initialization, termination, etc, are sequenced.
-
+\subsubsection{$\TLag$ and $\TLead$} are temporal operators to shift
+the temporal dimension of a temporal predicate.  They are similar to
+the metric variations of the \emph{Past} and \emph{Future} operators
+of Tense Logic, denoted $P_n$ and $F_n$ respectively~\cite{Prior1967},
+with the distinction that they are applied over temporal predicates,
+as opposed to Boolean modal expressions.  The $\TLag$ operator is
+formally defined as follows
+% $$Lag(P, T) := Lambda(VariableList(x, t), P(x, t-T))$$
+$$Lag(P, T) := \lambda x, t. P(x, t-T)$$
+% where the first line of the $\TLamb$ link is the variable
+% declaration of the temporal predicate and the second line is the body
+% representing a temporally shifted reconstruction of $P$.
+It allows to looks into the past, or one may say that it brings the
+past into the present.
+% This is a major difference with \cite{PLN}
+% that defined sequential and using notions of the Event Calculus
+% \cite{TODO}.  Here we do not do that (TODO: maybe such operator should
+% be called PrecedeAnd, or such).  That is because using this simpler
+% notion of sequential and allows more flexibility to construct various
+% forms of descriptions of how events initialization, termination, etc,
+% are sequenced.
 The $\TLead$ operator is the inverse of the $\TLag$ operator and is
 formally defined as follows
-$$
-\begin{array}{l}
-  \TLead\\
-  \SP P\\
-  \SP T\\
-\end{array}
-$$
-:=
-$$
-\begin{array}{l}
-  \TLamb\\
-  \SP x_1, ..., x_n, t\\
-  \SP P(x_1, ..., x_n, t+T)\\
-\end{array}
-$$ As the inverse of the $\TLag$ operator, the $\TLead$ operator gives
-a peek into the future, or equivalently, brings the future into the
-present.  Finally, as being the inverse of one another, the following
-equivalence holds
-$$
-\begin{array}{l}
-  \TLag\\
-  \SP \TLead\\
-  \SP \SP P\\
-  \SP \SP T\\
-  \SP T\\
-\end{array}
-\equiv
-\begin{array}{l}
-  P\\
-\end{array}
-$$
+$$Lead(P, T) := \lambda x, t. P(x, t+T)$$
+It allows to look into the future, or one may that it brings the
+future into the present.  As such, one may observe the following
+equivalence
+$$Lag(Lead(P, T), T) \equiv P$$
 
 \subsubsection{$\TSeqAnd$} is a temporal conjunction where one of the
 temporal predicate arguments have been temporally shifted.  There are
-two variations one can define.  A $\TBSeqAnd$ variation where the past
-of one of the temporal predicates is brought into the present, using the
-$\TLag$ operator, formally defined as
-$$
-\begin{array}{l}
-  \TBSeqAnd\\
-  \SP T\\
-  \SP P\\
-  \SP Q\\
-\end{array}
-:=
-\begin{array}{l}
-  \TAnd\\
-  \SP \TLag\\
-  \SP \SP P\\
-  \SP \SP T\\
-  \SP Q\\
-\end{array}
-$$
-resulting into a temporal predicate such that in order to be true
-at time $t$ requires that $P$ be true at time $t$ and $Q$ be true at
-time $t+T$.
+at least two variations one can define.  A first where the past of the
+first predicate is brought into the present.  A second where the
+future of the second predicate is brought into the present.  In this
+paper we provide the second one, formally defined as
+$$\TSeqAnd(T, P, Q) := \TAnd(P, \TLead(Q, T))$$
+which results into a temporal predicate that is $\TTrue$ at time $t$
+if and only if $P$ is $\TTrue$ at time $t$ and $Q$ is $\TTrue$ at time
+$t+T$.  Since we do not know at that point which one of the two
+variations is best, in practice we have implemented both, but in that
+paper we settle to one for the sake of simplicity.
+% There are two variations one can define.  The $\TBSeqAnd$ where the
+% past of the first temporal predicate is brought into the present,
+% using the $\TLag$ operator, formally defined as
+% $$\TBSeqAnd(T, P, Q) := \TAnd(Lag(P, T), Q)$$
+% resulting into a temporal predicate that is $\TTrue$ at time $t$ if
+% and only if $P$ is $\TTrue$ at time $t-T$ and $Q$ is $\TTrue$ at time
+% $t$.  The other variation is the $\TFSeqAnd$ where the future of the
+% second temporal predicate is brought into the present, formally
+% defined as
+% $$\TFSeqAnd(T, P, Q) := \TAnd(P, \TLead(Q, T))$$
+% resulting into a temporal predicate that is $\TTrue$ at time $t$ if
+% and only if $P$ is $\TTrue$ at time $t$ and $Q$ is $\TTrue$ at time
+% $t$.  For now we settle with the second variation, that is $\TSeqAnd$
+% is defined as $\TFSeqAnd$ for the rest of the paper.
+% ~\footnote{In the
+%   code however we have not
+% made such commitment and have implemented both variations.
+% Finally one may notice that $\TBSeqAnd$ and $\TFSeqAnd$ equivalent up
+% to temporal shifting, as follows
 
-Inversely, there is a $\TFSeqAnd$ variation where the future of the
-other temporal predicate is brought into the present, formally defined
-as
-$$
-\begin{array}{l}
-  \TFSeqAnd\\
-  \SP T\\
-  \SP P\\
-  \SP Q\\
-\end{array}
-:=
-\begin{array}{l}
-  \TAnd\\
-  \SP P\\
-  \SP \TLead\\
-  \SP \SP Q\\
-  \SP \SP T\\
-\end{array}
-$$
-resulting into a temporal predicate such that in order to be true
-at time $t$ requires that $P$ be true at time $t-T$ and $Q$ be true at
-time $t$.
+% NEXT
+% $$
+% \begin{array}{l}
+%   \TBSeqAnd\\
+%   \SP T\\
+%   \SP P\\
+%   \SP Q\\
+% \end{array}
+% \equiv
+% \begin{array}{l}
+%   \TBSeqAnd\\
+%   \SP T\\
+%   \SP P\\
+%   \SP Q\\
+% \end{array}
+% $$
 
-Finally one may notice that $\TBSeqAnd$ and $\TFSeqAnd$ equivalent up
-to temporal shifting, as follows
+\subsubsection{$\TSeqOr$} is a temporal disjunction where one of the
+temporal predicate arguments have been temporally shifted.  Like for
+$\TSeqAnd$ we settle to the variation where the future is brought into
+the present, defined as
+$$\TSeqOr(T, P, Q) := \TOr(P, \TLead(Q, T))$$
+which results into a temporal predicate that is $\TTrue$ at time $t$
+if and only if $P$ is $\TTrue$ at time $t$ or $Q$ is $\TTrue$ at time
+$t+T$.
 
-NEXT
-$$
-\begin{array}{l}
-  \TBSeqAnd\\
-  \SP T\\
-  \SP P\\
-  \SP Q\\
-\end{array}
-\equiv
-\begin{array}{l}
-  \TBSeqAnd\\
-  \SP T\\
-  \SP P\\
-  \SP Q\\
-\end{array}
-$$
-
-\subsubsection{$\TPredImpl$} likewise defines a temporal implication,
-formally
-$$
-\begin{array}{l}
-  \TPredImpl\\
-  \SP T\\
-  \SP P\\
-  \SP Q\\
-\end{array}
-$$
-:=
-$$
-\begin{array}{l}
-  \TImpl\\
-  \SP P\\
-  \SP \TLead\\
-  \SP \SP Q\\
-  \SP \SP T\\
-\end{array}
-$$
+\subsubsection{$\TPredImpl$} likewise is an implication where the
+future of the second predicate has been brought into the present,
+defined as
+$$\TPredImpl(T, P, Q) := \TImpl(P, \TLead(Q, T))$$
 resulting into a conditional predicate, that in order to be defined at
-time $t$ requires that $P$ be true at time $t$, and in order to be true
-at $t$ requires that $Q$ be true at $t+T$.
+time $t$ requires that $P$ is $\TTrue$ at time $t$, and if so, to be
+$\TTrue$ at $t$ requires that $Q$ is $\TTrue$ at $t+T$.
 
-We now have everything we need to define temporal inference rules, but
-before that let us first introduce some notations in order to be
-easier to lay out.
+Let us introduce a symbolic representation for these temporal
+constructs with precedence values to minimize parenthesis usage.
+% We now have everything we need to define
+% temporal inference rules, but before that let us first introduce some
+% notations in order to be easier to lay out.
 
-\subsection{Notations}
+% \subsection{Notations}
 
-The following notations can afford to ignore truth values, that is
-because no new formula is required for temporal reasoning.  All that
-is required are the definitions above mapping temporal expressions
-into equivalent atemporal ones.  The notations are summarized in the
-table below, ranked by syntactic precedence to minimize the number of
-required parenthesis.
+% The following notations can afford to ignore truth values, that is
+% because no new formula is required for temporal reasoning.  All that
+% is required are the definitions above mapping temporal expressions
+% into equivalent atemporal ones.  The notations are summarized in the
+% table below, ranked by syntactic precedence to minimize the number of
+% required parenthesis.
 \renewcommand{\arraystretch}{1.5}
 $$
 \begin{array}{|c|c|c|}
   \hline
-  \text{Atomese} & \text{Notation} & \text{Precedence} \\
+  \text{Flattened} & \text{Symbolic} & \text{Precedence} \\
   \hline
-  \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n) & 1 \\
-  \TLamb(t, \TAtTime(\TExec(A), t)) & \ldo{A} & 1 \\
+  % \TEval(P, \TList(X_1, \dots, X_n)) & P(X_1, \dots, X_n) & 1 \\
+  % \TLamb(t, \TAtTime(\TExec(A), t)) & \ldo{A} & 1 \\
   \TLag(P, T) & \llag{P}{T} & 1 \\
   \TLead(P, T) & \llead{P}{T} & 1 \\
-  \TAnd(P, Q) & P \land Q & 2 \\
-  \TOr(P, Q) & P \lor Q & 2 \\
+  % \TAnd(P, Q) & P \land Q & 2 \\
+  % \TOr(P, Q) & P \lor Q & 2 \\
   \TSeqAnd(T, P, Q) & P \lseqand{T} Q & 3 \\
   \TSeqOr(T, P, Q) & P \lseqor{T} Q & 3 \\
-  \TImpl(P, Q) & P \limp Q & 4 \\
+  % \TImpl(P, Q) & P \limp Q & 4 \\
   \TPredImpl(T, P, Q) & P \lpreimp{T} \! \! Q & 4 \\
-  \TPredImpl(T, P, Q) & P \lpreimp{T} \! \! Q & 4 \\
+  % \TPredImpl(T, P, Q) & P \lpreimp{T} \! \! Q & 4 \\
   \hline
 \end{array}
 $$
 \renewcommand{\arraystretch}{1}
-The precedence of everything else (predicates nodes, etc) is 0.
+
+The $\TLag$ (resp. $\TLead$) operator is symbolized by an overlining
+arrow going from the left to the right (resp. from the right to the
+left) because it brings the past (resp. the future) to the present.
+
+% In addition
+% The precedence of everything else (predicates nodes, etc) is 0.
 
 %% Note that, assuming a ForeSequentialAnd, whether it is right or left
 %% associative, changes whether the lag should be cumulative or not.
@@ -745,7 +696,7 @@ The precedence of everything else (predicates nodes, etc) is 0.
 %%
 %% Assuming a BackSequentialAnd, it is the opposite
 
-For instance
+% For instance
 
 %% $$
 %% \begin{array}{l}
@@ -756,56 +707,156 @@ For instance
 %% \end{array}
 %% $$
 
-TODO: show examples of notational format with the effect of precedence
+% TODO: show examples of notational format with the effect of precedence
 
 \subsection{Temporal Rules}
+Given these operators we can now introduce a number of temporal
+inference rules.
 
-TODO: $\TPredImpl$ direct introduction.
-
-Given that we can now introduce our temporal rules, (PI), (IP), (S)
-
-TODO: detail (PI), (IP), (S) rules
-
-and the most important one Temporal Deduction (TD)
+\subsubsection{The Predictive Implication to Implication Rule (PI)}
+takes a predictive implication as premise and produces an equivalent
+implication, as depicted by the following proof tree
 {\small
-  \begin{prooftree}
-    \AxiomC{$P \lpreimp{T_1} Q$}
-    \AxiomC{$Q \lpreimp{T_2} R$}
-    \AxiomC{$P$}
-    \AxiomC{$Q$}
-    \AxiomC{$R$}
-    \RightLabel{(TD)}
-    \QuinaryInfC{$P \lpreimp{T_1+T_2} R$}
-  \end{prooftree}
-}
-To determine the formula to calculate the resulting truth value of
-such rule, we only need to map such temporal deduction into a regular
-deduction as follows
+\begin{prooftree}
+  \AxiomC{$P \lpreimp{T} Q$}
+  \RightLabel{(PI)}
+  \UnaryInfC{$P \limp \llead{Q}{T}$}
+\end{prooftree}}
+\noindent Note that because the conclusion is equivalent to the
+premise, the truth values do not need to be indicated in the rule
+definition.
+% \noindent When the formula for calculating the resulting truth value
+% is the identity function, or is obvious in the current context, we may
+% simplify the rule definition by ignoring the truth values.  For
+% instance the PI inference rule may be defined as
+% {\small
+% \begin{prooftree}
+%   \AxiomC{$P \lpreimp{T} Q$}
+%   \RightLabel{(PI)}
+%   \UnaryInfC{$P \limp \llead{Q}{T}$}
+% \end{prooftree}}
 
-{\tiny
-  \begin{prooftree}
-    \AxiomC{$P \lpreimp{T_1} Q$}
-    \RightLabel{(PI)}
-    \UnaryInfC{$P \limp \llead{Q}{T_1}$}
-    \AxiomC{$Q \lpreimp{T_2} R$}
-    \RightLabel{(PI)}
-    \UnaryInfC{$Q \limp \llead{R}{T_2}$}
-    \RightLabel{(S)}
-    \UnaryInfC{$\llead{Q}{T_1} \limp \llead{R}{T_1+T_2}$}
-    \AxiomC{$P$}
-    \AxiomC{$Q$}
-    \RightLabel{(S)}
-    \UnaryInfC{$\llead{Q}{T_1}$}
-    \AxiomC{$R$}
-    \RightLabel{(S)}
-    \UnaryInfC{$\llead{R}{T_1+T_2}$}
-    \RightLabel{(D)}
-    \QuinaryInfC{$P \limp \llead{R}{T_1+T_2}$}
-    \RightLabel{(IP)}
-    \UnaryInfC{$P \lpreimp{T_1+T_2} R$}
+\subsubsection{The Implication to Predictive Implication Rule (IP)}
+takes an implication as premise and produces an equivalent predictive
+implication, as depicted by the following proof tree
+{\small
+\begin{prooftree}
+  \AxiomC{$P \limp \llead{Q}{T}$}
+  \RightLabel{(IP)}
+  \UnaryInfC{$P \lpreimp{T} Q$}
 \end{prooftree}}
 
+\subsubsection{The Temporal Shifting Rule (S)} takes a temporal
+predicate and shits its temporal dimension, as depicted by the
+following proof tree {\small
+\begin{prooftree}
+  \AxiomC{$P \measeq \TTV$}
+  \RightLabel{(S)}
+  \UnaryInfC{$\llead{P}{T} \measeq \TTV$}
+\end{prooftree}}
+\noindent Shifting does not change the truth value of the predicate.
+Indeed, the prevalence of being $\TTrue$ remains the same, only the
+origin of the temporal dimension changes.  Note however that the
+predicate itself changes, it has been shifted.  Therefore, unlike for
+the IP and PI inference rules that produce equivalent predicates, the
+truth values must be included in the rule definition, otherwise the
+rule of replacement would incorrectly apply.  Additionally, one may
+define a number of variations of that rule.  For the sake of
+conciseness we will not enumerate them all here.  Let us instead show
+one more variation of that rule over conditional predicates {\small
+\begin{prooftree}
+  \AxiomC{$P \limp Q \measeq \TTV$}
+  \RightLabel{(S)}
+  \UnaryInfC{$\llead{P}{T} \limp \llead{Q}{T} \measeq \TTV$}
+\end{prooftree}}
+% \noindent More trivial variations, not provided for the sake of
+% conciseness, are used and labeled under the same rule name, Temporal
+% Shifting (S).
+
+\subsubsection{The Predictive Implication Direct Introduction Rule
+  (PIDI)} is similar to the implication direct introduction rule of
+Section~\ref{sec:recall} but accounts for temporal differences between
+evaluations.  It is formalized by the following proof tree {\small
+\begin{prooftree}
+  \AxiomC{$\left(P(a_i, t_i) \measeq \TTVPi\right)_{i=1, \dots, n}$}
+  \AxiomC{$\left(Q(a_i, t_i+T) \measeq \TTVQi\right)_{i=1, \dots, n}$}
+  \RightLabel{(PIDI)}
+  \BinaryInfC{$P \lpreimp{T} Q \measeq \TTV$}
+\end{prooftree}}
+\noindent The truth value formula is identical to that of the
+implication direct introduction rule.  In fact, such rule can be
+trivially derived from the implication direct introduction rule, the
+implication to predictive implication rule and the definition of the
+$\TLead$ operator.
+
+\subsubsection{The Temporal Deduction Rule (TD)} is similar to the
+deduction rule of Section~\ref{sec:recall} but operates on predictive
+implications.  It is formally depicted by the following proof tree
+{\scriptsize
+  \begin{prooftree}
+    \AxiomC{$P \lpreimp{T_1} Q \measeq \TTVPQ$}
+    \AxiomC{$Q \lpreimp{T_2} R \measeq \TTVQR$}
+    \AxiomC{$P \measeq \TTVP$}
+    \AxiomC{$Q \measeq \TTVQ$}
+    \AxiomC{$R \measeq \TTVR$}
+    \RightLabel{(TD)}
+    \QuinaryInfC{$P \lpreimp{T_1+T_2} R \measeq \TTV$}
+  \end{prooftree}
+}
+\noindent As it turns out, the truth value formula is also identical
+to that of the deduction rule, but the proof is not as trivial as in
+the case of the predictive implication direct introduction rule.
+% and the most important one Temporal Deduction (TD)
+% {\small
+%   \begin{prooftree}
+%     \AxiomC{$P \lpreimp{T_1} Q$}
+%     \AxiomC{$Q \lpreimp{T_2} R$}
+%     \AxiomC{$P$}
+%     \AxiomC{$Q$}
+%     \AxiomC{$R$}
+%     \RightLabel{(TD)}
+%     \QuinaryInfC{$P \lpreimp{T_1+T_2} R$}
+%   \end{prooftree}
+% }
+In order to convince us that it is the case, let us construct an
+inference tree that can perform the same inference without requiring
+the temporal deduction rule.  The resulting inference tree is depicted
+below
+% NEXT To determine the formula to calculate the resulting truth value of
+% such rule, we only need to map such temporal deduction into a regular
+% deduction as follows
+{\tiny
+  \begin{prooftree}
+    \AxiomC{$P \lpreimp{T_1} Q \measeq \TTVPQ $}
+    \RightLabel{(PI)}
+    \UnaryInfC{$P \limp \llead{Q}{T_1} \measeq \TTVPQ$}
+    \AxiomC{$Q \lpreimp{T_2} R \measeq \TTVQR$}
+    \RightLabel{(PI)}
+    \UnaryInfC{$Q \limp \llead{R}{T_2} \measeq \TTVQR$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\llead{Q}{T_1} \limp \llead{R}{T_1+T_2} \measeq \TTVQR$}
+    \AxiomC{$\!\!\!\!\!\!P \measeq \TTVP\!\!\!\!\!\!$}
+    \AxiomC{$Q \measeq \TTVQ$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\llead{Q}{T_1} \measeq \TTVQ$}
+    \AxiomC{$R \measeq \TTVR$}
+    \RightLabel{(S)}
+    \UnaryInfC{$\llead{R}{T_1+T_2} \measeq \TTVR$}
+    \RightLabel{(D)}
+    \QuinaryInfC{$P \limp \llead{R}{T_1+T_2} \measeq \TTV$}
+    \RightLabel{(IP)}
+    \UnaryInfC{$P \lpreimp{T_1+T_2} R \measeq \TTV$}
+  \end{prooftree}}
+\noindent As you may see, the premises and the conclusion of that
+inference tree match exactly the premises and the conclusion of the
+temporal deduction rule.  Since none of the intermediary formulae,
+beside the deduction formula, alter the truth values, we may conclude
+that the formula of the temporal deduction rule is identical to that
+of the deduction rule..
+
 \subsection{Procedural Reasoning}
+Now we come to the reason of that work, which is to perform procedural
+reasoning.
 
 Likewise, we can use the same temporal to regular deduction mapping to
 build inference rules for procedural reasoning.  Given two cognitive
@@ -873,7 +924,7 @@ $P\!\land\!\ldo{A}\!\land\!\llead{\ldo{B}}{T_1}$, $Q\!\land\!\ldo{B}$
 and $R$.
 
 \section{Conclusion}
-
+\label{sec:conclusion}
 TODO: implement more temporal and procedural rules, support temporal
 intervals, behavior trees, introduce Temporal Truth Value.  Integrate
 Event Calculus.
