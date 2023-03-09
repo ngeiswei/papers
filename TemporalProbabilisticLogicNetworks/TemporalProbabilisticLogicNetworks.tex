@@ -178,15 +178,15 @@ PLN stands for \emph{Probabilistic Logic
 term logic that has been probabilitized to handle uncertainty.  It has
 at least two types of rules for inferring relationships
 \begin{enumerate}
-\item from direct observations,
+\item from direct evidence,
 \item from existing relationships.
 \end{enumerate}
-As such it is well suited for building a model of a given environment,
-and planning in that environment.  All it needs is to be properly
-equipped with a vocabulary for representing temporal and procedural
-knowledge.  The Chapter 14 of the PLN book~\cite{Goertzel09PLN} does
-just that.  However we found that definitions are sometimes ambiguous
-or incorrect.  This paper has been written to remedy that.
+As such it is well suited for building a model of an environment, and
+planning in it.  All it needs is to be properly equipped with a
+vocabulary for representing temporal and procedural knowledge.  The
+Chapter 14 of the PLN book~\cite{Goertzel09PLN} does that.  However we
+have found that some definitions are ambiguous or incorrect.  This
+paper has been written to remedy that.
 
 \subsection{Elementary Notions}
 
@@ -223,14 +223,16 @@ $$
 \end{array}
 $$
 represents an implication link between $P$ and $Q$ with truth value
-$\TTV$.  For the sake of conciseness we also adopt the following
-representations.  We adopt a flattened, as opposed to a tree-style,
+$\TTV$.  For the sake of conciseness we also introduce the following
+notations.  First, we adopt a flattened, as opposed to a tree-style,
 representation.  For instance the implication link above is
 represented as
 $$\TImpl(P, Q)\ \TBTV$$
-We adopt a more mathematically looking symbolic representation.  For
-instance that same implication can be represented as
+Second, we introduce a more mathematically looking symbolic
+representation.  For instance, that same implication can be
+represented as
 $$P \limp Q \measeq \TTV$$
+
 There is a large variety of constructs for PLN.  Here, we will focus
 primarily on the ones for handling predicates.  Let us recall that
 predicates are functions that output Boolean values.  The domain of a
@@ -239,8 +241,8 @@ predicate can be arbitrarily defined, but its range is always Boolean.
 In this paper, the letters $a$, $b$, $c$ represent atoms of
 % any type, $X$, $Y$, $Z$ represent atoms that are variables, while $P$,
 any type, $x$, $y$, $z$ represent atoms that are variables, while the
-capital letter $P$, $Q$, $R$, $\dots$ represent atoms that are
-predicates, typed as follows:
+capital letter $P$, $Q$, $R$ represent atoms that are predicates,
+typed as follows:
 % $$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$
 $$P, Q, R, \hdots: \textit{Domain} \mapsto \{\TTrue, \TFalse\}$$
 Note that in PLN, predicates are not necessarily crisp because their
@@ -248,11 +250,11 @@ outputs can be totally or partially unknown, thus potentially measured
 by probabilities.
 
 Truth values are, in essence, second order probability distributions,
-or probability distributions of probabilities.  They are often
-described by two numbers: a strength, $s$, representing a probability,
-and a confidence, $c$, representing the confidence over that
-probability.  Such truth values are called \emph{Simple Truth Values}
-and are denoted as follows
+or probabilities of probabilities.  They are often described by two
+numbers: a strength, $s$, representing a probability, and a
+confidence, $c$, representing the confidence over that probability.
+Such truth values are called \emph{Simple Truth Values} and are
+denoted as follows
 $$<\!s, c\!>$$
 Alternatively, the strength and the confidence of a simple truth value
 $\TTV$ can be denoted $\TTV.s$ and $\TTV.c$ respectively.  Underneath,
@@ -270,7 +272,7 @@ evidence, not so much, even though they are often used in practice.
 When more precision is needed, to represent a multi-modal truth value
 for instance, a mixture of simple truth values can be used.  Through
 out the paper, sometimes we may say \emph{probability}, while what we
-really mean is \emph{second order probability distribution}.
+mean is \emph{second order probability distribution}.
 
 % TODO: cite Subjective Logic and Chapt 4 of the PLN book.
 
@@ -307,10 +309,10 @@ $$
 $$
 \renewcommand{\arraystretch}{1}
 
-For representing n-ary predicates one may use $P(a_1, \dots, a_n)$
-which may simply be understood as unary predicates applied to tuples.
-Let us now explain their semantics and how their truth values are
-interpreted.
+For representing n-ary predicates evaluations we use
+$P(a_1, \dots, a_n)$ which may simply be understood as a unary
+predicate evaluation applied to a tuple.  Let us now explain their
+semantics and how their truth values are to be interpreted.
 % The following uses unary predicates, n-ary predicates
 % may be understood as unary predicates applied on tuples.
 % especially as they each of them below with their corresponding truth
@@ -401,9 +403,8 @@ interpreted.
     and $\sat(Q)$ are the satisfying sets of $P$ and $Q$
     respectively.}, the conditional probability of $Q$ knowing $P$.
   We may also say that such implication is a conditional predicate
-  where $Q$ is conditioned by $P$.  Also, in such implication, $P$ may
-  be referred as the \emph{implicant} and $Q$ may be referred as the
-  \emph{implicand}.
+  where $Q$ is conditioned by $P$.  Also, $P$ may be referred as the
+  \emph{implicant} and $Q$ may be referred as the \emph{implicand}.
   % represents the predicate $Q$ conditioned on $P$, that is
   % only defined for instances $x$ for which $P(x)$ is $\TTrue$.  The
   % truth value $\TTV$ then represents an estimate of the conditional
@@ -527,19 +528,21 @@ discussed in Chapter 5, Section 5.10 of~\cite{Goertzel09PLN}.
 
 \section{Temporal Probabilistic Logic Networks}
 \label{sec:temporal}
-The temporal extension of PLN defined in~\cite{TODO} is somewhat
-partial and ambiguous.  In that section we provide a possible
-completion.
+A temporal extension of PLN is defined in Chapter 14
+of~\cite{Goertzel09PLN}.  However, we have found that some definitions
+are ambiguous, incorrect or incomplete.  In that section we provide a
+possible interpretation and completion of such temporal extension.
 %% , showing how the two inference rules recalled
 %% above to carry out temporal reasoning.  Let us define that
 Let us begin by defining \emph{Temporal Predicates}, also called
-\emph{Fluents}, as predicates equipped with a temporal dimension
+\emph{Fluents}, that are regular predicates equipped with a temporal
+dimension
 $$P, Q, R, \hdots: \textit{Domain} \times \TTime \mapsto \{\TTrue,
 \TFalse\}$$
 \noindent The type of the temporal dimension, $\TTime$, could in
 principle be any thing that has a minimum set of requirements, such as
-being an ordered semigroup or such.  In practice so far, we simply
-have used integers, thus capturing a discrete notion of time.  Not all
+being an ordered semigroup or such.  In practice so far, we have used
+integers instead, thus capturing a discrete notion of time.  Not all
 temporal predicates need to have a non-temporal domain, denoted
 $\textit{Domain}$.  In that case, we may simply assume that such
 domain is the unit type $()$ and ignore it.
@@ -571,12 +574,12 @@ into the present.
 % notion of sequential and allows more flexibility to construct various
 % forms of descriptions of how events initialization, termination, etc,
 % are sequenced.
-The $\TLead$ operator is the inverse of the $\TLag$ operator and is
-formally defined as follows
+The $\TLead$ operator is the inverse of the $\TLag$ operator, thus
+$$Lead(Lag(P, T), T) \equiv P$$
+and is formally defined as follows
 $$Lead(P, T) := \lambda x, t. P(x, t+T)$$
-It allows to look into the future, or one may that it brings the
-future into the present.  As such, the following equivalence holds
-$$Lag(Lead(P, T), T) \equiv P$$
+It allows to look into the future, or one may say that it brings the
+future into the present.
 
 \subsubsection{$\TSeqAnd$} is a temporal conjunction where one of the
 temporal predicate arguments have been temporally shifted.  There are
@@ -637,11 +640,11 @@ if and only if $P$ is $\TTrue$ at time $t$ or $Q$ is $\TTrue$ at time
 $t+T$.
 
 \subsubsection{$\TPredImpl$} is an implication where the future of the
-second predicate has been brought into the present, defined as
+implicand has been brought into the present, defined as
 $$\TPredImpl(T, P, Q) := \TImpl(P, \TLead(Q, T))$$
 resulting into a conditional predicate, that in order to be defined at
-time $t$ requires that $P$ is $\TTrue$ at time $t$, and if so, to be
-$\TTrue$ at $t$ requires that $Q$ is $\TTrue$ at time $t+T$.\\
+time $t$ requires that $P$ is $\TTrue$ at time $t$, and if so, is
+$\TTrue$ at $t$ if and only if $Q$ is $\TTrue$ at time $t+T$.\\
 
 Let us introduce a symbolic representation for these temporal
 constructs with precedence values to minimize parenthesis usage.
@@ -723,7 +726,7 @@ inference rules.
 
 \subsubsection{The Predictive Implication to Implication Rule (PI)}
 takes a predictive implication as premise and produces an equivalent
-implication, as depicted by the following proof tree
+implication, as depicted by the following proof tree.
 {\small
 \begin{prooftree}
   \AxiomC{$P \lpreimp{T} Q \measeq \TTV$}
@@ -732,8 +735,7 @@ implication, as depicted by the following proof tree
 \end{prooftree}}
 \noindent Note that because the conclusion is equivalent to the
 premise, the truth values may optionally be stripped from the rule
-definition while remaining perfectly valid.
-{\small
+while remaining valid.  {\small
 \begin{prooftree}
   \AxiomC{$P \lpreimp{T} Q$}
   \RightLabel{(PI)}
@@ -755,9 +757,8 @@ definition while remaining perfectly valid.
 
 \subsubsection{The Implication to Predictive Implication Rule (IP)}
 takes an implication as premise and produces an equivalent predictive
-implication, as depicted here without truth values by the following
-proof tree
-{\small
+implication, as depicted, here without truth value, by the following
+proof tree. {\small
 \begin{prooftree}
   \AxiomC{$P \limp \llead{Q}{T}$}
   \RightLabel{(IP)}
@@ -766,7 +767,7 @@ proof tree
 
 \subsubsection{The Temporal Shifting Rule (S)} takes a temporal
 predicate and shits its temporal dimension to the left or the right.
-An example of such rule is depicted by the following proof tree
+An example of such rule is depicted by the following proof tree.
 {\small
 \begin{prooftree}
   \AxiomC{$P \measeq \TTV$}
@@ -781,8 +782,8 @@ and PI inference rules that produce equivalent predicates, the truth
 values must be included in the rule definition, otherwise the rule of
 replacement would incorrectly apply.  There are a number of variations
 of that rule.  For the sake of conciseness we will not enumerate them
-all, and instead show one more variation of that rule over conditional
-predicates {\small
+all, and instead show one more variation over conditional predicates.
+{\small
 \begin{prooftree}
   \AxiomC{$P \limp Q \measeq \TTV$}
   \RightLabel{(S)}
@@ -795,7 +796,7 @@ predicates {\small
 \subsubsection{The Predictive Implication Direct Introduction Rule
   (PIDI)} is similar to the implication direct introduction rule of
 Section~\ref{sec:recall} but accounts for temporal delays between
-evaluations.  It is formalized by the following proof tree {\small
+evaluations.  It is formalized by the following proof tree. {\small
 \begin{prooftree}
   \AxiomC{$\left(P(a_i, t_i) \measeq \TTVPi\right)_{i=1, \dots, n}$}
   \AxiomC{$\left(Q(a_i, t_i+T) \measeq \TTVQi\right)_{i=1, \dots, n}$}
@@ -810,7 +811,7 @@ definition of the $\TLead$ operator.
 
 \subsubsection{The Temporal Deduction Rule (TD)} is similar to the
 deduction rule of Section~\ref{sec:recall} but operates on predictive
-implications.  It is formally depicted by the following proof tree
+implications.  It is formally depicted by the following proof tree.
 {\scriptsize
   \begin{prooftree}
     \AxiomC{$P \lpreimp{T_1} Q \measeq \TTVPQ$}
@@ -940,7 +941,7 @@ is unclear what the remaining premises are.  However, we can build an
 equivalent proof tree using regular deduction, as well as other
 temporal inferences rules defined in Section~\ref{sec:temporal}.  The
 resulting tree, without truth values so that it can fit within the
-width of the page, is given below {\tiny
+width of the page, is given below. {\tiny
   \begin{prooftree}
     \AxiomC{$C_1\!\land\! A_1 \lpreimp{T_1} C_2$}
     \RightLabel{(PI)}
@@ -970,7 +971,7 @@ width of the page, is given below {\tiny
 of the proof tree.  This rule eliminates independent predicates from
 an implication, without modifying the truth value of its conclusion.
 Its use is justified by the fact that $A_2$ is executed
-right after reaching $C_2$, thus cannot have an effect on it.\\
+immediately \emph{after} reaching $C_2$, thus cannot have an effect on it.\\
 
 After retaining the premises, the conclusion and adding back the truth
 values, we obtain the following procedural deduction rule {\scriptsize
