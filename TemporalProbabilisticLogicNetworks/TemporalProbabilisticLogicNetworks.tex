@@ -878,7 +878,7 @@ of the deduction rule..
 Let us now examine how to use temporal deduction to perform a special
 type of procedural reasoning, to build larger plans made of smaller
 plans by chaining their actions.  Given plans, also called
-\emph{Cognitive Schematics}~\cite{TODO}, of the form
+\emph{Cognitive Schematics}~\cite{Goertzel2011CSP}, of the form
 $$C_1 \land A_1 \lpreimp{T_1} C_2 \measeq \TTVo$$
 $$\vdots$$
 $$C_n \land A_n \lpreimp{T_n} G \measeq \TTVn$$
@@ -895,7 +895,7 @@ units, with a likelihood of success measured by $\TTV$.  Note that
 strictly speaking, $A_i$ is not an action, it is a predicate that
 captures the temporal activation of an action.  This can be formalized
 in PLN as well but is not where the difficulty lies.  Thus here we
-directly work with action activation predicates and refer them as
+directly work with action activation predicates and refer to them as
 actions for the sake of convenience.
 
 % using PLN but that is not  Formally it can be , but
@@ -966,10 +966,10 @@ width of the page, is given below {\tiny
     \RightLabel{(IP)}
     \UnaryInfC{$C_1\!\land\! A_1\!\lseqand{T_1}\!A_2 \lpreimp{T_1+T_2} C_3$}
 \end{prooftree}}
-\noindent Note the use of a new rule labeled (I) at the left of the
-proof tree.  This rule eliminates independent predicates from an
-implication, without modifying the truth value of its conclusion.  Its
-use is justified by the fact that $A_2$ is executed
+\noindent Note that we have used of a new rule labeled (I) at the left
+of the proof tree.  This rule eliminates independent predicates from
+an implication, without modifying the truth value of its conclusion.
+Its use is justified by the fact that $A_2$ is executed
 right after reaching $C_2$, thus cannot have an effect on it.\\
 
 After retaining the premises, the conclusion and adding back the truth
@@ -983,21 +983,21 @@ values, we obtain the following procedural deduction rule {\scriptsize
     \RightLabel{(PD)}
     \QuinaryInfC{$C_1\!\land\! A_1\!\lseqand{T_1}\!A_2 \lpreimp{T_1+T_2} C_3 \measeq \TTV$}
   \end{prooftree}}
-\noindent with a formula identical to that of the deduction rule.  The
-premises filling the dots are therefore
+\noindent with a formula identical to that of the deduction rule, once
+again.  The premises filling the dots are therefore
 $$C_1\!\land\! A_1\!\land\!\llead{A_2}{T_1} \measeq \TTV^{\ \!1} \ \ \
 \ \ \ C_2\!\land\!A_2 \measeq \TTV^{\ \!2} \ \ \ \ \ \ \ C_3 \measeq
 \TTV^{\ \!3}$$ There is no doubt these premises could be further
-decomposed into sub-inferences like it was done with the (I) rule.
+decomposed into sub-inferences as it was done with the (I) rule.
 Indeed, likely more simplifications can be made by assuming that the
 agent has a form of freewill and thus that its actions are independent
 of the rest of the universe, outside of its decision policy influenced
 by its very procedural reasoning.  This is reminiscent of the
 do-calculus~\cite{Pearl1995CausalDF} and will be explored in more
 depth in the future.  In the meantime, these are left as they are, as
-it introduces no additional assumption, and, if anything else, their
-truth values can always be calculated using inference rules based on
-direct evidence.
+it introduces no additional assumption, and their truth values can
+always be calculated using inference rules based on direct evidence,
+if anything else.
 
 % In practice they can
 % easily be inferred using inference rules based on direct evidence.
