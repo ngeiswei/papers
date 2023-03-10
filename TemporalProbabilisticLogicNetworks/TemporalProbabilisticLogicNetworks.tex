@@ -117,20 +117,21 @@
 \label{sec:intro}
 This paper builds upon the Chapter 14 of the Probabilistic Logic
 Networks book~\cite{Goertzel09PLN}, adding and modifying definitions
-along the way to provide, we believe, better foundations for carrying
+along the way to provide, we believe, a better foundation for carrying
 temporal and procedural reasoning with PLN.  As we have found, even
-though that chapter is well written and conveys the conceptual ideas
-with clarity, it leaves some definitions out, or describe them too
-informally to serve as solid foundations.  In addition, the Event
-Calculus~\cite{Shanahan2000} is mixed with the definitions of
-sequential connectors in, what we consider to be, a somewhat arbitrary
-and inflexible manner.  On the contrary, here we leave the Event
+though the chapter is well written and conveys the conceptual ideas
+with clarity, it leaves some formal definitions out.  In addition the
+Event Calculus~\cite{Shanahan2000} is intermingled with the
+definitions of sequential connectors in, what we consider to be, an
+arbitrary and inflexible manner.  On the contrary, here we leave Event
 calculus aside, with the intention to re-introduce it in the future as
 a separate layer standing on top of the new definitions.
 
-Although that paper is theoretical, the work presented here is
-motivated by the practical need to perform procedural reasoning for
-controlling intelligent agents in uncertain environments.
+Although this paper is theoretical, the work presented here is
+motivated by practice, and has taken place in the context of
+developing a system for controlling an agent in uncertain environments
+while relying on temporal and procedural reasoning for both learning
+and planning.
 
 % The goal of this project is to make an agent as rational as possible,
 % not necessarily as efficient as possible.  This stems from the concern
@@ -192,15 +193,21 @@ controlling intelligent agents in uncertain environments.
 \label{sec:recall}
 PLN stands for \emph{Probabilistic Logic
   Networks}~\cite{Goertzel09PLN}.  It is a mixture of predicate and
-term logic that has been probabilitized to handle uncertainty.  It has
-at least two types of rules for inferring relationships
-\begin{enumerate}
-\item from direct evidence,
-\item from existing relationships.
-\end{enumerate}
+term logic that has been probabilitized to handle uncertainty.
+Inference rules can operate on direct evidence, or indirect evidence
+by combining existing relationships to introduce new ones.
+% , grouped into two, those inferring knowledge
+% from direct evidence, and those inferring knowledge indirect evince by
+% using existing relationships.  At least two types of rules are present
+% for inferring relationships
+% \begin{enumerate}
+% \item from direct evidence,
+% \item from existing relationships.
+% \end{enumerate}
 As such it is well suited for building a model of an environment, and
-planning in it.  All it needs is to be properly equipped with a
-vocabulary for representing temporal and procedural knowledge.
+planning in it.  All it needs then is to be properly equipped with a
+vocabulary for representing and manipulating temporal and procedural
+knowledge.
 % The
 % Chapter 14 of the PLN book~\cite{Goertzel09PLN} does that.
 % However,
@@ -242,8 +249,8 @@ $$
 \end{array}
 $$
 represents an implication link between $P$ and $Q$ with truth value
-$\TTV$.  For the sake of conciseness we also introduce the following
-notations.  First, we adopt a flattened, as opposed to a tree-style,
+$\TTV$.  For the sake of conciseness we also introduce some notations.
+First, we adopt a flattened, as opposed to a tree-style,
 representation.  For instance the implication link above is
 represented as
 $$\TImpl(P, Q)\ \TBTV$$
@@ -252,7 +259,7 @@ representation.  For instance, that same implication can be
 represented as
 $$P \limp Q \measeq \TTV$$
 
-There is a large variety of constructs for PLN.  Here, we will focus
+There is a large variety of constructs in PLN.  Here, we will focus
 primarily on the ones for handling predicates.  Let us recall that
 predicates are functions that output Boolean values.  The domain of a
 predicate can be arbitrarily defined, but its range is always Boolean.
@@ -260,13 +267,13 @@ predicate can be arbitrarily defined, but its range is always Boolean.
 In this paper, the letters $a$, $b$, $c$ represent atoms of
 % any type, $X$, $Y$, $Z$ represent atoms that are variables, while $P$,
 any type, $x$, $y$, $z$ represent atoms that are variables, while the
-capital letter $P$, $Q$, $R$ represent atoms that are predicates,
+capital letter $P$, $Q$, $R$ represent atoms that are predicates, thus
 typed as follows:
 % $$P, Q, R, \hdots: \TAtom^n \mapsto \{\TTrue, \TFalse\}$$
 $$P, Q, R, \hdots: \textit{Domain} \mapsto \{\TTrue, \TFalse\}$$
 Note that in PLN, predicates are not necessarily crisp because their
 outputs can be totally or partially unknown, thus potentially measured
-by probabilities.
+by probabilities, or to be precised \emph{Truth Values}.
 
 Truth values are, in essence, second order probability distributions,
 or probabilities of probabilities.  They are often described by two
@@ -289,9 +296,9 @@ values obtained from direct evidence, a simple truth value makes
 perfect theoretical sense.  For truth values obtained from indirect
 evidence, not so much, even though they are often used in practice.
 When more precision is needed, to represent a multi-modal truth value
-for instance, a mixture of simple truth values can be used.  Through
-out the paper, sometimes we may say \emph{probability}, while what we
-mean is \emph{second order probability distribution}.
+for instance, a mixture of simple truth values can be used.  Also,
+through out the paper, sometimes we may say \emph{probability}, while
+what we really mean is \emph{second order probability distribution}.
 
 % TODO: cite Subjective Logic and Chapt 4 of the PLN book.
 
@@ -329,9 +336,9 @@ $$
 \renewcommand{\arraystretch}{1}
 
 For representing n-ary predicates evaluations we use
-$P(a_1, \dots, a_n)$ which may simply be understood as a unary
-predicate evaluation applied to a tuple.  Let us now explain their
-semantics and how their truth values are to be interpreted.
+$P(a_1, \dots, a_n)$ which may be understood as a unary predicate
+evaluation applied to a tuple.  Let us now explain their semantics and
+how their truth values are to be interpreted.
 % The following uses unary predicates, n-ary predicates
 % may be understood as unary predicates applied on tuples.
 % especially as they each of them below with their corresponding truth
@@ -417,13 +424,12 @@ semantics and how their truth values are to be interpreted.
   $P \limp Q \measeq \TTV$ states that if $P(a)$ is $\TTrue$ for some
   $a$ in the domain of $P$, then $Q(a)$ is $\TTrue$ with a second
   order probability measured by $\TTV$.  In simple probability terms,
-  it represents $\prob(Q|P)$~\footnote{To be precise, $\prob(Q|P)$
-    should be understood as $\prob(\sat(Q)|\sat(P))$, where $\sat(P)$
-    and $\sat(Q)$ are the satisfying sets of $P$ and $Q$
-    respectively.}, the conditional probability of $Q$ knowing $P$.
-  We may also say that such implication is a conditional predicate
-  where $Q$ is conditioned by $P$.  Also, $P$ may be referred as the
-  \emph{implicant} and $Q$ may be referred as the \emph{implicand}.
+  it represents $\prob(Q|P)$, the conditional probability of $Q$
+  knowing $P$~\footnote{To be precise, $\prob(Q|P)$ should be
+    $\prob(\sat(Q)|\sat(P))$, where $\sat(P)$ and $\sat(Q)$ are the
+    satisfying sets of $P$ and $Q$ respectively.}.  We may also say
+  that such implication is a \emph{conditional predicate} where $Q$,
+  the \emph{implicand}, is conditioned by $P$, the \emph{implicant}.
   % represents the predicate $Q$ conditioned on $P$, that is
   % only defined for instances $x$ for which $P(x)$ is $\TTrue$.  The
   % truth value $\TTV$ then represents an estimate of the conditional
@@ -444,16 +450,16 @@ Inferences rules are used to construct PLN statements and calculate
 their truth values.  They fall into two groups, direct evidence based
 or otherwise.  Rules from the former group infer abstract knowledge
 from direct evidence, while rules from the latter group infer
-knowledge by combining existing abstractions.  There are dozens of
-inference rules, for now we only recall two, \emph{Implication Direct
-  Introduction} and \emph{Deduction}.
+knowledge by combining existing abstractions.  In total there are
+dozens of inference rules.  For now, we only recall two,
+\emph{Implication Direct Introduction} and \emph{Deduction}.
 
 \subsubsection{The Implication Direct Introduction Rule (IDI)} takes
 evaluations
 % $\TEval$
 % links
 as premises and produces an implication as conclusion.  It is formally
-depicted by the following proof tree
+depicted by the following proof tree.
 % {\scriptsize
 % \begin{prooftree}
 %   \AxiomC{$
@@ -549,22 +555,23 @@ discussed in Chapter 5, Section 5.10 of~\cite{Goertzel09PLN}.
 \label{sec:temporal}
 A temporal extension of PLN is defined in Chapter 14
 of~\cite{Goertzel09PLN}.  However, we have found that some definitions
-are ambiguous, incorrect or incomplete.  In that section we provide a
-possible interpretation and completion of such temporal extension.
+are ambiguous, in particular the sequential connectors $\TSeqAnd$ and
+$\TSeqOr$ redefined further below. %  In that section we provide a
+% possible interpretation and completion of such temporal extension.
 %% , showing how the two inference rules recalled
 %% above to carry out temporal reasoning.  Let us define that
-Let us begin by defining \emph{Temporal Predicates}, also called
-\emph{Fluents}, that are regular predicates equipped with a temporal
-dimension
+Let us begin by defining \emph{Temporal Predicates}, or
+\emph{Fluents}.  Temporal predicates are regular predicates with a
+temporal dimension:
 $$P, Q, R, \hdots: \textit{Domain} \times \TTime \mapsto \{\TTrue,
 \TFalse\}$$
 \noindent The type of the temporal dimension, $\TTime$, could in
 principle be any thing that has a minimum set of requirements, such as
 being an ordered semigroup or such.  In practice so far, we have used
-integers instead, thus capturing a discrete notion of time.  Not all
-temporal predicates need to have a non-temporal domain, denoted
-$\textit{Domain}$.  In that case, we may simply assume that such
-domain is the unit type $()$ and ignore it.
+integers, thus capturing a discrete notion of time.  Not all temporal
+predicates need to have a non-temporal domain, $\textit{Domain}$.  In
+that case, we may simply assume that such domain is the unit type $()$
+and ignore it.
 
 \subsection{Temporal Operators}
 Let us define a set of temporal operators operating over temporal
@@ -610,7 +617,7 @@ $$\TSeqAnd(T, P, Q) := \TAnd(P, \TLead(Q, T))$$
 which results into a temporal predicate that is $\TTrue$ at time $t$
 if and only if $P$ is $\TTrue$ at time $t$ and $Q$ is $\TTrue$ at time
 $t+T$.  Since we do not know at that point which one of the two
-variations is best, in practice we have implemented both, but in that
+variations is best, in practice we have implemented both, but in this
 paper we settle to one for the sake of simplicity.
 % There are two variations one can define.  The $\TBSeqAnd$ where the
 % past of the first temporal predicate is brought into the present,
@@ -753,8 +760,8 @@ implication, as depicted by the following proof tree.
   \UnaryInfC{$P \limp \llead{Q}{T} \measeq \TTV$}
 \end{prooftree}}
 \noindent Note that because the conclusion is equivalent to the
-premise, the truth values may optionally be stripped from the rule
-while remaining valid.  {\small
+premise, the truth values may optionally be stripped out the rule.
+{\small
 \begin{prooftree}
   \AxiomC{$P \lpreimp{T} Q$}
   \RightLabel{(PI)}
@@ -958,8 +965,9 @@ subgoal $C_{i+1}$ or goal $G$, after $T_i$ time units, with a
 likelihood of success measured by $\TTVi$, we show how to infer the
 composite plan
 $$C_1 \land A_1 \lseqand{T_1} \dots \lseqand{T_{n-1}} A_n
-\lpreimp{T_1+\dots+T_n} G \measeq \TTV$$ alongside its truth value
-$\TTV$.  The inferred plan expresses that in context $C_1$, executing
+\lpreimp{T_1+\dots+T_n} G \measeq \TTV$$
+alongside its truth value $\TTV$.
+The inferred plan expresses that in context $C_1$, executing
 actions $A_i$ to $A_n$ in sequence, waiting $T_i$ time units between
 $A_i$ and $A_{i+1}$, leads to goal $G$ after $T_1+\dots+T_n$ time
 units, with a likelihood of success measured by $\TTV$.  Note that
@@ -992,9 +1000,8 @@ actions for the sake of convenience.
 % for us
 
 Let us show how to do that with two action plans by building a proof
-tree, like we did for the temporal deduction rule.  The final
-inference rule we are trying to build should look like
-{\small
+tree like we did for the temporal deduction rule.  The final inference
+rule we are trying to build should look like {\small
   \begin{prooftree}
     \AxiomC{$C_1\land A_1 \lpreimp{T_1} C_2 \measeq \TTV^{\ \!12}$}
     \AxiomC{$C_2 \land A_2 \lpreimp{T_2} C_3 \measeq \TTV^{\ \!23}$}
@@ -1010,8 +1017,8 @@ implicant of the second premise, $C_2\land A_2$.  For that reason it
 is unclear what the remaining premises are.  However, we can build an
 equivalent proof tree using regular deduction, as well as other
 temporal inferences rules defined in Section~\ref{sec:temporal}.  The
-resulting tree, without truth values so that it can fit within the
-width of the page, is given below. {\tiny
+resulting tree (without truth values so that it can fit within the
+width of the page) is given below. {\tiny
   \begin{prooftree}
     \AxiomC{$C_1\!\land\! A_1 \lpreimp{T_1} C_2$}
     \RightLabel{(PI)}
@@ -1039,12 +1046,13 @@ width of the page, is given below. {\tiny
 \end{prooftree}}
 \noindent Note that we have used of a new rule labeled (I) at the left
 of the proof tree.  This rule eliminates independent predicates from
-an implication, without modifying the truth value of its conclusion.
+an implication without modifying the truth value of its conclusion.
 Its use is justified by the fact that $A_2$ is executed
 immediately \emph{after} reaching $C_2$, thus cannot have an effect on it.\\
 
-After retaining the premises, the conclusion and adding back the truth
-values, we obtain the following procedural deduction rule {\scriptsize
+After retaining the premises and the conclusion only, and adding back
+the truth values, we obtain the following procedural deduction rule
+{\scriptsize
   \begin{prooftree}
     \AxiomC{$\!\!\!\!C_1\!\land\! A_1 \lpreimp{T_1} C_2 \measeq \TTV^{\ \!12}\!\!\!\!\!\!\!\!$}
     \AxiomC{$\!\!\!\!\!\!\!C_2\!\land\!A_2 \lpreimp{T_2} C_3 \measeq \TTV^{\ \!23}\!\!\!\!\!\!\!\!$}
