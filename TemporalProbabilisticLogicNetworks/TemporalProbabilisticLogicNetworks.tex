@@ -107,10 +107,34 @@
 %
 
 \begin{abstract}
-  TODO
+  Probabilistic Logic Networks (PLN) offers an excellent theory to
+  frame learning and planning as a form of reasoning.  This papers
+  offers a complement to the seminal PLN book~\cite{Goertzel09PLN}, in
+  particular to its Chapter 14 on temporal and procedural reasoning,
+  by providing formal definitions of temporal constructs, as well as
+  inference rules necessary to carry temporal and procedural
+  reasoning.
+
+  % Its seminal
+  % book~\cite{Goertzel09PLN}, although quite rich and extensive at
+  % treating temporal and procedural reasoning
+
+  % has been found to be somewhat lacking formalization.  Some formal
+
+  % suffers from a few drawbacks
+
+  % extensively
+  % even though continaing copious information
+
+  % Use PLN
+
+
+  % This paper offers alternate and complementary definitions of
+  % temporal constructs, alongside their inference rules, to carry
+  % temporal and procedural reasoning.
 
   \keywords{Temporal Reasoning \and Procedural Reasoning \and
-    Probabilistic Logic Networks \and OpenCog}
+    Probabilistic Logic Networks}
 \end{abstract}
 
 \section{Introduction}
@@ -1094,10 +1118,8 @@ depth in the future.  In the meantime, these are left as they are, as
 it introduces no additional assumption, and their truth values can
 always be calculated using inference rules based on direct evidence,
 if anything else.
-
 % In practice they can
 % easily be inferred using inference rules based on direct evidence.
-
 % Indeed, different rules may result in different levels of
 % confidence depending on the available knowledge.  For instance, if it
 % is known that $C_1$, $A_1$ and $\llead{A_2}{T_1}$ are independent,
@@ -1107,16 +1129,14 @@ if anything else.
 % conjunction direct introduction rule would be better, etc.  These are
 % difficult decisions to make that should be left to the inference
 % engine.
-
-\section{Conclusion}
-\label{sec:conclusion}
-We have introduced alternate definitions of temporal constructs for
-carrying temporal and procedural reasoning with PLN.  Future
-directions include adding inference rules to support more ways of
-combining action plans possibly described as Behavior Trees;
-introducing Event Calculus operators as predicate transformers
-(similar to how $\TLag$ and $\TLead$ are defined); supporting
-continuous time and temporal intervals.
+% \section{Conclusion}
+% \label{sec:conclusion}
+% We have introduced an alternate definition of temporal constructs for
+% carrying temporal and procedural reasoning with PLN.
+Future directions may also include adding inference rules to support
+behavior trees; introducing Event Calculus operators as predicate
+transformers (similar to how $\TLag$ and $\TLead$ are defined); as
+well as supporting temporal intervals and continuous time.
 
 % TODO: implement more temporal and procedural rules, support temporal
 % intervals, behavior trees, introduce Temporal Truth Value.  Integrate
