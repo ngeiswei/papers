@@ -96,38 +96,45 @@
 %
 
 \begin{abstract}
-  TODO
+  In this paper we introduce, ROCCA for \emph{Rational OpenCog
+    Controlled Agent}, an agent, that, as its name suggests, attempts
+  to leverage the OpenCog framework to acts rationally in uncertain
+  environments by relying on reasoning all the way, from learning to
+  planning.  An experiment in a Minecraft environment is provided as a
+  test case.
 
-  \keywords{Symbolic Reinforcement Learning \and Pattern Mining \and
-    Temporal Reasoning \and Thompson Sampling \and OpenCog \and
+  \keywords{
+    Symbolic Reinforcement Learning \and
+    Pattern Mining \and
+    Procedural Reasoning \and Thompson Sampling \and OpenCog \and
     Minecraft}
 \end{abstract}
 
 \section{Introduction}
-
 This paper describes an attempt to leverage the OpenCog
 framework~\cite{Hart2008} for controlling agents in uncertain
 environments.  It can be seen as a reboot of previous
-attempts~\cite{Goertzel2008, Goertzel2011CSP, Goertzel2011ICI,
-  Cai2011, Cai2013} relying on new or improved components such as
+attempts~\cite{Goertzel2008, Goertzel2011CSP, Cai2013}
+relying on new or improved components such as
 \begin{itemize}
 \item a hypergraph pattern miner~\cite{Geisweiller2019} and a version
   of PLN~\cite{Goertzel2009} both implemented on top of OpenCog's
   Unified Rule Engine equipped with an inference control mechanism;
 \item a temporal and procedural extension of
   PLN~\cite{Geisweiller2023TPLN};
-\item a simplified version of OpenPsi~\cite{Cai2011, Cai2013} leaving
+\item a simplified version of OpenPsi~\cite{Cai2013} leaving
   aside built-in urges and modulators from MicroPsi~\cite{Bach2012}
   and using an action selection policy based on Thompson
   Sampling~\cite{Leike2016}.
 \end{itemize}
 It is comparable to OpenNARS for Applications (ONA)~\cite{Hammer2020}
 but, among other differences, uses PLN~\cite{Goertzel2009} as its core
-logic rather than NAL~\cite{Wang2011}.
+logic.
+% rather than NAL~\cite{Wang2011}.
 
 The ultimate goal of this project is to provide a technology to enable
-us to experiment with high forms of meta-learning and introspective
-reasoning for self-improvements and growth.  The rational for using a
+us to experiment with forms of meta-learning and introspective
+reasoning for self-improvements.  The rational for using a
 reasoning-based system is that it offers maximum transparency and is
 thus more amenable to reflectivity and
 introspection~\cite{Schmidhuber2003, Goertzel2014EGI1}.  The work that
@@ -144,13 +151,12 @@ $$C \land A \lpreimp{T} G \measeq \textit{TV}$$
 called \emph{Cognitive Schematics} or \emph{Schemata}.  Which can be
 read as \emph{``in some context $C$, if some, possibly composite,
   action $A$ is executed, then after $T$ time units, the goal $G$ is
-  likely to be fulfilled, with second order probability described by
+  likely to be fulfilled, with second order probability measured by
   $\textit{TV}$''}.  These plans are then combined to into a mixture
 that grossly approximates Solomonoff
 distribution~\cite{Geisweiller2018}.  Finally, the next action is
-selected using Thompson Sampling~\cite{Leike2016}.
-The resulting software is called ROCCA for \emph{Rational OpenCog
-  Controlled Agent}.
+selected using Thompson Sampling~\cite{Leike2016}.  The resulting
+system is called ROCCA for \emph{Rational OpenCog Controlled Agent}.
 
 % But before to make an agent as rational as possible, not necessarily as
 % efficient as possible.  This stems from the concern that in order to
@@ -205,11 +211,11 @@ The resulting software is called ROCCA for \emph{Rational OpenCog
 % \end{enumerate}
 
 The rest of the paper is organized as follows.  A recall of the
-OpenCog framework is provided in Section~\ref{sec:opencog}.  The ROCCA
-software is described in Section~\ref{sec:rocca}.  An experiment using
-it to control an agent in Minecraft is described in
-Section~\ref{sec:minecraft}.  A conclusion including future work and
-directions is given in Section~\ref{sec:conclusion}.
+OpenCog framework is provided in Section~\ref{sec:opencog}.  ROCCA is
+described in Section~\ref{sec:rocca}.  An experiment using it to
+control an agent in Minecraft is described in
+Section~\ref{sec:minecraft}.  A conclusion including future directions
+is given in Section~\ref{sec:conclusion}.
 % \subsection{Outline}
 
 % \begin{enumerate}
@@ -223,30 +229,28 @@ OpenCog~\cite{Hart2008} is a framework offering a hypergraph database
 technology with a query language and a collection of programs built on
 top of it to perform cognitive functions such as learning, reasoning,
 spreading attention and more.  Knowledge is stored in
-\emph{AtomSpaces}, hypergraphs composed of atoms, links and nodes,
-where links can connect to other atoms.  Values can be attached to
-atoms to holding probability, confidence, importance and more.  Values
-and atoms can be of various types.  Let us recall the types we need
-for the rest of paper.
+\emph{AtomSpaces}, hypergraphs composed of \emph{atoms}, \emph{links}
+and \emph{nodes}, where links can connect to other atoms.
+\emph{Values} can be attached to atoms to hold probability,
+confidence, importance and more.  Values and atoms can be of various
+types.  Let us recall the types we need for the rest of paper.
 \begin{itemize}
 \item A \emph{TruthValue} is a second order probability distribution,
-  i.e. the probability of a probability.
-\item A \emph{SimpleTrueValue} is a particular TruthValue where the
-  second order distribution is represented by a beta distribution of
-  parameters controlled by a \emph{strength}, a proxy for a
-  probability, and a \emph{confidence} over that probability.  It is
-  denoted $<s, c>$ where $s$ is the strength and $c$ is the
-  confidence.
-\item A \emph{Predicate} is function from a domain $D$ to $Boolean$.
-  A TruthValue can be attached to a predicate, representing the
-  prevalence of its satisfied inputs.  For instance
+  i.e. a probability of a probability.
+\item A \emph{SimpleTrueValue} is a TruthValue where the second order
+  distribution is represented by a beta distribution of parameters
+  controlled by a \emph{strength}, a proxy for a probability, and a
+  \emph{confidence} over that strength.  It is denoted $<\!s, c\!>$ where
+  $s$ is the strength and $c$ is the confidence.
+\item A \emph{Predicate} is function from a certain domain to
+  $Boolean$.  A TruthValue can be attached to a predicate,
+  representing the prevalence of its satisfied inputs.  For instance
   $P \measeq\ <\!0.4, 0.1\!>$ represents that $P$ tends to evaluate to
-  $\TTrue$ 40\% of the time, but there is a small confidence of
-  0.1 over that 40\%.  A TrueValue can be attached to individual
+  $\TTrue$ 40\% of the time, but there is a small confidence of 0.1
+  over that 40\%.  A TrueValue can be attached to individual
   evaluations as well.  For instance $P(a) \measeq\ <\!0.9, 1\!>$
   represents that the probability of $P(a)$ evaluating over a
-  particular $a$ to $\TTrue$, is 0.9 and we are certain about
-  it.
+  particular $a$ to $\TTrue$, is 0.9 and we are certain about it.
 \item A \emph{Conjunction} is a link between two predicates,
   representing the predicate resulting from the pointwise conjunction
   of these two predicates.  For instance
@@ -267,21 +271,20 @@ Additionally we use the following types for temporal reasoning.
   conjunction of these predicates while the second one leads by a
   certain time.  For instance $P \lseqand{T} Q$ is the pointwise
   conjunction of $P$ and a leading $Q$ by $T$ time units.  Meaning
-  that for $(P \lseqand{T} Q)(x, t)$ to be $\TTrue$, requires that
-  $P(x, t)$ and $Q(x, t+T)$ be $\TTrue$ as well.
+  that $(P \lseqand{T} Q)(x, t)$ is $\TTrue$ if and only if $P(x, t)$
+  and $Q(x, t+T)$ are $\TTrue$.
 \item A \emph{Predictive Implication} is a link between two temporal
   predicates, representing the conditional probability between two
-  events lagging by a certain time.  For instance
+  events delayed by a certain time.  For instance
   $P \lpreimp{T} Q \measeq\ <\!0.8, 0.5\!>$ indicates that if $P(x)$
-  is $\TTrue$ then there is a 80\% chance with a 0.5
-  confidence, that after $T$ time units $Q(x)$ will also be
-  $\TTrue$.
+  is $\TTrue$ then there is a 80\% chance with a 0.5 confidence, that
+  after $T$ time units $Q(x)$ will also be $\TTrue$.
 \end{itemize}
 The difference between a temporal and an atemporal predicate is its
-domain.  The domain of a temporal predicate must have a dimension
-respecting certain properties such as having a total order.  More
-detail about the temporal types and their associated inference rules
-is provided in~\cite{Geisweiller2023TPLN}.
+domain.  A temporal predicate must have at least a temporal dimension.
+% respecting certain properties such as having a total order.
+More detail about the temporal types and their associated inference
+rules is provided in~\cite{Geisweiller2023TPLN}.
 
 % that query and modify one or several atomspaces. There is an
 % overhaul remaking of OpenCog called Hyperon, but we will not touch
@@ -299,17 +302,17 @@ OpenAI Gym \cite{Brockman2016}.  It is written in Python which is both
 supported by these environments and OpenCog.  Figure~\ref{fig:rocca}
 provide a graphical representation of ROCCA as if it was a single loop
 incorporating all steps.
-% \begin{wrapfigure}{l}{0.58\textwidth}
-%   \vspace{-30pt}
-%   \begin{center}
-%     \includegraphics[width=0.58\textwidth]{pictures/rocca-chart-v0.7.pdf}
-%   \end{center}
-%   \vspace{-20pt}
-%   \caption{Rational OpenCog Controlled Agent control and learning
-%     cycles merged into a single loop.}
-%   \vspace{-20pt}
-%   \label{fig:rocca}
-% \end{wrapfigure}
+\begin{wrapfigure}{l}{0.53\textwidth}
+  \vspace{10pt}
+  \begin{center}
+    \includegraphics[width=0.54\textwidth]{pictures/rocca-chart-v0.7.pdf}
+  \end{center}
+  \vspace{-20pt}
+  \caption{Rational OpenCog Controlled Agent control and learning
+    cycles merged into a single loop.}
+  \vspace{-32pt}
+  \label{fig:rocca}
+\end{wrapfigure}
 % \begin{SCfigure}
 %   \centering
 %   \includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}
@@ -317,12 +320,12 @@ incorporating all steps.
 %     cycles merged into a single loop.}
 %   \label{fig:rocca}
 % \end{SCfigure}
-\begin{figure}
-  \centering
-  \includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}
-  \caption{ROCCA control and learning loops merged into one.}
-  \label{fig:rocca}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=0.6\textwidth]{pictures/rocca-chart-v0.7.pdf}
+%   \caption{ROCCA control and learning loops merged into one.}
+%   \label{fig:rocca}
+% \end{figure}
 % To experiment with temporal and procedural reasoning in the context of
 % embodied virtual agents in unknown environments we have implemented a
 % project called ROCCA, which stands for \emph{Rational OpenCog
@@ -350,13 +353,14 @@ incorporating all steps.
 
 \subsection{Memory}
 For better efficiency and clarity, the memory of the agent is split
-into three.
+into three parts.
 \begin{enumerate}
-\item The \emph{Percepta}~\footnote{Percepta means percepts in Latin.
-    It is the plurial form of perceptum.  Latin was chosen over
-    English so that the difference between singular and plurial does
-    not reduce to a single letter which can be prone to error when
-    reading and writing code.}
+\item The \emph{Percepta}
+  % ~\footnote{Percepta means percepts in Latin.
+  %   It is the plurial form of perceptum.  Latin was chosen over
+  %   English so that the difference between singular and plurial does
+  %   not reduce to a single letter which can be prone to error when
+  %   reading and writing code.}
   AtomSpace holds timestamped
   observations as they come into the system.
 \item The \emph{Working} AtomSpace holds any kind of data, ranging
@@ -383,13 +387,13 @@ into three.
 % split processes, TODO.
 The agent runs two main processes:
 \begin{enumerate}
-\item \emph{Control} for real-time reactive agent control.
-\item \emph{Learning} for non-reactive background learning.
+\item A \emph{Control} process for real-time reactive agent control.
+\item A \emph{Learning} process for non-reactive background learning.
 \end{enumerate}
-In principle these two processes should happen in parallel.  For now
+In principle these two processes could happen in parallel.  For now
 they alternate in series.  The agent starts in a control phase.  A
 number of control cycles occur as the agent motor-babbles through its
-environment.  It then follows by a learning phase when the agent
+environment.  It is then followed by a learning phase when the agent
 discover regularities and build plans.  And finally repeats the
 control phase to test how it performs after learning.
 
@@ -421,12 +425,12 @@ described below.
 \end{enumerate}
 None of these steps are computationally expensive.  They involve
 algorithms that are at most linear with the size of the Percepta and
-Schemata AtomSpaces.  As time goes and knowledge accumulates however,
+Schemata AtomSpaces.  As time goes and knowledge accumulates though,
 it will progressively slow down.  Indeed, for real-time responsiveness
-such control cycle must be bound by a constant.  Achieving this may
+such control cycle should be bound by a constant.  Achieving this may
 require to incorporate other mechanisms such as filtering and
-forgetting.  This problem, as important as it is, for now is left for
-future research. %   Discussions about that problem can be found
+forgetting.  This problem, as important as it is, is left aside for
+future research. % Discussions about that problem can be found
 % in~\cite{Goertzel2014EGI2}.
 Given the small environments ROCCA has
 been tested with, it has not been a problem so far.
@@ -437,10 +441,10 @@ Let us now provide more details about these three phases.
 
 \subsubsection{Observation}
 During the observation phase, data coming from the environment are
-timestamped and stored in the Percepta AtomSpace.  The format used to
-represent that is \textit{datum@timestamp}.  For instance if at cycle
-3 the agent observes \textit{outside(house)} and \textit{hold(key)},
-then \textit{outside(house)@3} and \textit{hold(key)@3}
+timestamped and stored in the Percepta AtomSpace with the format
+\textit{datum@timestamp}.  For instance if at cycle 3 the agent
+observes \textit{outside(house)}, then \textit{outside(house)@3}
+% and \textit{hold(key)@3}
 % \begin{itemize}
 % \item \texttt{outside(house)}
 % \item \texttt{hold(key)}
@@ -450,35 +454,41 @@ then \textit{outside(house)@3} and \textit{hold(key)@3}
 % \item \texttt{outside(house)@10}
 % \item \texttt{hold(key)@10}
 % \end{itemize}
-are inserted into the Percepta AtomSpace.
+% are
+is inserted into the Percepta AtomSpace.
 
 \subsubsection{Planning}
 The first step of the planning phase is to select a goal $G$ to
-fulfill.  That is an important step that has been elaborated
-in~\cite{Goertzel2014EGI1, Hahm2021}.  In the current version of ROCCA
-though it merely returns a constant goal which is to gain a reward
-within a forward window.  Once a goal has been selected, the agent
-search the Schemata AtomSpace with the following pattern matcher query
+fulfill.  In the current version of ROCCA though it merely returns a
+constant goal which is to gain a reward within a forward window.  More
+on goal selection can be found in~\cite{Goertzel2014EGI1, Hahm2021}.
+Once the goal has been selected, the agent searches the Schemata
+AtomSpace with the following pattern matcher query
 $$\$C \land \$A \lpreimp{T} G$$
 where
-\begin{itemize}
-\item $\$C$ is a variable representing the context,
-\item $\$A$ is a variable representing the action or action
-  plan~\footnote{Variables are actually typed so that the pattern
-    matcher cannot confuse what is context and action.},
-\item $T$ is a time delta selected within that forward window,
-\item $G$ is the selected goal.
-\end{itemize}
-All returned candidates are then filtered according to their contexts,
-only retaining those for which the context is evaluated to $\TTrue$ at
-the current time.  Ideally, such crisp evaluation should be replaced
-by a second order probability evaluation of a context being $\TTrue$.
-This is important for contexts that have elements of uncertainty.  But
-for the sake of simplicity, in our experiments so far, all contexts
-are crisply evaluated.  Then from the set of valid cognitive
-schematics, a second order mixture distribution is built and handed to
-the next phase for performing action selection.  The calculations used
-to build that second order mixture distribution is detailed
+% \begin{itemize}
+% \item $\$C$ is a variable representing the context,
+% \item $\$A$ is a variable representing the action or action
+%   plan~\footnote{Variables are actually typed so that the pattern
+%     matcher cannot confuse what is context and action.},
+% \item $T$ is a time delta selected within that forward window,
+% \item $G$ is the selected goal.
+% \end{itemize}
+$\$C$ is a variable representing the context, $\$A$ is a variable
+representing the action or action plan~\footnote{Variables are
+  actually typed so that the pattern matcher cannot confuse what is
+  context and action.}, $T$ is a time delay selected within that
+forward window and $G$ is the selected goal.  All returned candidates
+are then filtered according to their contexts, only retaining those
+for which the context is evaluated to $\TTrue$ at the current time.
+Ideally, such crisp evaluation should be replaced by a second order
+probability evaluation of a context being $\TTrue$.  This is important
+for contexts that have elements of uncertainty.  But for the sake of
+simplicity, in our experiments so far, all contexts are crisply
+evaluated.  Then from the set of valid cognitive schematics, a second
+order mixture distribution is built and handed to the next phase for
+performing action selection.  The calculations used to build that
+second order mixture distribution is detailed
 in~\cite{Geisweiller2018}.
 % approximating very roughly a Solomonoff
 % distribution as explained in~\cite{Geisweiller2018}.
@@ -506,7 +516,7 @@ $$
 Using only the strengths of the truth values as proxy for probability
 of success, the choice is clear.  Action $A_2$ should be selected,
 because its probability of success, which is 0.7, is greater than that
-of $A_1$, which is 0.6.  However once introducing confidence, that
+of $A_1$, which is 0.6.  However once confidence is introduced, that
 choice becomes less clear because the truth value of success of $A_2$
 has a low confidence of 0.1.  In that case, first order probabilities
 are sampled from their corresponding second order distributions,
@@ -586,7 +596,7 @@ in~\cite{Geisweiller2018}.
 
 \subsection{Learning}
 The difficulty then comes down to discovering cognitive schematics
-that are as predictive and widely applicable as possible.  For that
+that are as predictive and widely applicable as possible.  For that,
 ROCCA uses a combination of pattern mining and reasoning.
 % This
 % translates into predictive implications which broad contexts, high
@@ -599,7 +609,6 @@ ROCCA uses a combination of pattern mining and reasoning.
 \subsubsection{Pattern Mining}
 A relatively inexpensive way to discover regularities in the
 environment is to mine the Percepta AtomSpace.  For instance, given
-the following observation records
 $$\{\textit{go(right)@0},\ \textit{square(right)@1},\
 \textit{go(left)@1},\ \textit{square(left)@2}, \dots\}$$ the pattern
 miner can discover temporal relationships such as
@@ -609,7 +618,7 @@ $$
   \lgo{\textit{left}} \lpreimp{1} square(left)
 \end{array}
 $$
-as well as more abstract forms such as
+as well as more abstract relationships, such as
 $$\lgo{x} \lpreimp{1} square(x)$$
 The pattern mining algorithm used by ROCCA is detailed
 in~\cite{Geisweiller2019}.  This is a generic hypergraph pattern
@@ -619,7 +628,7 @@ is presented by $Z$, 1 by $S(Z)$, 2 by $S(S(Z))$, etc.  This provides
 the needed structure to discover temporal relationships between
 events.  As it currently stands, the pattern miner can efficiently
 discover mono-action plans.  Mining poly-action plans is also possible
-but has two problems:
+but has two issues:
 \begin{enumerate}
 \item In the worse case, the computational cost of mining goes up
   exponentially with the size of the action sequence to mine.
@@ -652,65 +661,123 @@ ROCCA include:
 \item \emph{Temporal Conditional Conjunction Introduction} to
   specialize a goal within a plan by considering the conjunction of
   existing cognitive schematics goals.
-\item \emph{Temporal Deduction} to string together plans to form
+\item \emph{Temporal Deduction} to string together small plans to form
   bigger ones.
 \end{enumerate}
 The precise semantics of these rules is detailed
 in~\cite{Geisweiller2023TPLN}.  An example of how they are used is
-presented in Section~\ref{sec:minecraft}.
+presented below.
+% in Section~\ref{sec:minecraft}.
 
-\section{Experiment with Simple Minecraft Environment}
+\section{Experiment in a Simple Minecraft Environment}
 \label{sec:minecraft}
-In this experiment, we utilized Malmo [15] to construct a basic Minecraft world that comprises a house filled with diamonds and a key. The objective of the agent is to locate the key, which is placed somewhere in the proximity of the house, retrieve it, and then unlock the door of the house. Upon unlocking the door, the agent is able to collect the diamonds and receive a reward. \par
-The aim of the experiment is to make the ROCCA agent learn from its actions and perceptions in the Minecraft environment and do efficient planning so as to be able to collect as many diamonds as possible and accumulate reward. The ROCCA agent performs a series of possible actions with a goal of achieving a reward and learns from them by applying PLN and Pattern Miner. For simplicity purposes, the list of actions provided by the Minecraft has been replaced by an abstract action and perception where unnecessary details have been omitted. With that, we generate abstract actions such as go(key), go(house) and go(diamonds) where each of them contains a series of actions, and an abstract perception about the agent such as outside(house), hold(key) as well as the reward of completing a given action, reward(1) etc. \par
-We conducted various experiments by adjusting different parameters. As demonstrated in our demo video (available at https://youtu.be/rCvQHrJAD2c), the ROCCA agent successfully learned various cognitive schematics leading to a goal. The experiment consisted of two iterations of the learning-training process, each lasting fifty iterations. During the first cycle, no learning took place as the agent had no prior knowledge about its environment. Therefore, the agent explored the environment and built its knowledge base by performing a combination of fifty randomly weighted actions. In the second cycle, the agent had enough background knowledge to apply reasoning as described in section 3.3, and discovered desired cognitive schematics which ultimately led to achieving the goal of receiving a reward.
+In this experiment, we use Malmo [15] to construct a basic Minecraft
+world that comprises a house filled with diamonds and a key. The
+objective of the agent is to locate the key, which is placed somewhere
+in the proximity of the house, retrieve it, and then unlock the door
+of the house. Upon unlocking the door, the agent is able to collect a
+diamond and receive a reward. \par
+The aim of the experiment is to make ROCCA learn from interacting
+% its actions and
+% perceptions
+with the Minecraft environment
+% so as to be able
+and collect as many diamonds as possible.
+% The ROCCA agent performs a series of possible
+% actions with a goal of achieving a reward and learns from them by
+% applying PLN and Pattern Miner.
+To make the task easier, the primary actions and perceptions provided
+by Malmo have been replaced by high level actions
+% and perceptions
+% where details have been abstracted away.
+%Thus we have implemented
+%actions
+such as \textit{go(key)}, \textit{go(house)} and
+\textit{go(diamonds)}, as well as high level perceptions about the
+state of the agent such as \textit{outside(house)}, \textit{hold(key)}
+and the reward for completing a given action, \textit{reward(1)}. \par
+% We conducted various experiments by adjusting different parameters.
+The experiment consists of two iterations of training lasting fifty
+control cycles each, interleaved by a learning phase lasting an
+hour. During the first iteration, no learning is taking place as the
+agent has no prior knowledge. The agent randomly explores the
+environment. Then it enters a learning phase, discovering cognitive
+schematics via mining and reasoning, subsequently leading the agent to
+achieve more frequently its goal during the next training phase.
 
-\subsubsection{Experimental result}
+% \subsubsection{Experimental result}
 
-Let’s look into how the ROCCA agent discovers temporal relationships from time stamped actions and perceptions. For instance, given the following observation during the second learning-training cycle
+Let us look more closely how ROCCA discovers cognitive
+schematics. Given the following observations
+% during the second learning-training cycle
 $$
 \begin{array}{l}
 \{\textit{Reward(0)@50},\ \textit{outside(house)@50},\
 \textit{hold(key)@50},\ \textit{go(house)@50},\\ \ \textit{inside(house)@51},\ \textit{go(diamond)@51},\ \textit{Reward(0)@51},\ \textit{Reward(1)@52}, \dots\}
 \end{array}
-$$ 
-The ROCCA agent acquires cognitive schematics through the Pattern Miner and infer their truth value using the Predictive Implication rule. 
 $$
-\textit{hold(key)} \land \textit{go(house)} \lpreimp{1} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!> 
-$$ 
-Additionally, by applying Temporal Conditional Conjunction Introduction rule on the relevant relationships, such as
+ROCCA can mine, among many others, the following cognitive schematic
+% through the Pattern Miner and infer their truth value using the Predictive Implication rule.
 $$
-\begin{array}{l}
-\textit{nextto(closed\_door)} \land \textit{go(key)} \lpreimp{1} \textit{outside(house)} \measeq\ <\!1, 0.007\!> \\
-\textit{nextto(closed\_door)} \land \textit{go(key)} \lpreimp{1} \textit{hold(key)} \measeq\ <\!1, 0.007\!> 
-\end{array}
+\textit{hold(key)} \land \textit{go(house)} \lpreimp{1} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!>
 $$
-the agent derives inputs for the Temporal Deduction rule, 
+Additionally, by applying the temporal conditional conjunction
+introduction rule on the relevant relationships, such as
 $$
 \begin{array}{l}
-\textit{hold(key)} \land \textit{outside(house)} \land \textit{go(house)} \lpreimp{1} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!> \\
-\textit{Reward(0)} \land \textit{inside(house)} \land \textit{go(diamond)} \lpreimp{1} \textit{Reward(1)} \measeq\ <\!1, 0.006\!> \\
+\textit{outside(house)} \land \textit{go(key)} \lpreimp{1} \textit{outside(house)} \measeq\ <\!1, 0.007\!> \\
+\textit{outside(house)} \land \textit{go(key)} \lpreimp{1} \textit{hold(key)} \measeq\ <\!1, 0.007\!>
 \end{array}
 $$
-ultimately resulting in the discovery of an effective plan that leads to achieving a positive goal.
-$$
-\begin{small}
-\textit{hold(key)} \land \textit{outside(house)} \land \textit{go(house)} \lseqand{T} \textit{go(diamond)} \lpreimp{T+1} \textit{Reward(1)} \measeq\ <\!0.833, 0.005\!> 
-\end{small}
-$$
-
-In this experiment, we evaluate the agent's performance based on two factors: the cognitive schematics it has learned and the rewards it has accumulated. Our results indicate that the ROCAA agent successfully learned the necessary cognitive schematics, resulting in a higher reward collection in the second cycle. However, these findings only apply to a simple Minecraft environment with a limited number of actions and may not be indicative of the overall performance of the ROCAA agent. Therefore, further extensive experiments are required to draw definitive conclusions about its performance, which will be pursued in future work.
+the agent derives
+$$\textit{outside(house)} \land \textit{go(key)} \lpreimp{1}
+\textit{outside(house)} \land \textit{hold(key)} \measeq\ <\!1, 0.007\!>$$
+which, if combined with
+$$\textit{hold(key)} \land \textit{outside(house)} \land \textit{go(house)} \lpreimp{1} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!>$$
+can be used by the procedural deduction rule to infer
+$$\textit{outside(house)} \land \textit{go(key)} \lseqand{1} \textit{go(house)} \lpreimp{2} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!>$$
+% $$
+% \textit{Reward(0)} \land \textit{inside(house)} \land \textit{go(diamond)} \lpreimp{1} \textit{Reward(1)} \measeq\ <\!1, 0.006\!>
+% $$
+Continuing this reasoning process ultimately results in the discovery
+of an effective plan that leads to achieving the goal, such as
+{\small
+$$\textit{outside(house)} \land \textit{go(key)} \lseqand{1}
+\textit{go(house)} \lseqand{1} \textit{go(diamond)} \lpreimp{3}
+\textit{inside(house)} \measeq\ <\!0.833, 0.005\!>$$ }
+% $$
+% \begin{small}
+% \textit{hold(key)} \land \textit{outside(house)} \land \textit{go(house)} \lseqand{T} \textit{go(diamond)} \lpreimp{T+1} \textit{Reward(1)} \measeq\ <\!0.833, 0.005\!>
+% \end{small}
+% $$
+We evaluate the agent's performance based on two factors: the
+cognitive schematics it has learned and the rewards it has
+accumulated. Our results indicate that ROCCA successfully learned the
+necessary cognitive schematics and accumulates substantially more
+rewards in the second iteration.  Incidentally, one may notice that
+some plans are not completely reliable, their strengths is below 1.
+That is because some actions may fail.  ROCCA has no problem with that
+and is perfectly suited for dealing with such uncertainty.  All in all
+however, these findings only apply to a very simple Minecraft
+environment
+% with a limited
+% number of actions
+and may not be indicative of the overall performance of ROCCA.  More
+experiments over more environments are required
+% to draw definitive conclusions about its performance,
+and will be pursued in future work.  A video of this experiment is
+available on YouTube~\cite{ROCCADemo}.
 
 \section{Conclusion}
 \label{sec:conclusion}
-ROCCA, a system that leverages the OpenCog framework for controlling
-an agent in uncertain environments has been presented.  This agent is
-in a strong sense fully reasoning-based, from learning to planning.
-The advantage we believe of such approach, in spite of its current
-inefficiencies, is to offer greater transparency and enable greater
-capabilities for meta-learning and self-growth.  As such, we are only
-at the start of our endeavor.  Towards that end, future directions
-include:
+A system called ROCCA, that leverages the OpenCog framework for
+controlling an agent in uncertain environments has been presented.
+This agent is in a strong sense fully reasoning-based, from learning
+to planning.  The advantage we believe of such approach, in spite of
+its current inefficiencies, is to offer greater transparency and
+foster greater capabilities for meta-learning and self-improvement.
+As such, we are only at the start of our endeavor.  Towards that end,
+future directions include:
 \begin{enumerate}
 % \item Support temporal intervals and scales and add more temporal, as
 %   well as spatial inference rules.
