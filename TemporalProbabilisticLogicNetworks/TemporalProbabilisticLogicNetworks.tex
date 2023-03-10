@@ -891,7 +891,58 @@ inference tree match exactly the premises and the conclusion of the
 temporal deduction rule.  Since none of the intermediary formulae,
 beside the deduction formula, alter the truth values, we may conclude
 that the formula of the temporal deduction rule is identical to that
-of the deduction rule..
+of the deduction rule.
+
+\subsection{Examples of Temporal PLN in Action}
+In this section, we will demonstrate how to perform temporal deduction using Predictive Implication Direct Introduction (PIDI) rule to discover implications from existing evaluations and then combine them with background knowledge. To illustrate this process, we consider predicates $P$ and $Q$, along with their evaluations on data points: $a$ and $b$. The following proof tree shows how we apply the PIDI rule
+
+{\tiny
+\begin{prooftree}
+  \AxiomC{$P(a, t) \measeq \TTVP_a$}
+  \AxiomC{$P(b, t) \measeq \TTVP_b$}
+  \AxiomC{$Q(a, t + T) \measeq \TTVQ_a$}
+  \AxiomC{$Q(b, t + T) \measeq \TTVP_b$}
+  \RightLabel{(PIDI)}
+  \QuaternaryInfC{$P \lpreimp{T_1} Q \measeq \TTV$}
+\end{prooftree}}
+
+\noindent Assuming we have prior knowledge of $Q \lpreimp{T_2} R$
+, we can use the output of the above rule and do temporal deduction as
+{\tiny
+\begin{prooftree}
+  \AxiomC{$P \lpreimp{T_1} Q \measeq \TTVPQ$}
+  \AxiomC{$Q \lpreimp{T_2} R \measeq \TTVQR$}
+  \AxiomC{$P \measeq \TTVP$}
+  \AxiomC{$Q \measeq \TTVQ$}
+  \AxiomC{$R \measeq \TTVR$}
+  \RightLabel{(TD)}
+  \QuinaryInfC{$P \lpreimp{T_1+T_2} R \measeq \TTV$}
+\end{prooftree}}
+
+\noindent We can also have another example involving actions. Let's say we have prior knowledge of $Q\!\land\!\ldo{A}\lpreimp{T_2} R$, the complete proof tree becomes 
+
+% P↝ᵀ¹Q
+% (Q∧A)↝ᵀ²R
+% ⊢
+% (P⩘ᵀ¹A)↝ᵀ²R
+
+{\tiny
+\begin{prooftree}
+  \AxiomC{$P(a, t) \measeq \TTVP_a \hspace{0.2cm} 
+  		P(b, t) \measeq \TTVP_b \hspace{0.2cm} 
+  		Q(a, t + T_1) \measeq \TTVQ_a \hspace{0.2cm}
+  		Q(b, t + T_1) \measeq \TTVP_b$}
+  \RightLabel{(PIDI)}
+  \UnaryInfC{$P \lpreimp{T_1} Q \measeq \TTV$}
+  \AxiomC{$Q\!\land\!\ldo{A}\lpreimp{T_2} R \measeq \TTVQR \hspace{0.2cm} 
+  		P \measeq \TTVP \hspace{0.2cm}
+  		Q \measeq \TTVQ \hspace{0.2cm}
+  		R \measeq \TTVR$}
+  \RightLabel{(TD)}
+  \BinaryInfC{$P\!\lseqand{T_1}\!\ldo{A} \lpreimp{T_2} R \measeq \TTV$}
+\end{prooftree}}
+
+\noindent In both cases, we were able to arrive at a conclusion that $\TImpl(P, R)$ with the required temporal information to distinguish between scenarios with and without the execution of action $A$.
 
 \section{Procedural Reasoning}
 \label{sec:procedural}
