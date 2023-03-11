@@ -972,7 +972,7 @@ predictive implication, $P\lpreimp{3}R$, based on indirect evidence.
 % (Q∧A)↝ᵀ²R
 % ⊢
 % (P⩘ᵀ¹A)↝ᵀ²R
-The whole inference tree is given below (using ? as \emph{Lookahead}
+The whole inference tree is given below (using $k=800$ as \emph{Lookahead}
 in the truth value formulea).
 {\tiny
 \begin{prooftree}
@@ -981,13 +981,13 @@ in the truth value formulea).
     Q(1+1) \measeq <\!0, 1\!> \hspace{0.2cm}
     Q(2+1) \measeq <\!1, 1\!>\!\!\!\!\!\!\!\!\!\!\!\!\!$}
   \RightLabel{(PIDI)}
-  \UnaryInfC{$\!\!\!\! P \lpreimp{1} Q \measeq <\!0.5, ?\!>$}
-  \AxiomC{$\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!Q\lpreimp{2} R \measeq <\!?, ?\!> \hspace{0.2cm}
-    P \measeq <\!?, ?\!> \hspace{0.2cm}
-    Q \measeq <\!?, ?\!> \hspace{0.2cm}
-    R \measeq <\!?, ?\!>\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!$}
+  \UnaryInfC{$\!\!\!\! P \lpreimp{1} Q \measeq <\!0.5, 0.5\!>$}
+  \AxiomC{$\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!Q\lpreimp{2} R \measeq <\!1, 0.5\!> \hspace{0.2cm}
+    P \measeq <\!1, 0.1\!> \hspace{0.2cm}
+    Q \measeq <\!0.5, 1\!> \hspace{0.2cm}
+    R \measeq <\!1, 1\!>\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!$}
   \RightLabel{(TD)}
-  \BinaryInfC{$P \lpreimp{3} R \measeq <\!?, ?\!>$}
+  \BinaryInfC{$P \lpreimp{3} R \measeq <\!1, 0.091\!>$}
 \end{prooftree}}
 
 % \noindent In both cases, we were able to arrive at a conclusion that $\TImpl(P, R)$ with the required temporal information to distinguish between scenarios with and without the execution of action $A$.
