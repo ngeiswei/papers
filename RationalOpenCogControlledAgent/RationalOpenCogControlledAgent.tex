@@ -297,8 +297,8 @@ rules is provided in~\cite{Geisweiller2023TPLN}.
 \label{sec:rocca}
 ROCCA is implemented as an observation-planning-action loop
 interleaved with learning and reasoning.  It provides an interfacing
-between OpenCog and environments such as Malmo \cite{Johnson2016} or
-OpenAI Gym \cite{Brockman2016}.  It is written in Python which is both
+between OpenCog and environments such as Malmo~\cite{Johnson2016} or
+OpenAI Gym~\cite{Brockman2016}.  It is written in Python which is both
 supported by these environments and OpenCog.  Figure~\ref{fig:rocca}
 provide a graphical representation of ROCCA as if it was a single loop
 incorporating all steps.
@@ -671,12 +671,12 @@ presented below.
 
 \section{Experiment in a Simple Minecraft Environment}
 \label{sec:minecraft}
-In this experiment, we use Malmo [15] to construct a basic Minecraft
-world that comprises a house filled with diamonds and a key. The
-objective of the agent is to locate the key, which is placed somewhere
-in the proximity of the house, retrieve it, and then unlock the door
-of the house. Upon unlocking the door, the agent is able to collect a
-diamond and receive a reward. \par
+In this experiment, we use Malmo~\cite{Johnson2016} to construct a
+basic Minecraft world that comprises a house filled with diamonds and
+a key. The objective of the agent is to locate the key, which is
+placed somewhere in the proximity of the house, retrieve it, and then
+unlock the door of the house. Upon unlocking the door, the agent is
+able to collect a diamond and receive a reward. \par
 The aim of the experiment is to make ROCCA learn from interacting
 % its actions and
 % perceptions
@@ -752,14 +752,18 @@ $$\textit{outside(house)} \land \textit{go(key)} \lseqand{1}
 % $$
 We evaluate the agent's performance based on two factors: the
 cognitive schematics it has learned and the rewards it has
-accumulated. Our results indicate that ROCCA successfully learned the
-necessary cognitive schematics and accumulates substantially more
-rewards in the second iteration.  Incidentally, one may notice that
-some plans are not completely reliable, their strengths is below 1.
-That is because some actions may fail.  ROCCA has no problem with that
-and is perfectly suited for dealing with such uncertainty.  All in all
-however, these findings only apply to a very simple Minecraft
-environment
+accumulated.  Our results indicate that ROCCA successfully learns the
+necessary cognitive schematics and, as a results, accumulates more
+rewards during the second iteration.  In the first iteration the
+cumulative reward is around 5, then triples to quadruples during the
+second iteration, depending on the random seed and other parameters.
+If we keep running ROCCA after that, the cumulative reward rate keeps
+going up a bit because the confidences of the cognitive schematics
+increase, leading to more exploitation and less exploration.  One may
+notice that some plans are not completely reliable, their strengths is
+below 1.  That is because some actions may fail.  ROCCA has no problem
+with that.  These findings are encouraging but only apply to a very
+simple environment
 % with a limited
 % number of actions
 and may not be indicative of the overall performance of ROCCA.  More
