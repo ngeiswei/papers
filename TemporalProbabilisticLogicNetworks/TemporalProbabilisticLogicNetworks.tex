@@ -482,8 +482,9 @@ dozens of inference rules.  For now, we only recall two,
 evaluations
 % $\TEval$
 % links
-as premises and produces an implication as conclusion.  It is formally
-depicted by the following proof tree.
+as premises and produces an implication as conclusion.  It can be
+understood as an inductive reasoning rule.  It is formally depicted by
+the following proof tree.
 % {\scriptsize
 % \begin{prooftree}
 %   \AxiomC{$
@@ -540,9 +541,10 @@ covering the base and the recursive cases, while storing evidence to
 avoid double counting.
 
 \subsubsection{The Deduction Rule (D)} takes two implications as
-premises and produces a third one.  Depending on the assumptions made
-there exists different variations of that rule.  The simplest one is
-based on the Markov property % assuming that the probability of $R$
+premises and produces a third one.  It can be understood as a
+deductive reasoning rule.  Depending on the assumptions made there
+exists different variations of that rule.  The simplest one is based
+on the Markov property % assuming that the probability of $R$
 % knowing $P$ and $Q$ equals to the probability of $R$ knowing only $Q$.
 $$\prob(R|Q,P) = \prob(R|Q)$$
 %% $$\prob(R|\neg Q,P) = \prob(R|\neg Q)$$
