@@ -304,14 +304,14 @@ or probabilities of probabilities.  They are often described by two
 numbers: a strength, $s$, representing a probability, and a
 confidence, $c$, representing the confidence over that probability.
 Such truth values are called \emph{Simple Truth Values} and are
-denoted as follows
+denoted as follows:
 $$<\!s, c\!>$$
 Alternatively, the strength and the confidence of a simple truth value
 $\TTV$ can be denoted $\TTV.s$ and $\TTV.c$ respectively.  Underneath,
 a simple truth value is a beta distribution~\cite{Abourizk94Fitting},
 similarly to an \emph{opinion} in Subjective Logic~\cite{Josang2026}.
 The parameters of the corresponding beta distribution can be obtained
-as follows
+as follows:
 $$\alpha(s, c)=\alpha_0 + \frac{s.c.k}{1-c}\ \ \ \ \ \ \ \ \ \ \
 \beta(s, c)=\beta_0 + \frac{(1-s).c.k}{1-c}$$ where $k$ is a PLN
 parameter called the \emph{Lookahead}, and $\alpha_0$ and $\beta_0$
@@ -524,7 +524,7 @@ depicted by the following proof tree.
   perfectly reliable piece of evidence has a confidence of 1.  Dealing
   with unreliable evidence involves using convolution products and is
   outside of the scope of this paper.}  then the resulting simple
-truth value can be calculated as follows
+truth value can be calculated as follows:
 $$\TTV.\Tstrength = \frac{\sum_{i=1}^n f_\wedge(\TTVPi.\Tstrength,
   \TTVQi.\Tstrength)}{\sum_{i=1}^n \TTVPi.\Tstrength}\ \ \ \ \ \ \ \ \
 \ \ \ \ \ \TTV.\Tconf = \frac{n}{n+k}$$
@@ -546,7 +546,7 @@ based on the Markov property % assuming that the probability of $R$
 % knowing $P$ and $Q$ equals to the probability of $R$ knowing only $Q$.
 $$\prob(R|Q,P) = \prob(R|Q)$$
 %% $$\prob(R|\neg Q,P) = \prob(R|\neg Q)$$
-which gives rise to the rule depicted by the following proof tree
+which gives rise to the rule depicted by the following proof tree.
 {\small
   \begin{prooftree}
     \AxiomC{$P \limp Q \measeq \TTVPQ$}
@@ -607,7 +607,7 @@ the metric variations, $P_n$ and $F_n$, of the \emph{Past} and
 \emph{Future} operators of Tense Logic~\cite{Prior1967}, with the
 distinction that they are applied over temporal predicates, as opposed
 to Boolean modal expressions.  The $\TLag$ operator is formally
-defined as follows
+defined as follows:
 % $$Lag(P, T) := Lambda(VariableList(x, t), P(x, t-T))$$
 $$Lag(P, T) := \lambda x, t. P(x, t-T)$$
 % where the first line of the $\TLamb$ link is the variable
@@ -626,7 +626,7 @@ into the present.
 % are sequenced.
 The $\TLead$ operator is the inverse of the $\TLag$ operator, thus
 $$Lead(Lag(P, T), T) \equiv P$$
-and is formally defined as follows
+and is formally defined as follows:
 $$Lead(P, T) := \lambda x, t. P(x, t+T)$$
 It allows to look into the future, or one may say that it brings the
 future into the present.
@@ -1094,7 +1094,7 @@ Its use is justified by the fact that $A_2$ is executed
 immediately \emph{after} reaching $C_2$, thus cannot have an effect on it.\\
 
 After retaining the premises and the conclusion only, and adding back
-the truth values, we obtain the following procedural deduction rule
+the truth values, we obtain the following procedural deduction rule:
 {\scriptsize
   \begin{prooftree}
     \AxiomC{$\!\!\!\!C_1\!\land\! A_1 \lpreimp{T_1} C_2 \measeq \TTV^{\ \!12}\!\!\!\!\!\!\!\!$}
