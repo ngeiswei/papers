@@ -1,13 +1,7 @@
-%% TODO:
-%%
-%% 1. Explain that action plan with 3 actions, are selected, then with
-%%    2 actions, then with 1 action, then reward.
-%%
-%% 2. Syntax sugar so that outside(house) is a temporal predicate,
-%%    same thing for datum@timestamp.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% AGI-22 paper about temporal and procedural reasoning with OpenCog %%
+%%                                                                   %%
+%% Requires lualatex to be rendered (see render.sh)                  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass[runningheads]{llncs}
@@ -126,8 +120,9 @@ attempts~\cite{Goertzel2008, Goertzel2011CSP, Cai2013}
 relying on new or improved components such as
 \begin{itemize}
 \item a hypergraph pattern miner~\cite{Geisweiller2019} and a version
-  of PLN~\cite{Goertzel2009} both implemented on top of OpenCog's
-  Unified Rule Engine equipped with an inference control mechanism;
+  of Probabilistic Logic Netorks (PLN)~\cite{Goertzel2009} both
+  implemented on top of OpenCog's Unified Rule Engine equipped with an
+  inference control mechanism;
 \item a temporal and procedural extension of
   PLN~\cite{Geisweiller2023TPLN};
 \item a simplified version of OpenPsi~\cite{Cai2013} leaving
@@ -245,7 +240,7 @@ types.  Let us recall the types we need for the rest of paper.
 \begin{itemize}
 \item A \emph{TruthValue} is a second order probability distribution,
   i.e. a probability of a probability.
-\item A \emph{SimpleTrueValue} is a TruthValue where the second order
+\item A \emph{SimpleTruthValue} is a TruthValue where the second order
   distribution is represented by a beta distribution of parameters
   controlled by a \emph{strength}, a proxy for a probability, and a
   \emph{confidence} over that strength.  It is denoted $<\!s, c\!>$ where
@@ -255,7 +250,7 @@ types.  Let us recall the types we need for the rest of paper.
   representing the prevalence of its satisfied inputs.  For instance
   $P \measeq\ <\!0.4, 0.1\!>$ represents that $P$ tends to evaluate to
   $\TTrue$ 40\% of the time, but there is a small confidence of 0.1
-  over that 40\%.  A TrueValue can be attached to individual
+  over that 40\%.  A TruthValue can be attached to individual
   evaluations as well.  For instance $P(a) \measeq\ <\!0.9, 1\!>$
   represents that the probability of $P(a)$ evaluating over a
   particular $a$ to $\TTrue$, is 0.9 and we are certain about it.
@@ -483,21 +478,22 @@ where
 % \item $G$ is the selected goal.
 % \end{itemize}
 $\$C$ is a variable representing the context, $\$A$ is a variable
-representing the action or action plan~\footnote{Variables are
-  actually typed so that the pattern matcher cannot confuse what is
-  context and action.}, $T$ is a time delay selected within that
-forward window and $G$ is the selected goal.  All returned candidates
-are then filtered according to their contexts, only retaining those
-for which the context is evaluated to $\TTrue$ at the current time.
-Ideally, such crisp evaluation should be replaced by a second order
-probability evaluation of a context being $\TTrue$.  This is important
-for contexts that have elements of uncertainty.  But for the sake of
-simplicity, in our experiments so far, all contexts are crisply
-evaluated.  Then from the set of valid cognitive schematics, a second
-order mixture distribution is built and handed to the next phase for
-performing action selection.  The calculations used to build that
-second order mixture distribution is detailed
-in~\cite{Geisweiller2018}.
+representing the action,
+% ~\footnote{Variables are
+%   actually typed so that the pattern matcher cannot confuse what is
+%   context and action.}
+$T$ is a time delay selected within that forward window and $G$ is the
+selected goal.  All returned candidates are then filtered according to
+their contexts, only retaining those for which the context is
+evaluated to $\TTrue$ at the current time.  Ideally, such crisp
+evaluation should be replaced by a second order probability evaluation
+of a context being $\TTrue$.  This is important for contexts that have
+elements of uncertainty.  But for the sake of simplicity, in our
+experiments so far, all contexts are crisply evaluated.  Then from the
+set of valid cognitive schematics, a second order mixture distribution
+is built and handed to the next phase for performing action selection.
+The calculations used to build that second order mixture distribution
+is detailed in~\cite{Geisweiller2018}.
 % approximating very roughly a Solomonoff
 % distribution as explained in~\cite{Geisweiller2018}.
 
@@ -509,7 +505,8 @@ The Action phase consists of the following steps:
   phase.
 \item Timestamp and store the selected action in the Percepta
   AtomSpace.
-\item Run the selected action and updates the environment.
+\item Run the selected action and update the environment.  If it is a
+  composite action, only run the first primary action.
 \end{enumerate}
 The trickiest step here is selecting the next action via Thompson
 Sampling.  The novelty is that the second order probabilities can be
@@ -679,12 +676,15 @@ presented below.
 
 \section{Experiment in a Simple Minecraft Environment}
 \label{sec:minecraft}
+% This experiment is primarily didactic and not meant to precisely
+% evaluate the performances of ROCCA, or to demonstrate the benefits of
+% the Thompson Sampling over other action selection mechanisms.
 In this experiment, we use Malmo~\cite{Johnson2016} to construct a
 basic Minecraft world that comprises a house filled with diamonds and
-a key. The objective of the agent is to locate the key, which is
-placed somewhere in the proximity of the house, retrieve it, and then
-unlock the door of the house. Upon unlocking the door, the agent is
-able to collect a diamond and receive a reward. \par
+a key.  The objective of the agent is to retrieve the key, located
+somewhere in the vicinity of the house, and then unlock the door of
+the house. Upon unlocking the door, the agent is able to collect a
+diamond and receive a reward. \par
 The aim of the experiment is to make ROCCA learn from interacting
 % its actions and
 % perceptions
@@ -706,8 +706,8 @@ state of the agent such as \textit{outside(house)}, \textit{hold(key)}
 and the reward for completing a given action, \textit{reward(1)}. \par
 % We conducted various experiments by adjusting different parameters.
 The experiment consists of two iterations of training lasting fifty
-control cycles each, interleaved by a learning phase lasting an
-hour. During the first iteration, no learning is taking place as the
+control cycles each, interleaved by a learning phase of a few
+hours. During the first iteration, no learning is taking place as the
 agent has no prior knowledge. The agent randomly explores the
 environment. Then it enters a learning phase, discovering cognitive
 schematics via mining and reasoning, subsequently leading the agent to
@@ -741,7 +741,7 @@ the agent derives
 $$\textit{outside(house)} \land \textit{go(key)} \lpreimp{1}
 \textit{outside(house)} \land \textit{hold(key)} \measeq\ <\!1, 0.007\!>$$
 which, if combined with
-$$\textit{hold(key)} \land \textit{outside(house)} \land \textit{go(house)} \lpreimp{1} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!>$$
+$$\textit{outside(house)} \land \textit{hold(key)} \land \textit{go(house)} \lpreimp{1} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!>$$
 can be used by the procedural deduction rule to infer
 $$\textit{outside(house)} \land \textit{go(key)} \lseqand{1} \textit{go(house)} \lpreimp{2} \textit{inside(house)} \measeq\ <\!0.833, 0.007\!>$$
 % $$
@@ -752,26 +752,28 @@ of an effective plan that leads to achieving the goal, such as
 {\small
 $$\textit{outside(house)} \land \textit{go(key)} \lseqand{1}
 \textit{go(house)} \lseqand{1} \textit{go(diamond)} \lpreimp{3}
-\textit{inside(house)} \measeq\ <\!0.833, 0.005\!>$$ }
+\textit{reward(1)} \measeq\ <\!0.833, 0.005\!>$$ }
 % $$
 % \begin{small}
 % \textit{hold(key)} \land \textit{outside(house)} \land \textit{go(house)} \lseqand{T} \textit{go(diamond)} \lpreimp{T+1} \textit{Reward(1)} \measeq\ <\!0.833, 0.005\!>
 % \end{small}
 % $$
-We evaluate the agent's performance based on two factors: the
-cognitive schematics it has learned and the rewards it has
-accumulated.  Our results indicate that ROCCA successfully learns the
-necessary cognitive schematics and, as a result, accumulates more
+% We evaluate the agent's performance based on two factors: the
+% cognitive schematics it has learned and the rewards it has
+% accumulated.
+A rigorous evaluation is kept for a future paper, nonetheless our
+preliminary results indicate that ROCCA successfully learns the
+necessary cognitive schematics and, as a consequence, accumulates more
 rewards during the second iteration.  In the first iteration the
-cumulative reward is around 5, then triples to quadruples during the
+cumulative reward is around 5, then doubles to quadruples during the
 second iteration, depending on the random seed and other parameters.
 If ROCCA keeps running after that, the cumulative reward rate keeps
-going up a bit because the confidences of the cognitive schematics
-increase, leading to more exploitation and less exploration.  One may
-notice that some plans are not completely reliable, their strengths is
-below 1.  That is because some actions may fail.  ROCCA, being suited
-for dealing with uncertainty, has no problem with that.  These
-findings are encouraging but only apply to a very simple environment
+going up because the confidences of the cognitive schematics increase,
+leading to more exploitation and less exploration.  One may notice
+that some plans are not completely reliable, their strengths is below
+1.  That is because some actions may fail.  ROCCA is suited for
+dealing with uncertainty and has no problem with that.  These findings
+are encouraging but only apply to a very simple environment
 % with a limited
 % number of actions
 and may not be indicative of the overall performance of ROCCA.  More
@@ -807,7 +809,7 @@ directions include:
 \item Record more internal processes, not just attentional spreading, as
   internal percepta to enable deeper forms of introspection.
 \item Plan with internal actions, not just external, such as parameter
-  fine-tuning and code rewriting to enable self-improvements.
+  tuning and code rewriting to enable self-improvements.
 \end{enumerate}
 
 % \begin{enumerate}
