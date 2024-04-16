@@ -1,0 +1,202 @@
+% easychair.tex,v 3.5 2017/03/15
+
+\documentclass{easychair}
+%\documentclass[EPiC]{easychair}
+%\documentclass[EPiCempty]{easychair}
+%\documentclass[debug]{easychair}
+%\documentclass[verbose]{easychair}
+%\documentclass[notimes]{easychair}
+%\documentclass[withtimes]{easychair}
+%\documentclass[a4paper]{easychair}
+%\documentclass[letterpaper]{easychair}
+
+\usepackage{doc}
+\usepackage{minted}
+
+% use this if you have a long article and want to create an index
+% \usepackage{makeidx}
+
+% In order to save space or manage large tables or figures in a
+% landcape-like text, you can use the rotating and pdflscape
+% packages. Uncomment the desired from the below.
+%
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+% Some of our commands for this guide.
+%
+\newcommand{\easychair}{\textsf{easychair}}
+\newcommand{\miktex}{MiK{\TeX}}
+\newcommand{\texniccenter}{{\TeX}nicCenter}
+\newcommand{\makefile}{\texttt{Makefile}}
+\newcommand{\latexeditor}{LEd}
+
+%\makeindex
+
+%% Front Matter
+%%
+% Regular title as in the article class.
+%
+\title{Meta-Reasoning in MeTTa for Inference Control via Provably
+  Pruning the Search Tree}
+
+% Authors are joined by \and. Their affiliations are given by \inst, which indexes
+% into the list defined using \institute
+%
+\author{Nil Geisweiller}
+
+% Institutes for affiliations are also joined by \and,
+\institute{
+  SingularityNET Foundation,\\
+  Zug, Switzerland\\
+  \email{nil@singularitynet.io}
+}
+
+%  \authorrunning{} has to be set for the shorter version of the authors' names;
+% otherwise a warning will be rendered in the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \authorrunning
+% will be rejected by EasyChair
+\authorrunning{Geisweiller}
+
+% \titlerunning{} has to be set to either the main title or its shorter
+% version for the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \titlerunning
+% will be rejected by EasyChair
+\titlerunning{Meta Reasoning in MeTTa for Inference Control}
+
+\begin{document}
+
+\maketitle
+
+\section{Methodology}
+\label{sect:introduction}
+
+How to speed-up reasoning by reasoning about reasoning?  This is the
+question we will attempt to begin to answer in the context of the
+meta-reasoning experiment described below.
+\begin{enumerate}
+\item A backward chainer leveraging non-determinism and unification is
+  implemented in MeTTa~\cite{TODO}.  The backward chainer takes a
+  \emph{problem} theory, a query and provides a solution to that query
+  as the form of a proof.  See
+  appendix~\ref{sect:metta-backward-chainer} for the code.
+\item The backward chainer is modified by inserting conditionals at
+  every non-deterministic intersection.  These conditionals are in
+  charge of deciding whether to prune or continue a particular path of
+  the backward chainer.  The code is too large to be shown here but
+  can be found there~\cite{TODO}.
+\item The predicates associated to these conditionals are themselves
+  defined as backward chainer calls over a \emph{control} theory,
+  alongside a query formulating the question of whether to prune or
+  continue a particular branch.  Thus, at every step during problem
+  solving, the backward chainer over the control theory is called.  If
+  a proof of continuation is found, then the backward chainer over the
+  problem theory is allowed to pursue its particular path, otherwise
+  the branch is pruned.
+\end{enumerate}
+
+\section{Results}
+
+The experiment is carried over a toy problem, the precedence
+relationship between the months of the year with a shortcut for the
+month of January.  The control theory is simple and tailored to
+benefit that particular problem only, by formalizing the January
+shortcut.  Performances with and without inference control are
+compared.  In that experiment the simplicity of the control theory
+allows to obtain proofs of continuation at almost no cost.  For that
+reason, the performances with inference control are dramatically
+better than without, ranging from no speed-up to many-fold speed-ups
+depending on the difficulty of the query.  Thus, as simplistic as it
+may be, the use of reasoning to speed-up reasoning is demonstrated.
+More information about the experiment alongside its code can be found
+in~\cite{TODO}.
+
+%% This is the question we will begin to attempt answer in that paper.
+
+%% Ways to inference control:
+%% 1. Learn the continuation/termination predicate (classifier)
+%% 2. Introspective reasoning
+%% 2.1. Terminate/Continue type
+%% 2.2. Cognitive schematics
+
+
+%% By combining unification and non-determinism, MeTTa allows us to
+%% implement in just a few lines of code a generic program and type
+%% synthesizer capable of
+%% 1. Synthesizing a program (or a proof) given its specification
+%% 2. Infer the type of a program (or a proof)
+%% 3. Partially fills holes in a program/proof or its type.
+
+%% Non-determinism is a placeholder for any inference control policy.
+
+\section{Related and Future Work}
+
+The following paper~\cite{} contains a great overview of the field of
+meta-reasoning, which nonetheless is still vastly under-explored.
+
+That work is only scratching the surface.  Below are a few suggestions
+for further improvements and exploration.
+\begin{enumerate}
+\item The control theory should broadly capture the notion of
+  inference control and efficiency, as opposed to being hardwired to a
+  specific problem.  This would allow to reuse such control theory
+  over many problems.
+\item The control theory should be amenable to reason about empirical
+  data.  In this manner, traces left by the backward chainer while
+  attempting to solve problems could be used to infer predictive
+  patterns about the likelihood of success of pursuing a particular
+  path.  This could be done via pattern mining, abstract reasoning, or
+  combinations thereof~\cite{TODO}.
+\item The control theory should be so broad and applicable that it may
+  benefit inference control of the control theory itself.  This would
+  open the possibility of creating a virtuous feedback loop of
+  meta-reasoning.
+\end{enumerate}
+%% What about reasoning about learning, from its most generic forms, such
+%% as Solomonoff Induction~\cite{TODO}, to its most specialized forms,
+%% such as XXX~\cite{TODO}?
+
+%% Create a virtuous feedback loop
+
+%------------------------------------------------------------------------------
+\appendix
+\section{MeTTa Backward Chainer}
+\label{sect:metta-backward-chainer}
+
+The backward chainer, \texttt{bc}, takes three arguments, a knowledge
+base containing the theory, a query containing a typing relationship
+between proof and theorem, and a maximum depth.  It returns a
+non-deterministic superposition of results, the query with its
+variables substituted by MeTTa terms encoding wholes or parts of
+proofs and theorems.  It has two cases
+\begin{enumerate}
+\item Base case: the query directly matches with an element of the
+  knowledge base.
+\item Recursive step: the query is divided into two sub-queries, one
+  for finding a proof abstraction and another one for finding a proof
+  argument applied to that proof abstraction.
+\end{enumerate}
+Unlike with traditional recursive algorithms, the base case and the
+recursive step are non-deterministically competing with each other.
+Also, in MeTTa the \texttt{let} operation corresponds to unification.
+The full code is provided below and more information can be found
+here~\cite{TODO} \small{
+\begin{minted}{scheme}
+;; Base case
+(= (bc $kb (: $prf $ccln) $_) (match $kb (: $prf $ccln) (: $prf $ccln)))
+;; Recursive step
+(= (bc $kb (: ($prfabs $prfarg) $ccln) (S $k))
+   (let* (((: $prfabs (-> $prms $ccln)) (bc $kb (: $prfabs (-> $prms $ccln)) $k))
+          ((: $prfarg $prms) (bc $kb (: $prfarg $prms) $k)))
+     (: ($prfabs $prfarg) $ccln)))
+\end{minted}
+}
+\bibliographystyle{plain}
+\label{sect:bib}
+%\bibliographystyle{alpha}
+%\bibliographystyle{unsrt}
+%\bibliographystyle{abbrv}
+\bibliography{easychair}
+
+%------------------------------------------------------------------------------
+\end{document}
