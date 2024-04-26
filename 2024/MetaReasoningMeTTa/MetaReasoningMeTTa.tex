@@ -77,10 +77,10 @@ meta-reasoning experiment described below.
 \begin{enumerate}
 \item A backward chainer is implemented in MeTTa~\cite{TODO} that
   takes in input a \emph{problem} theory (a set of rewriting rules), a
-  query (a typing relationship with holes) and outputs the query with
-  its holes filled.  By leveraging MeTTa non-determinism and
-  unification built-in features, a very compact implementation can be
-  obtained, as evidenced by the code in
+  query (a typing relationship containing holes) and outputs solutions
+  in the form of the query with its holes filled.  By leveraging MeTTa
+  non-determinism and unification built-in features, a very compact
+  implementation can be obtained, as evidenced by the code in
   Appendix~\ref{app:metta-backward-chainer}.
 \item The backward chainer is then modified by inserting conditionals
   at every non-deterministic intersection.  These conditionals are
@@ -90,8 +90,8 @@ meta-reasoning experiment described below.
   Appendix~\ref{app:backward-chainer-continuation-conditionals}.  The
   modified recursive step is omitted for sake of conciseness but can
   be found in~\cite{TODO}.
-\item The \emph{continuation} predicates associated to these
-  conditionals are themselves defined as backward chainer calls over a
+\item \emph{Continuation} predicates associated to these conditionals
+  are themselves defined as backward chainer calls over a
   \emph{control} theory, alongside a query formulating the question of
   whether to prune or to continue a particular branch.  Thus, at every
   step during problem solving, the backward chainer over the control
@@ -106,14 +106,17 @@ The experiment is carried over a toy problem, the relationship of
 precedence between the months of the year with a shortcut for the
 month of January.  The control theory is simple and tailored toward
 that particular problem only, by formalizing the January shortcut.
-Performances with and without inference control are compared.  In that
-experiment the simplicity of the control theory allows to obtain
-proofs of continuation with little to no cost.  For that reason, the
-performances with inference control are dramatically improved, ranging
-from no speed-up to many-fold speed-ups depending on the difficulty of
-the query.  Thus, as simplistic as it may be, the use of reasoning to
-speed-up reasoning is demonstrated.  More information about the
-experiment alongside its code can be found in~\cite{TODO}.
+TODO: show rule.
+%% Performances with and without inference control are
+%% compared.
+In that experiment the simplicity of the control theory
+allows to obtain proofs of continuation with little to no cost.  For
+that reason, the performances with inference control are dramatically
+improved, ranging from no speed-up to many-fold speed-ups depending on
+the difficulty of the query.  Thus, as simplistic as it may be, the
+use of reasoning to speed-up reasoning is demonstrated.  More
+information about the experiment alongside its code can be found
+in~\cite{TODO}.
 
 %% This is the question we will begin to attempt answer in that paper.
 
@@ -135,25 +138,43 @@ experiment alongside its code can be found in~\cite{TODO}.
 
 \section{Related and Future Work}
 
-The following paper~\cite{} contains a great overview of the field of
-meta-reasoning, which nonetheless is still vastly under-explored.
+On the theoretical side, we may mention the work of J\"urgen
+Schmidhuber on the G\"odel Machine~\cite{TODO}, a self-improving
+machine powered at its center by an Automated Theorem Prover (ATP)
+used to infer theorems expressing that a particular rewrite may lead
+to increasing the expected reward.  In that paper, J\"urgen actually
+mentions the possibility of using such machine to improve theorem
+proving itself.  TODO: cite other theoretical survey.
 
-That work is only scratching the surface.  Below are a few suggestions
-for further improvements and exploration.
+On the practical side, we found work on meta-reasoning in the context
+of cognitive science and psychology, see~\cite{TODO} for a survey on
+the matter.  However finding practical work on meta-reasoning in the
+context of ATP proved to be difficult.  A recent survey~\cite{TODO} on
+applying AI techniques for guiding ATP, citing over 150 papers, did
+not seem to mention meta-reasoning.  Searching the Internet did not
+seem to yield more results.  Of course, it may be that we missed such
+work due to not knowing the terminology.  Regardless, it is rather
+clear that meta-reasoning in the context of ATP is under-explored and
+deserves more attention than currently given.\\
+
+The work described in this document is only barely scratching the
+surface.  Below are a few suggestions for future research.
 \begin{enumerate}
-\item The control theory should broadly capture the notion of
-  inference control and efficiency, as opposed to being hardwired to a
-  specific problem.  This would allow to reuse such control theory
-  over many problems.
+\item The control theory should capture the notion of inference
+  control more broadly as opposed to being hardwired to a specific
+  problem.  This would allow to reuse the same control theory across
+  multiple problems.
 \item The control theory should be amenable to reason about empirical
   data.  In this manner, traces left by the backward chainer while
   attempting to solve problems could be used to infer predictive
-  patterns about the likelihood of success of pursuing a particular
-  path.  This could be done via pattern mining, abstract reasoning, or
-  combinations thereof~\cite{TODO}.
+  patterns about the likelihood of success of pursuing particular
+  paths.  This could be done via inferential pattern
+  mining~\cite{TODO}, abstract reasoning, or combinations thereof by
+  using an appropriate logic such as Probabilistic Logic
+  Networks~\cite{TODO}.
 \item The control theory should be so broad and applicable that it may
-  benefit inference control of the control theory itself.  This would
-  open the possibility of creating a virtuous feedback loop of
+  benefit inference control over the control theory itself, which
+  would open the possibility for creating virtuous feedback loops of
   meta-reasoning.
 \end{enumerate}
 %% What about reasoning about learning, from its most generic forms, such
