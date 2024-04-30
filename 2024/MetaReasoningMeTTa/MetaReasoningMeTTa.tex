@@ -75,21 +75,22 @@ How to speed-up reasoning by reasoning about reasoning?  This is the
 question we will attempt to begin to answer in the context of a
 meta-reasoning experiment described below.
 \begin{enumerate}
-\item A backward chainer is implemented in MeTTa~\cite{TODO} that
+\item A backward chainer is implemented in MeTTa~\cite{MeTTa} that
   takes in input a \emph{problem} theory (a set of rewriting rules), a
   query (a typing relationship containing holes) and outputs solutions
-  in the form of the query with its holes filled.  By leveraging MeTTa
-  non-determinism and unification built-in features, a very compact
-  implementation can be obtained, as evidenced by the code in
+  in the form of the query with its holes filled.  By leveraging
+  non-determinism and unification in MeTTa, a compact implementation
+  is obtained, as evidenced by the code shown in
   Appendix~\ref{app:metta-backward-chainer}.
 \item The backward chainer is then modified by inserting conditionals
-  at every non-deterministic intersection.  These conditionals are
-  there to decide whether to prune or to continue a particular path of
-  the backward chainer.  The modified base case of the backward
+  at every non-deterministic intersection.  These conditionals are in
+  charge of deciding whether to prune or to continue a particular path
+  of the backward chainer.  The modified base case of the backward
   chainer is given in
   Appendix~\ref{app:backward-chainer-continuation-conditionals}.  The
   modified recursive step is omitted for sake of conciseness but can
-  be found in~\cite{TODO}.
+  be found under the Controlled Backward Chainer Section of
+  ~\cite{Geisweiller2024ICM}.
 \item \emph{Continuation} predicates associated to these conditionals
   are themselves defined as backward chainer calls over a
   \emph{control} theory, alongside a query formulating the question of
@@ -106,17 +107,15 @@ The experiment is carried over a toy problem, the relationship of
 precedence between the months of the year with a shortcut for the
 month of January.  The control theory is simple and tailored toward
 that particular problem only, by formalizing the January shortcut.
-TODO: show rule.
+%% TODO: show rule.
 %% Performances with and without inference control are
 %% compared.
-In that experiment the simplicity of the control theory
-allows to obtain proofs of continuation with little to no cost.  For
-that reason, the performances with inference control are dramatically
-improved, ranging from no speed-up to many-fold speed-ups depending on
-the difficulty of the query.  Thus, as simplistic as it may be, the
-use of reasoning to speed-up reasoning is demonstrated.  More
-information about the experiment alongside its code can be found
-in~\cite{TODO}.
+In that experiment the simplicity of the control theory allows to
+obtain proofs of continuation at a small cost.  For that reason, the
+performances with inference control are dramatically improved, ranging
+from no speed-up to many-fold speed-ups depending on the difficulty of
+the query.  More information about the experiment alongside its code
+can be found in~\cite{Geisweiller2024ICM}.
 
 %% This is the question we will begin to attempt answer in that paper.
 
@@ -136,26 +135,37 @@ in~\cite{TODO}.
 
 %% Non-determinism is a placeholder for any inference control policy.
 
-\section{Related and Future Work}
+\section{Related Work}
 
-On the theoretical side, we may mention the work of J\"urgen
-Schmidhuber on the G\"odel Machine~\cite{TODO}, a self-improving
-machine powered at its center by an Automated Theorem Prover (ATP)
-used to infer theorems expressing that a particular rewrite may lead
-to increasing the expected reward.  In that paper, J\"urgen actually
-mentions the possibility of using such machine to improve theorem
-proving itself.  TODO: cite other theoretical survey.
+On the theoretical side, one ought to mention the work of J\"urgen
+Schmidhuber on the G\"odel Machine~\cite{Schmidhuber2003}, a
+self-improving machine powered at its center by an Automated Theorem
+Prover (ATP) used to infer theorems expressing that a particular
+rewrite may lead to increasing the expected reward.  In that paper,
+J\"urgen mentions the possibility of using such machine to improve
+theorem proving itself.  Worth mentioning is a survey of John Harrison
+on metatheory and reflection in theorem
+proving~\cite{Harrison1995MetatheoryAR}.  The survey is mostly
+theoretical and more focused on correctness of meta-reasoning than
+efficiency of inference.  Some practical ideas are mentioned
+nonetheless such as inferring tactics that are correct by construction
+and using formalism with explicit reflection.
+%% Loosely
+%% related, we have also found work on meta-reasoning in the context of
+%% cognitive science and psychology, see~\cite{TODO} for a survey on the
+%% matter.
 
-On the practical side, we found work on meta-reasoning in the context
-of cognitive science and psychology, see~\cite{TODO} for a survey on
-the matter.  However finding practical work on meta-reasoning in the
-context of ATP proved to be difficult.  A recent survey~\cite{TODO} on
-applying AI techniques for guiding ATP, citing over 150 papers, did
-not seem to mention meta-reasoning.  Searching the Internet did not
-seem to yield more results.  Of course, it may be that we missed such
-work due to not knowing the terminology.  Regardless, it is rather
-clear that meta-reasoning in the context of ATP is under-explored and
-deserves more attention than currently given.\\
+On the practical side, finding work on meta-reasoning in the context
+of ATP proved to be difficult.  A recent
+survey~\cite{Blaauwbroek2024LearningGA} on applying AI techniques for
+guiding ATP, citing over 150 papers, did not seem to mention any work
+on meta-reasoning.  Additional Internet search did not seem to yield
+more results.  We may of course have missed relevant work due to not
+using the right terminology while searching.  Regardless, it indicates
+that meta-reasoning in the context of ATP is likely under-explored and
+deserves more attention than currently given.
+
+\section{Conclusion and Future Work}
 
 The work described in this document is only barely scratching the
 surface.  Below are a few suggestions for future research.
@@ -169,13 +179,17 @@ surface.  Below are a few suggestions for future research.
   attempting to solve problems could be used to infer predictive
   patterns about the likelihood of success of pursuing particular
   paths.  This could be done via inferential pattern
-  mining~\cite{TODO}, abstract reasoning, or combinations thereof by
-  using an appropriate logic such as Probabilistic Logic
-  Networks~\cite{TODO}.
+  mining~\cite{Geisweiller2019}, abstract reasoning, or combinations
+  thereof by using an appropriate logic such as Probabilistic Logic
+  Networks~\cite{Goertzel09PLN}.
 \item The control theory should be so broad and applicable that it may
   benefit inference control over the control theory itself, which
   would open the possibility for creating virtuous feedback loops of
   meta-reasoning.
+%% \item Meta-reasoning may be better modeled by process calculi, such as
+%%   $\rho$-calculus~\cite{TODO} as opposed to traditional functional
+%%   calculi, such as $\lambda$-calculus that primarily care about input
+%%   and output types and not what occurs in between.
 \end{enumerate}
 %% What about reasoning about learning, from its most generic forms, such
 %% as Solomonoff Induction~\cite{TODO}, to its most specialized forms,
@@ -190,7 +204,7 @@ surface.  Below are a few suggestions for future research.
 %\bibliographystyle{alpha}
 %\bibliographystyle{unsrt}
 %\bibliographystyle{abbrv}
-\bibliography{easychair}
+\bibliography{MetaReasoningMeTTa}
 
 %------------------------------------------------------------------------------
 \appendix
@@ -214,7 +228,7 @@ Unlike with traditional recursive algorithms, the base case and the
 recursive step are non-deterministically competing with each other.
 Also, in MeTTa the \texttt{let} operation corresponds to unification.
 The code is provided below and more information can be found
-here~\cite{TODO} \small{
+in~\cite{Geisweiller2024ICM} \small{
 \begin{minted}{scheme}
 ;; Base case
 (= (bc $kb (: $prf $thrm) $_) (match $kb (: $prf $thrm) (: $prf $thrm)))
@@ -241,7 +255,7 @@ at that point more information is available to the continuation
 predicate.  The built-in function \texttt{empty} is used to prune the
 current branch.  The modified base case can be found below and more
 information (including the modified recursive step) can be found
-here~\cite{TODO}.  \small{
+in~\cite{Geisweiller2024ICM}.  \small{
 \begin{minted}{scheme}
 ;; Modified base case
 (= (bc $kb                                               ; Knowledge base
