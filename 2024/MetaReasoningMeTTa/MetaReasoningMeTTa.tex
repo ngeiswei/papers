@@ -83,14 +83,13 @@ meta-reasoning experiment described below.
   is obtained, as evidenced by the code shown in
   Appendix~\ref{app:metta-backward-chainer}.
 \item The backward chainer is then modified by inserting conditionals
-  at every non-deterministic intersection.  These conditionals are in
-  charge of deciding whether to prune or to continue a particular path
-  of the backward chainer.  The modified base case of the backward
-  chainer is given in
-  Appendix~\ref{app:backward-chainer-continuation-conditionals}.  The
-  modified recursive step is omitted for sake of conciseness but can
-  be found under the Controlled Backward Chainer Section of
-  ~\cite{Geisweiller2024ICM}.
+  at every non-deterministic intersection, alongside user programmable
+  contexts.  These conditionals are in charge of deciding whether to
+  prune or to continue a particular path of the backward chainer.  The
+  modified base case of the backward chainer is provided in
+  Appendix~\ref{app:backward-chainer-continuation-conditionals} and
+  the modified recursive step can be found under the Controlled
+  Backward Chainer Section of ~\cite{Geisweiller2024ICM}.
 \item \emph{Continuation} predicates associated to these conditionals
   are themselves defined as backward chainer calls over a
   \emph{control} theory, alongside a query formulating the question of
@@ -240,7 +239,7 @@ in~\cite{Geisweiller2024ICM} \small{
 \end{minted}
 }
 
-\section{Backward Chainer with Continuation Conditionals}
+\section{Base Case with Continuation Conditionals}
 \label{app:backward-chainer-continuation-conditionals}
 
 The backward chainer is modified to take in inputs a \emph{control
