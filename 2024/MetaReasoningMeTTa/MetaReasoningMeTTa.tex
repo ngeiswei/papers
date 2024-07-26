@@ -86,10 +86,11 @@ How to speed-up reasoning by reasoning about reasoning?  This is the
 question we will attempt to begin to answer in the context of a
 meta-reasoning experiment described below.
 \begin{enumerate}
-\item A backward chainer is implemented in MeTTa~\cite{MeTTa} that
-  takes in input a \emph{problem} theory (a set of rewriting rules), a
-  query (a typing relationship containing holes) and outputs solutions
-  in the form of the query with its holes filled.  By leveraging
+\item A backward chainer is implemented in MeTTa~\cite{MeTTa,
+  MeTTaSpecification2021, Goertzel2021MeTTa, Meredith2023} that takes
+  in input a \emph{problem} theory (a set of rewriting rules), a query
+  (a typing relationship containing holes) and outputs solutions in
+  the form of the query with its holes filled.  By leveraging
   non-determinism and unification in MeTTa, a compact implementation
   is obtained, as evidenced by the code shown in
   Appendix~\ref{app:metta-backward-chainer}.
