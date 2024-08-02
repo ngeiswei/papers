@@ -71,34 +71,36 @@
 \begin{abstract}
 The paper describes a meta-reasoning experiment to attempt to explore
 the possibility of improving reasoning efficiency via reasoning. A
-backward chainer implementation is provided in MeTTa, a novel
-programming language for AI. The backward chainer is modified to be
-user controllable. The backward chainer itself (though using a
-dedicated control theory) is then plugged into that controlling
-mechanism. A toy example is described. Then the paper concludes with
-related and future work.
+backward chainer controllable by programmable heuristics is
+implemented. Then the backward chainer is plugged into that control
+mechanism to guide itself.  A toy example is provided.
 \end{abstract}
 
 \section{Methodology}
 \label{sect:introduction}
 
-How to speed-up reasoning by reasoning about reasoning?  This is the
-question we will attempt to begin to answer in the context of a
-meta-reasoning experiment described below.
+How to speed-up reasoning by reasoning about reasoning?  Is it
+possible to discover heuristics to guide reasoning by a process of
+reasoning?  This is the kind of questions we attempt to answer in the
+context of a meta-reasoning experiment.  The experiment consists in
+modifying a backward chainer by inserting inside its code conditionals
+in charge of pruning the search space, with the corresponding
+conditions themselves calling the backward chainer to decide whether
+to prune a particular search path.  The experiment is further
+described by the following phases.
 \begin{enumerate}
 \item A backward chainer is implemented in MeTTa~\cite{MeTTa,
   MeTTaSpecification2021, Goertzel2021MeTTa, Meredith2023} that takes
   in input a \emph{problem} theory (a set of rewriting rules), a query
   (a typing relationship containing holes) and outputs solutions in
   the form of the query with its holes filled.  By leveraging
-  non-determinism and unification in MeTTa, a compact implementation
-  is obtained, as evidenced by the code shown in
-  Appendix~\ref{app:metta-backward-chainer}.
+  non-determinism and unification in MeTTa a compact implementation is
+  obtained as shown in Appendix~\ref{app:metta-backward-chainer}.
 \item The backward chainer is then modified by inserting conditionals
   at every non-deterministic intersection, alongside user programmable
   contexts.  These conditionals are in charge of deciding whether to
-  prune or to continue a particular path of the backward chainer.  The
-  modified base case of the backward chainer is provided in
+  prune or to continue a particular path of the search.  The modified
+  base case of the backward chainer is provided in
   Appendix~\ref{app:backward-chainer-continuation-conditionals} and
   the modified recursive step can be found under the Controlled
   Backward Chainer Section of ~\cite{Geisweiller2024ICM}.
@@ -109,24 +111,25 @@ meta-reasoning experiment described below.
   step during problem solving, the backward chainer over the control
   theory is called.  If a proof of continuation is found, then the
   backward chainer over the problem theory is allowed to pursue its
-  particular path, otherwise the branch is pruned.
+  path, otherwise the branch is pruned.
 \end{enumerate}
 
-\section{Results}
+\section{Test Case}
 
 The experiment is carried over a toy problem, the relationship of
 precedence between the months of the year with a shortcut for the
 month of January.  The control theory is simple and tailored toward
-that particular problem only, by formalizing the January shortcut.
+that particular problem only, essentially merely taking advantage of
+the January shortcut.
 %% TODO: show rule.
 %% Performances with and without inference control are
 %% compared.
 In that experiment the simplicity of the control theory allows to
-obtain proofs of continuation at a small cost.  For that reason, the
-performances with inference control are dramatically improved, ranging
-from no speed-up to many-fold speed-ups depending on the difficulty of
-the query.  More information about the experiment alongside its code
-can be found in~\cite{Geisweiller2024ICM}.
+obtain proofs of continuation at a negligible cost.  For that reason,
+the performances with inference control are dramatically improved,
+ranging from no speed-up to many-fold speed-ups depending on the
+difficulty of the query.  More information about the experiment
+alongside its code can be found in~\cite{Geisweiller2024ICM}.
 
 %% This is the question we will begin to attempt answer in that paper.
 
@@ -152,10 +155,10 @@ On the theoretical side, one ought to mention the work of J\"urgen
 Schmidhuber on the G\"odel Machine~\cite{Schmidhuber2003}, a
 self-improving machine powered at its center by an Automated Theorem
 Prover (ATP) used to infer theorems expressing that a particular
-rewrite may lead to increasing the expected reward.  In that paper,
+rewrite may lead to increase the expected reward.  In that paper,
 J\"urgen mentions the possibility of using such machine to improve
-theorem proving itself.  Worth mentioning is a survey of John Harrison
-on metatheory and reflection in theorem
+theorem proving itself.  More broadly, also worth mentioning is a
+survey of John Harrison on metatheory and reflection in theorem
 proving~\cite{Harrison1995MetatheoryAR}.  The survey is mostly
 theoretical and more focused on correctness of meta-reasoning than
 efficiency of inference.  Some practical ideas are mentioned
@@ -172,9 +175,9 @@ survey~\cite{Blaauwbroek2024LearningGA} on applying AI techniques for
 guiding ATP, citing over 150 papers, did not seem to mention any work
 on meta-reasoning.  Additional Internet search did not seem to yield
 more results.  We may of course have missed relevant work due to not
-using the right terminology while searching.  Regardless, it indicates
-that meta-reasoning in the context of ATP is likely under-explored and
-deserves more attention than currently given.
+using the right terminology while searching.  Regardless, it does
+indicate that meta-reasoning in the context of ATP is likely
+under-explored and deserves more attention than currently given.
 
 \section{Conclusion and Future Work}
 
@@ -210,11 +213,11 @@ surface.  Below are a few suggestions for future research.
 
 \section{Acknowledgments}
 
-Thanks to Hedra Seid Yusuf, Abdulrahman Semrie, Douglas Miles, Matthew
+Thanks to Hedra Yusuf, Abdulrahman Semrie, Douglas Miles, Matthew
 Ikl\'e, Alexey Potapov, Greg Meredith and Ben Goertzel for our
-discussions.  Thanks to the anonymous reviewers of the AITP conference
-for their feedback.  Thanks to the SingularityNET Foundation for
-funding that work.
+discussions on the subject.  Thanks to the anonymous reviewers of the
+AITP conference for their valuable feedback.  Thanks to the
+SingularityNET Foundation for funding that work.
 
 %------------------------------------------------------------------------------
 
@@ -269,16 +272,17 @@ in~\cite{Geisweiller2024ICM} \small{
 The backward chainer is modified to take in inputs a \emph{control
 structure}, a \emph{context}, in addition to a control theory and a
 query.  A continuation conditional is placed at the entry of the base
-case call, invoking \texttt{\$bcont} in order to determine whether to
+case call, invoking \texttt{\$bcont} in order to decide whether to
 continue or to prune the current branch.  Another conditional is
 placed at the exit of the match query, invoking \texttt{\$mcont} to
-determine whether to continue or to prune the current branch.  It is
+decide whether to continue or to prune the current branch.  It is
 important to have a conditional at the exit of the match query because
 at that point more information is available to the continuation
 predicate.  The built-in function \texttt{empty} is used to prune the
 current branch.  The modified base case can be found below and more
-information (including the modified recursive step) can be found
-in~\cite{Geisweiller2024ICM}.  \small{
+information, including the modified recursive step as well as an
+example of control theory, can be found in~\cite{Geisweiller2024ICM}.
+\small{
 \begin{minted}{scheme}
 ;; Modified base case
 (= (bc $kb                                               ; Knowledge base
