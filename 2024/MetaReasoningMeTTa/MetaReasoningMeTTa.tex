@@ -80,17 +80,16 @@ mechanism to guide itself.  A toy example is provided.
 \label{sect:introduction}
 
 How to speed-up reasoning by reasoning about reasoning?  Is it
-possible to discover heuristics to guide reasoning by a process of
+possible to discover heuristics to guide reasoning via a process of
 reasoning?  This is the kind of questions we attempt to answer in the
 context of a meta-reasoning experiment.  The experiment consists in
-modifying a backward chainer by inserting inside its code conditionals
-in charge of pruning the search space, with the corresponding
-conditions themselves calling the backward chainer to decide whether
-to prune a particular search path.  The experiment is further
-described by the following phases.
+modifying a backward chainer code by inserting conditionals in charge
+of pruning the search space, with the corresponding conditions
+themselves calling the backward chainer to decide whether to prune
+particular search paths.  The process is detailed further below.
 \begin{enumerate}
 \item A backward chainer is implemented in MeTTa~\cite{MeTTa,
-  MeTTaSpecification2021, Goertzel2021MeTTa, Meredith2023} that takes
+  MeTTaSpecification2021, Goertzel2021MeTTa, Meredith2023}.  It takes
   in input a \emph{problem} theory (a set of rewriting rules), a query
   (a typing relationship containing holes) and outputs solutions in
   the form of the query with its holes filled.  By leveraging
@@ -119,17 +118,17 @@ described by the following phases.
 The experiment is carried over a toy problem, the relationship of
 precedence between the months of the year with a shortcut for the
 month of January.  The control theory is simple and tailored toward
-that particular problem only, essentially merely taking advantage of
-the January shortcut.
+that particular problem, essentially taking advantage of the January
+shortcut.
 %% TODO: show rule.
 %% Performances with and without inference control are
 %% compared.
 In that experiment the simplicity of the control theory allows to
 obtain proofs of continuation at a negligible cost.  For that reason,
-the performances with inference control are dramatically improved,
-ranging from no speed-up to many-fold speed-ups depending on the
-difficulty of the query.  More information about the experiment
-alongside its code can be found in~\cite{Geisweiller2024ICM}.
+the performances are dramatically improved, ranging from no speed-up
+to many-fold speed-ups depending on the difficulty of the query.  More
+information about the experiment alongside its code can be found
+in~\cite{Geisweiller2024ICM}.
 
 %% This is the question we will begin to attempt answer in that paper.
 
@@ -151,7 +150,7 @@ alongside its code can be found in~\cite{Geisweiller2024ICM}.
 
 \section{Related Work}
 
-On the theoretical side, one ought to mention the work of J\"urgen
+On the theoretical side, one may mention the work of J\"urgen
 Schmidhuber on the G\"odel Machine~\cite{Schmidhuber2003}, a
 self-improving machine powered at its center by an Automated Theorem
 Prover (ATP) used to infer theorems expressing that a particular
