@@ -12,6 +12,7 @@
 
 \usepackage{doc}
 \usepackage{minted}
+\usepackage{amsfonts}
 
 % use this if you have a long article and want to create an index
 % \usepackage{makeidx}
@@ -72,6 +73,34 @@
 \begin{abstract}
 \end{abstract}
 
+\section{Introduction}
+
+In this paper we will show how to estimate the probability of a
+proposition to be provable given available evidence using
+Probabilistic Logic Networks (PLN)~\cite{Goertzel09PLN}.  We will then
+explain how such estimation can be used as guiding heuristics for
+Automated Theorem Proving (ATP).
+
+The idea is to define a ternary predicate holding the relationship
+between theory, proof and theorem.  Given its semi-decidable nature,
+under finite resources, we cannot hope to establish whether such
+relationship hold for any triple of theory, proof and theorem.  We can
+however hope to estimate, with various degrees of confidence, the
+probability that it may or may not hold given available evidence.  For
+instance, a piece of evidence in favor of
+$$\forall x \ P(x)$$ could be that $P$ holds for some $a$.
+Potentially every piece of information that relates to the conjecture
+without contradicting it, should be taken into account to estimate the
+probability that it is a theorem.  Although only having an actual
+proof, or an actual contradiction, may ever move that probability to a
+certainty.  What is more, such ability can then be used as a guide to
+discover proofs by prioritizing the search over lemmas that are
+themselves more likely to be provable.  The same idea can be applied
+on these lemmas till the recursion bottoms out by reaching axioms,
+previously known theorems or else a contradiction.
+
+\section{Defining the Theory $\times$ Proof $\times$ Theorem Predicate}
+
 \newpage
 
 %------------------------------------------------------------------------------
@@ -81,7 +110,7 @@
 %\bibliographystyle{alpha}
 %\bibliographystyle{unsrt}
 %\bibliographystyle{abbrv}
-\bibliography{MetaReasoningMeTTa}
+\bibliography{ProbEstThrmInfCtrl}
 
 \newpage
 
