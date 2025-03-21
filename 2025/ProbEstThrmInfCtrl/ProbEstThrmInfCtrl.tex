@@ -12,9 +12,18 @@
 
 \usepackage{doc}
 \usepackage{minted}
-\usepackage{amsfonts}
+%% \usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bussproofs}
+\usepackage{cite}
 
-% use this if you have a long article and want to create an index
+% For ≞ (requires the LuaLaTeX engine)
+\usepackage{unicode-math}
+\setmathfont{Stix Two Math}
+
+% Use this if you have a long article and want to create an index
 % \usepackage{makeidx}
 
 % In order to save space or manage large tables or figures in a
@@ -31,6 +40,15 @@
 \newcommand{\texniccenter}{{\TeX}nicCenter}
 \newcommand{\makefile}{\texttt{Makefile}}
 \newcommand{\latexeditor}{LEd}
+\newcommand{\U}{\Theta}
+\newcommand{\Space}{\texttt{Space}}
+\newcommand{\Term}{\texttt{Term}}
+\newcommand{\Type}{\texttt{Type}}
+\newcommand{\Bool}{\texttt{Bool}}
+\newcommand{\arrow}{\to}
+\newcommand{\limp}{\Rightarrow}
+\newcommand{\True}{\texttt{True}}
+\newcommand{\False}{\texttt{False}}
 
 %\makeindex
 
@@ -96,10 +114,50 @@ proof, or an actual contradiction, may ever move that probability to a
 certainty.  What is more, such ability can then be used as a guide to
 discover proofs by prioritizing the search over lemmas that are
 themselves more likely to be provable.  The same idea can be applied
-on these lemmas till the recursion bottoms out by reaching axioms,
-previously known theorems or else a contradiction.
+on these lemmas till the recursion hopefully bottoms out by reaching
+the axioms or a contradiction.
 
-\section{Defining the Theory $\times$ Proof $\times$ Theorem Predicate}
+NEXT: add quick state of the art.
+
+\section{Defining the Theory Proof Theorem Predicate}
+
+How can PLN be used to reason about the relationship between Theory,
+Proof and Theorem?  Reasoning is treated from a Type Theoretic angle,
+thus proofs are terms, theorems are types and theories are sets of
+typing relationships between proofs and types.  Let us now define a
+ternary predicate $\U$, representing such relationship
+$$\U :\ (\Space \times \Term \times \Type) \arrow \Bool$$ where $\Space$
+is a collection of typing relationships, $\Term$ is a class of terms
+representing proofs and $\Type$ is a class of types representing
+theorems.  The content of $\U$ can be specified with PLN statements
+expressing rewriting laws within that system.  For instance modus
+ponens would be represented as\footnote{Note that due to PLN being in
+a state of rework, the syntax used here is provisional.}
+$$\U(\Gamma, f, a \to b) \land \U(\Gamma, x, a) \limp \U(\Gamma, f(x),
+b)\ \measeq\ \True$$ where $\Gamma$, $f$, $x$, $a$ and $b$ are
+variables, universally quantified in this context.  The symbol
+$\measeq$ is proper to PLN and can be read as \emph{measured by}.  It
+relates a logical PLN statement to a \emph{True Value}.  In the
+example above the statement is certain, so the truth value is Boolean.
+We will see below that in other situations, true values can be
+probabilities, and even second order probabilities (probabilities over
+probabilities).  So the full statement can be read as: If $f$ is a
+proof of $a \arrow b$, and $x$ is a proof of $a$, then with certainty
+$f(x)$ is a proof of $b$ in theory $\Gamma$.  In addition, PLN allows
+to reason about uncertain knowledge via Induction and Abduction.
+\section{Formulating the Probability of Provability in PLN}
+Given a theory $\Gamma$ and a conjecture $C$, the question is: what is
+the probability that there exists a proof $p$ of $C$ in $\Gamma$,
+which can be formulated by the following PLN query
+$$\exists p\ \U(\Gamma, p, C)\ \measeq\ ?\texttt{tv}$$
+Thus given
+$$\U(\Gamma, pa, P(a))\ \measeq\ \True$$
+$$\U(\Gamma, pb, P(b))\ \measeq\ \True$$
+$$\vdots$$
+one can infer
+$$\U(\Gamma, p, \forall x\ P(x))\ \measeq\ \True$$
+
+\section{Probability of Provability as Guiding Heuristic}
 
 \newpage
 
