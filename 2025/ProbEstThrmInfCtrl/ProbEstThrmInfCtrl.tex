@@ -99,30 +99,37 @@
 
 \section{Introduction}
 
-In this paper we show how to estimate the probability of a proposition
-to be provable given all available evidence by using Probabilistic
-Logic Networks (PLN)~\cite{Goertzel09PLN}.  We then explain how such
-estimation can be used as guiding heuristics for Automated Theorem
-Proving (ATP).
+The problem of estimating the probability of a conjecture to be a
+theorem has been mentioned in the literature as early as 1954 by
+George P\'olya~\cite{Polya1954}.  More formal treatments have appeared
+since then such as the work of Scott Garrabrant, Abram Demski et al on
+\emph{Uniform Coherence}~\cite{Garrabrant2016, Abram2016} which seems
+to be the most formal treatment on the subject to date.  To the best
+of our knowledge, no one has considered using a probabilistic logic
+incorporating inductive and abductive reasoning such as
+NAL~\cite{Wang2013} or PLN~\cite{Goertzel09PLN}, which we believe is
+particularly well suited to this problem.  In this paper we show how
+to estimate the probability of a proposition to be a theorem given all
+available evidence by using Probabilistic Logic Networks (PLN).  We
+then explain how such estimation can be used as guiding heuristics for
+Automated Theorem Proving.
 
-The idea is to define a ternary predicate holding the relationship
-between theory, proof and theorem.  Given its semi-decidable nature,
-under finite resources, we cannot hope to establish whether such
-relationship hold for any argument.  We can however hope to estimate,
-with various degrees of confidence, the probability that it may or may
-not hold given the available evidence.  For instance, a piece of
-evidence in favor of
+The idea we develop here is to define a ternary predicate holding the
+relationship between theory, proof and theorem.  Given its
+semi-decidable nature we cannot hope in practice to establish whether
+such relationship holds for any argument.  We can however hope to
+estimate, with various degrees of confidence, the probability that it
+may or may not hold given the available evidence.  For instance, a
+piece of evidence in favor of
 $$\forall x \ P(x)$$ could be that $P$ holds for some $a$.  Ideally
 every bit of information that relates to the conjecture should be
 taken into account to estimate its probability of being a theorem.
-Although only having an actual proof, or an actual contradiction, can
-establish certainty.  Moreover, such ability can then be used as a
-guide to discover proofs by prioritizing the search over lemmas that
-are themselves more likely to be provable.  The same idea can be
-applied recursively on these lemmas till it bottoms out by reaching
-the axioms, or a contradiction.
-
-NEXT: add quick state of the art.
+Although only a rigorous proof, or a contradiction, can establish
+certainty.  Moreover, such ability can then be used as a guide to
+discover proofs by prioritizing the search over lemmas that are
+themselves more likely to be provable.  The same idea can be applied
+recursively on these lemmas till it bottoms out by reaching the axioms
+or by exhibiting a contradiction.
 
 \section{Relating Theory, Proof and Proposition in PLN}
 
@@ -134,32 +141,35 @@ $$\U : \Theory \times \Proof \times \Proposition \arrow \Bool$$ where
 $\Theory$ is a set of collections of typing relationships encoding the
 axioms and inference rules of each theory, $\Proof$ is a set of terms
 representing proofs, and $\Proposition$ is a set of types representing
-propositions.  The content of $\U$ can already be characterized in PLN
-by formalizing rewriting laws within such type system.  For instance
-modus ponens could be represented as\footnote{Note that due to PLN
-being in a state of rework, the syntax used here is provisional.}
+propositions.  The content of $\U$ can in principle be characterized
+in PLN by formalizing rewriting laws of such type system.  For
+instance modus ponens could be represented as\footnote{Note that due
+to PLN being in a state of rework, the syntax used here is
+provisional.}
 $$\U(\Gamma, f, a \to b) \land \U(\Gamma, x, a) \limp \U(\Gamma, f(x),
 b)\ \measeq\ \STV{1}{1}$$ where $\Gamma$, $f$, $x$, $a$ and $b$ are
 universally quantified variables, $\to$ is an implication at the
-object level, $\measeq$ relates a PLN \emph{statement}, here an
-implication at the logical level $\limp$, to a \emph{truth value},
-here $\STV{1}{1}$, forming a PLN \emph{judgment} capturing the
-uncertainty of the statement.  The first number of the truth value
-represents the strength and the second number represents the
-confidence over that strength, although underneath, a truth value
-represents a second order distribution.  In the example above the
-judgment is certain because both the strength and the confidence are
-1.  The full judgment can be read as: in theory $\Gamma$, if $f$ is a
-proof of $a \arrow b$, and $x$ is a proof of $a$, then with certainty
-$f(x)$ is a proof of $b$.  In addition, PLN allows to reason about
-uncertain knowledge via induction and abduction.  Given a corpus of
-examples (and counter examples) of $\Theta$, induction can be used to
-gather statistics about the probability of some propositions meeting
-some criteria to be theorems.
+object level, $\measeq$ which can be read as \emph{measured by},
+relates a PLN \emph{statement}, here an implication at the logical
+level $\limp$, to a \emph{truth value}, here $\STV{1}{1}$, forming a
+PLN \emph{judgment} capturing the uncertainty of the statement.  The
+first number of the truth value represents the strength and the second
+number represents the confidence over that strength, although
+underneath, a truth value is a second order distribution.  In the
+example above the judgment is certain because both the strength and
+the confidence are 1.  The full judgment can be read as: in theory
+$\Gamma$, if $f$ is a proof of $a \arrow b$, and $x$ is a proof of
+$a$, then with certainty $f(x)$ is a proof of $b$.  In addition, PLN
+allows to reason about uncertain knowledge via induction and
+abduction.  Given a corpus of examples (and counter examples) of
+$\Theta$, induction can be used to gather statistics about the
+probability of some propositions meeting some criteria to be theorems.
+Abduction provides a similar mechanism by considering properties over
+$\Theta$ instead of examples.
 
 Given a theory $\Gamma$ and a proposition $C$, the question \emph{what
 is the probability that there exists a proof $p$ of $C$ in $\Gamma$?}
-can be formulated by the following PLN query
+can be formulated in PLN by the query
 $$\exists p\ \U(\Gamma, p, C)\ \measeq\ \$\texttt{tv}$$ where
 $\$\texttt{tv}$ is a hole corresponding to the truth value to be
 filled by PLN.  The way this truth value is calculated may involve
