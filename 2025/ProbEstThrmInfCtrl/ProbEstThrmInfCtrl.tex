@@ -142,13 +142,13 @@ $\Theory$ is a set of collections of typing relationships encoding the
 axioms and inference rules of each theory, $\Proof$ is a set of terms
 representing proofs, and $\Proposition$ is a set of types representing
 propositions.  The content of $\U$ can in principle be characterized
-in PLN by formalizing rewriting laws of such type system.  For
+in PLN by formalizing the rewriting laws of such type system.  For
 instance modus ponens could be formulated as\footnote{Note that due to
 PLN being in a state of rework, the syntax used here is provisional.}
 $$\U(\Gamma, f, a \to b) \land \U(\Gamma, x, a) \limp \U(\Gamma, f(x),
 b)\ \measeq\ \STV{1}{1}$$ where $\Gamma$, $f$, $x$, $a$ and $b$ are
 universally quantified variables, $\to$ is an implication at the
-object level, $\measeq$ which can be read as \emph{measured by},
+object level, $\measeq$ which can be read as \emph{measured by} and
 relates a PLN \emph{statement}, here an implication at the logical
 level $\limp$, to a \emph{truth value}, here $\STV{1}{1}$, forming a
 PLN \emph{judgment} capturing the uncertainty of the statement.  The
@@ -183,9 +183,9 @@ proposition could be used as guiding heuristic.  For instance one may
 break up the task of finding a proof of $C$ into two competing paths
 each composed of two subtasks:
 \begin{itemize}
-\item $A$-path: find a proof of $A \to C$ and find a proof of $A$,
+\item $A$-path: find a proof of $A \to C$, find a proof of $A$,
   then use modus ponens to prove $C$.
-\item $B$-path: find a proof of $B \to C$ and find a proof of $B$,
+\item $B$-path: find a proof of $B \to C$, find a proof of $B$,
   then use modus ponens to prove $C$.
 \end{itemize}
 To decide whether to take the $A$-path or the $B$-path, one may
@@ -196,16 +196,16 @@ $$\exists p_B\ \Theta(\Gamma, p_B, B) \land \exists
 p_{BC}\ \Theta(\Gamma, p_{BC}, B \to C) \measeq \$\texttt{tv}_B$$ let
 PLN reason till both $\$\texttt{tv}_A$ and $\$\texttt{tv}_B$ get
 filled with truth values of decent confidences and pick up the path
-with the best truth value.  If more paths result from more rules
-beside modus ponens, we can go a step further by existentially
+with the best truth value.  If we want to compare the modus ponens
+rule to other inference rules, we can even go further by existentially
 quantifying the premise as well, resulting in the PLN query
 $$\exists a\ \left(\exists p_a\ \Theta(\Gamma, p_a, a) \land \exists
 p_{aC}\ \Theta(\Gamma, p_{aC}, a \to C)\right) \measeq
-\$\texttt{tv}_a$$ If this path gets selected, the search will
-progressively instantiate $a$ into actual premises, breaking up the
-query into more specific queries resembling the ones corresponding to
-the $A$-path and the $B$-path.  An early prototype of the ideas
-described in this paper can be found in~\cite{Geisweiller2025PICM}.
+\$\texttt{tv}_a$$ If it gets selected the search will progressively
+instantiate $a$ into actual premises, breaking up the query into more
+specific queries resembling the ones corresponding to the $A$-path and
+the $B$-path and so on.  An early prototype of the ideas described in this paper
+can be found in~\cite{Geisweiller2025PICM}.
 
 \newpage
 
