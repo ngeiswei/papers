@@ -191,21 +191,22 @@ each composed of two subtasks:
 To decide whether to take the $A$-path or the $B$-path, one may
 formulate the PLN queries
 $$\exists p_A\ \Theta(\Gamma, p_A, A) \land \exists
-p_{AC}\ \Theta(\Gamma, p_{AC}, A \to C) \measeq \$\texttt{tv}_A$$
+p_{AC}\ \Theta(\Gamma, p_{AC}, A \to C)\ \measeq\ \$\texttt{tv}_A$$
 $$\exists p_B\ \Theta(\Gamma, p_B, B) \land \exists
-p_{BC}\ \Theta(\Gamma, p_{BC}, B \to C) \measeq \$\texttt{tv}_B$$ let
+p_{BC}\ \Theta(\Gamma, p_{BC}, B \to C)\ \measeq\ \$\texttt{tv}_B$$ let
 PLN reason till both $\$\texttt{tv}_A$ and $\$\texttt{tv}_B$ get
 filled with truth values of decent confidences and pick up the path
 with the best truth value.  If we want to compare the modus ponens
 rule to other inference rules, we can even go further by existentially
 quantifying the premise as well, resulting in the PLN query
 $$\exists a\ \left(\exists p_a\ \Theta(\Gamma, p_a, a) \land \exists
-p_{aC}\ \Theta(\Gamma, p_{aC}, a \to C)\right) \measeq
-\$\texttt{tv}_a$$ If it gets selected the search will progressively
-instantiate $a$ into actual premises, breaking up the query into more
-specific queries resembling the ones corresponding to the $A$-path and
-the $B$-path and so on.  An early prototype of the ideas described in this paper
-can be found in~\cite{Geisweiller2025PICM}.
+p_{aC}\ \Theta(\Gamma, p_{aC}, a \to
+C)\right)\ \measeq\ \$\texttt{tv}_a$$ If it gets selected the search
+will progressively instantiate $a$ into actual premises, breaking up
+the query into more specific queries resembling the ones corresponding
+to the $A$-path and the $B$-path and so on.  An early prototype of the
+ideas described in this paper can be found
+in~\cite{Geisweiller2025PICM}.
 
 \newpage
 
