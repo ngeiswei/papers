@@ -1,0 +1,8 @@
+(: z T)
+(exec {px}
+      (, (: $x T)
+         (exec (S $l) $p $t))
+      (O (- (: $x T))
+         (+ (: (l $x) T))
+         (+ (R (: $x T)))
+         (+ (exec $l $p $t))))
