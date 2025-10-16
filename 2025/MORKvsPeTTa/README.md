@@ -14,3 +14,5 @@ which one of MORK and PeTTa outcompete the other.
 ## TODO
 
 - Test density vs sparseness of solutions in a search space.
+- Test artithmetic operations, using tables, using foreign functions, using WASM.
+- Try running MORK via the server.
