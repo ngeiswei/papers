@@ -51,5 +51,5 @@
 ;; Tests ;;
 ;;;;;;;;;;;
 
-;; !(bc &mork (fromNumber 16) (: $x T))    ; 27.800s
-!(bc &petta (fromNumber 16) (: $x T))   ; 5.192s vs 1.098s
+;; !(bc &mork (fromNumber 1000) (: $x T))
+!(bc &petta (fromNumber 1000) (: $x T))

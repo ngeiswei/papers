@@ -13,4 +13,4 @@
 (= (lz_fc (S $k) (: $x T)) (lz_fc $k (: (l $x) T)))
 
 ;; Test
-!(lz_fc (fromNumber 5000) (: z T)) ; 4.639s, vs 0.833s with MORK
+!(lz_fc (fromNumber 5000) (: z T))
