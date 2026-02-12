@@ -1,0 +1,113 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% AGI-26 paper about three ways to speed up reasoning with PLN      %%
+%%                                                                   %%
+%% Requires lualatex to be rendered (see render.sh)                  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[runningheads]{llncs}
+%
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bussproofs}
+\usepackage{cite}
+\usepackage{wrapfig}
+\usepackage{sidecap}
+
+% For ⩘ and ⩗ (requires the LuaLaTeX engine)
+\usepackage{unicode-math}
+\setmathfont{Stix Two Math}
+
+% Commands for Atomese code
+\newcommand{\SP}{\;\;\;}
+\newcommand{\TTrue}{\textit{True}}
+\newcommand{\TFalse}{\textit{False}}
+\newcommand{\TAtom}{\textit{Atom}}
+\newcommand{\TTime}{\textit{Time}}
+\newcommand{\TEval}{\textit{Evaluation}}
+\newcommand{\TList}{\textit{List}}
+\newcommand{\TLamb}{\textit{Lambda}}
+\newcommand{\TExec}{\textit{Execution}}
+\newcommand{\TAtTime}{\textit{AtTime}}
+\newcommand{\TAnd}{\textit{And}}
+\newcommand{\TOr}{\textit{Or}}
+\newcommand{\TNot}{\textit{Not}}
+\newcommand{\TImpl}{\textit{Implication}}
+\newcommand{\TPredImpl}{\textit{PredictiveImplication}}
+\newcommand{\TSeqAnd}{\textit{SequentialAnd}}
+\newcommand{\TSeqOr}{\textit{SequentialOr}}
+\newcommand{\TBSeqAnd}{\textit{BackSequentialAnd}}
+\newcommand{\TFSeqAnd}{\textit{ForeSequentialAnd}}
+\newcommand{\TLag}{\textit{Lag}}
+\newcommand{\TLead}{\textit{Lead}}
+\newcommand{\TTV}{\textit{TV}}
+\newcommand{\TTVPi}{\textit{TV}_i^P}
+\newcommand{\TTVQi}{\textit{TV}_i^Q}
+\newcommand{\TTVP}{\textit{TV}^P}
+\newcommand{\TTVQ}{\textit{TV}^Q}
+\newcommand{\TTVR}{\textit{TV}^R}
+\newcommand{\TTVPQ}{\textit{TV}^{PQ}}
+\newcommand{\TTVQR}{\textit{TV}^{QR}}
+\newcommand{\TBTV}{\langle \TTV \rangle}
+\newcommand{\TBTVPi}{\langle \TTVPi \rangle}
+\newcommand{\TBTVQi}{\langle \TTVQi \rangle}
+\newcommand{\TBTVP}{\langle \TTVP \rangle}
+\newcommand{\TBTVQ}{\langle \TTVQ \rangle}
+\newcommand{\TBTVR}{\langle \TTVR \rangle}
+\newcommand{\TBTVPQ}{\langle \TTVPQ \rangle}
+\newcommand{\TBTVQR}{\langle \TTVQR \rangle}
+\newcommand{\Tstrength}{\textit s}
+\newcommand{\Tconf}{\textit c}
+
+% Commands for symbolic mathematical notations
+\newcommand{\prob}{\mathbf{Pr}}
+\newcommand{\limp}{\rightarrow}
+\newcommand{\lpreimp}[1]{\leadsto^{#1}}
+\newcommand{\lseqor}[1]{\!\bigslopedvee^{#1}\!}
+\newcommand{\lseqand}[1]{\!\bigslopedwedge^{#1}\!}
+\newcommand{\ldo}[1]{\widehat{#1}}
+\newcommand{\llag}[2]{\overrightarrow{#1}^{#2}}
+\newcommand{\llead}[2]{\overleftarrow{#1}^{#2}}
+%% TODO: try to replace over right arrow by over right harp, etc
+%% \newcommand{\llag}[2]{\accentset{\overrightharp}{#1}^{#2}}
+%% \newcommand{\llead}[2]{\overleftharp{#1}^{#2}}
+
+% Commands for schemata vocabulary
+\newcommand{\lgo}[1]{\textit{go}(#1)}
+
+\begin{document}
+%
+\title{Three Ways to Speed-up Reasoning using Probabilistic Logic Networks}
+
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+\author{Nil Geisweiller
+  %\orcidID{0000-0001-5041-6299}
+}
+%
+\authorrunning{N. Geisweiller et al.}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+\institute{SingularityNET Foundation,\\
+  Zug, Switzerland\\
+  \email{nil@singularitynet.io}}
+%
+\maketitle              % typeset the header of the contribution
+%
+
+\begin{abstract}
+  \keywords{}
+\end{abstract}
+
+\section{Introduction}
+
+\section{Conclusion}
+
+%
+% ---- Bibliography ----
+%
+\bibliographystyle{splncs04} \bibliography{ThreeWaysSpeedUpPLN}
+
+\end{document}
