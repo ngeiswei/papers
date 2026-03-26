@@ -1,0 +1,156 @@
+% easychair.tex,v 3.5 2017/03/15
+
+\documentclass{easychair}
+%\documentclass[EPiC]{easychair}
+%\documentclass[EPiCempty]{easychair}
+%\documentclass[debug]{easychair}
+%\documentclass[verbose]{easychair}
+%\documentclass[notimes]{easychair}
+%\documentclass[withtimes]{easychair}
+%\documentclass[a4paper]{easychair}
+%\documentclass[letterpaper]{easychair}
+
+\usepackage{doc}
+\usepackage{minted}
+%% \usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bussproofs}
+\usepackage{cite}
+
+% For ≞ (requires the LuaLaTeX engine)
+\usepackage{unicode-math}
+\setmathfont{Stix Two Math}
+
+% Use this if you have a long article and want to create an index
+% \usepackage{makeidx}
+
+% In order to save space or manage large tables or figures in a
+% landcape-like text, you can use the rotating and pdflscape
+% packages. Uncomment the desired from the below.
+%
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+% Some of our commands for this guide.
+%
+\newcommand{\easychair}{\textsf{easychair}}
+\newcommand{\miktex}{MiK{\TeX}}
+\newcommand{\texniccenter}{{\TeX}nicCenter}
+\newcommand{\makefile}{\texttt{Makefile}}
+\newcommand{\latexeditor}{LEd}
+\newcommand{\Theory}{\texttt{Theory}}
+\newcommand{\Proof}{\texttt{Proof}}
+\newcommand{\Proposition}{\texttt{Proposition}}
+\newcommand{\Bool}{\texttt{Bool}}
+\newcommand{\arrow}{\to}
+\newcommand{\limp}{\Rightarrow}
+\newcommand{\True}{\texttt{True}}
+\newcommand{\False}{\texttt{False}}
+\newcommand{\STV}[2]{<\!#1, #2\!>}
+
+%\makeindex
+
+%% Front Matter
+%%
+% Regular title as in the article class.
+%
+%% \title{Estimating the Probability of a Proposition to be Provable
+%%   Using Probabilistic Logic Networks}
+%% \title{Estimating the Probability of a Conjecture to be a Theorem with
+%%   Probabilistic Logic Networks, and How to Take Advantage of it for
+%%   Inference Control}
+\title{Using Forward Chaining to Go Backward}
+
+% Authors are joined by \and. Their affiliations are given by \inst, which indexes
+% into the list defined using \institute
+%
+\author{Nil Geisweiller}
+
+% Institutes for affiliations are also joined by \and,
+\institute{
+  SingularityNET Foundation,\\
+  Zug, Switzerland\\
+  \email{nil@singularitynet.io}
+}
+
+%  \authorrunning{} has to be set for the shorter version of the authors' names;
+% otherwise a warning will be rendered in the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \authorrunning
+% will be rejected by EasyChair
+\authorrunning{Geisweiller}
+
+% \titlerunning{} has to be set to either the main title or its shorter
+% version for the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \titlerunning
+% will be rejected by EasyChair
+
+\titlerunning{Using Forward Chaining to Go Backward}
+
+\begin{document}
+
+\maketitle
+
+%% \begin{abstract}
+%% \end{abstract}
+
+\section{Introduction}
+
+If all you have is a forward chainer, can you use it to derive a
+process that is functionally equivalent to backward chaining?  This is
+the question we attempt to answer in this paper.  This question stems
+from the observation that some rewriting systems, such as
+MORK~\cite{NEXT}, perform considerably better on forward chaining than
+on backward chaining.  In fact, in~\cite{NEXT} we have found that
+forwardly generating in MORK the set of all proofs of all theorems up
+to a certain depth, then querying the results given any theorem within
+that set, is faster than running a naive backward chainer
+implementation in MORK.  It might be because our particular
+implementation is too naive not well tailored for MORK.  Or it might
+be because MORK is inherently bad at backward chaining.  This is
+nonetheless to be contrasted with some other rewriting systems such as
+PeTTa~\cite{NEXT}, a Prolog-based rewriting system, which seem to
+perform equally well on forward and backward chaining~\cite{NEXT}.
+
+Since forward chaining in MORK outperforms forward chaining in PeTTa,
+it gives us an incentive to attempt to emulate backward chaining using
+forward chaining.  The work presented here target specifically MORK
+for that reason, although the idea likely applies to any rewriting
+system.
+
+\section{Methodology}
+
+To achieve this feat we decompose the backward chaining task into
+three steps
+\begin{enumerate}
+\item Use forward chaining to generate a theory of backward expansion
+  up to some depth.
+\item Given some target theorem, apply forward chaining on the theory
+  of backward expansion to generate composite rules, such that, if
+  they were to run forward, they would derive the given theorem only.
+\item Use forward chaining on the obtained composite rules to generate
+  proofs of the target theorem.
+\end{enumerate}
+You may have noticed that these three steps only make use of forward
+chaining.
+
+\newpage
+
+%------------------------------------------------------------------------------
+
+\bibliographystyle{plain}
+\label{sect:bib}
+%\bibliographystyle{alpha}
+%\bibliographystyle{unsrt}
+%\bibliographystyle{abbrv}
+\bibliography{ForwardBackward}
+
+\newpage
+
+%------------------------------------------------------------------------------
+
+\appendix
+
+%------------------------------------------------------------------------------
+\end{document}
