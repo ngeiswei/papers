@@ -49,6 +49,11 @@
 \newcommand{\True}{\texttt{True}}
 \newcommand{\False}{\texttt{False}}
 \newcommand{\STV}[2]{<\!#1, #2\!>}
+\newcommand{\arrowtype}{\text{->}}
+\newcommand{\axon}{\text{ax-1}}
+\newcommand{\axtw}{\text{ax-2}}
+\newcommand{\axth}{\text{ax-3}}
+\newcommand{\axmp}{\text{ax-mp}}
 
 %\makeindex
 
@@ -97,29 +102,53 @@
 
 \section{Introduction}
 
-If all you have is a forward chainer, can you use it to derive a
+If all you have is a forward chainer, is it be possible to emulate a
 process that is functionally equivalent to backward chaining?  This is
-the question we attempt to answer in this paper.  This question stems
+the question we attempt to answer in this paper.  Such question stems
 from the observation that some rewriting systems, such as
-MORK~\cite{NEXT}, perform considerably better on forward chaining than
-on backward chaining.  In fact, in~\cite{NEXT} we have found that
-forwardly generating in MORK the set of all proofs of all theorems up
-to a certain depth, then querying the results given any theorem within
-that set, is faster than running a naive backward chainer
-implementation in MORK.  It might be because our particular
-implementation is too naive not well tailored for MORK.  Or it might
-be because MORK is inherently bad at backward chaining.  This is
-nonetheless to be contrasted with some other rewriting systems such as
-PeTTa~\cite{NEXT}, a Prolog-based rewriting system, which seem to
-perform equally well on forward and backward chaining~\cite{NEXT}.
+MORK~\cite{NEXT}, perform better on forward chaining than on backward
+chaining~\cite{NEXT}.  This is to be contrasted with some other
+rewriting systems such as PeTTa~\cite{NEXT}, a Prolog-based rewriting
+system, which performs equally well on forward and backward
+chaining~\cite{NEXT}.  Since forward chaining in MORK outperforms
+forward chaining in PeTTa~\cite{NEXT}, it gives us an incentive to
+emulate backward chaining using forward chaining to obtain a
+MORK-based backward chainer that outperforms PeTTa.
 
-Since forward chaining in MORK outperforms forward chaining in PeTTa,
-it gives us an incentive to attempt to emulate backward chaining using
-forward chaining.  The work presented here target specifically MORK
-for that reason, although the idea likely applies to any rewriting
-system.
+\section{Forward vs Backward Chaining}
 
-\section{Methodology}
+Forward chaining is a reasoning process that begins with axioms and
+apply inference rules to produce more truths.  For instance, using
+axioms and inference rules of propositional calculus (borrowed from
+Metamath~\cite{NEXT}), given with a type theoretic representation
+\begin{itemize}
+\item $\axon : \phi \to (\psi \to \phi)$ $\ \ \ \ \ \ \ \ \ \ \ \ \ \
+  \ \ \ \ \ \ \ \ $ $\axtw : ( \phi \to ( \psi \to \chi ) ) \to ( ( \phi \to \psi ) \to ( \phi \to \chi ) )$
+\item $\axmp : \phi\ \arrowtype\ ( \phi \to \psi )\ \arrowtype\ \psi$
+\end{itemize}
+where $\arrowtype$ represents the arrow type, one can build a proof of
+the identity in a forward way:
+\begin{enumerate}
+\item apply $\axmp$ to $\axon$ and $\axtw$ to obtain
+  $(\axmp\ \axon\ \axtw) : ( \phi \to \psi) \to (\phi \to \phi)$,
+\item apply $\axmp$ to $\axon$ and step 1 to obtain
+  $(\axmp\ \axon\ (\axmp\ \axon\ \axtw)) : \phi \to \phi$.
+\end{enumerate}
+On the contrary, a backward chainer starts with the proposition to be
+proven, and expands the proof backward until reaching the axioms.  For
+instance, the process may start with $x? : \phi \to \phi$ where $x?$
+is a hole, then expand $x?$ backward with $\axmp$ to obtain
+$(\axmp\ y?\ z?) : \phi \to \phi$, and keep expanding until reaching
+$(\axmp\ \axon\ (\axmp\ \axon\ \axtw)) : \phi \to \phi$.  The
+advantage of backward chaining is that the search space is constrained
+by proofs that can only prove the target proposition, resulting in
+considerable pruning.  The inconvenient is that it is more
+sophisticated, involving full syntactic unification and maintaining
+hypothetical paths.
+
+\section{Emulating Backward Chaining with Forward Chaining}
+
+To emulate backward chaining using forward chaining NEXT.
 
 To achieve this feat we decompose the backward chaining task into
 three steps
@@ -144,7 +173,7 @@ chaining.
 %\bibliographystyle{alpha}
 %\bibliographystyle{unsrt}
 %\bibliographystyle{abbrv}
-\bibliography{ForwardBackward}
+\bibliography{BackwardViaForward}
 
 \newpage
 
