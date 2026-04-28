@@ -49,11 +49,18 @@
 \newcommand{\True}{\texttt{True}}
 \newcommand{\False}{\texttt{False}}
 \newcommand{\STV}[2]{<\!#1, #2\!>}
-\newcommand{\arrowtype}{\text{->}}
-\newcommand{\axon}{\text{ax-1}}
-\newcommand{\axtw}{\text{ax-2}}
-\newcommand{\axth}{\text{ax-3}}
-\newcommand{\axmp}{\text{ax-mp}}
+\newcommand{\arrowtype}{\ \ \text{->}\ \ }
+\newcommand{\axon}{\text{ax}_1}
+\newcommand{\axtw}{\text{ax}_2}
+\newcommand{\axth}{\text{ax}_3}
+\newcommand{\axmp}{\text{mp}}
+\newcommand{\axmpi}{\text{mp}^i}
+\newcommand{\blackbird}{B_1}
+\newcommand{\idiot}{I}
+\newcommand{\av}{\phi}
+\newcommand{\bv}{\psi}
+\newcommand{\cv}{\chi}
+\newcommand{\dv}{\theta}
 
 %\makeindex
 
@@ -102,7 +109,7 @@
 
 \section{Introduction}
 
-If all you have is a forward chainer, is it be possible to emulate a
+If all you have is a forward chainer, is it possible to emulate a
 process that is functionally equivalent to backward chaining?  This is
 the question we attempt to answer in this paper.  Such question stems
 from the observation that some rewriting systems, such as
@@ -118,51 +125,95 @@ MORK-based backward chainer that outperforms PeTTa.
 \section{Forward vs Backward Chaining}
 
 Forward chaining is a reasoning process that begins with axioms and
-apply inference rules to produce more truths.  For instance, using
+apply inference rules to produce theorems.  For instance, using some
 axioms and inference rules of propositional calculus (borrowed from
 Metamath~\cite{NEXT}), given with a type theoretic representation
 \begin{itemize}
 \item $\axon : \phi \to (\psi \to \phi)$ $\ \ \ \ \ \ \ \ \ \ \ \ \ \
   \ \ \ \ \ \ \ \ $ $\axtw : ( \phi \to ( \psi \to \chi ) ) \to ( ( \phi \to \psi ) \to ( \phi \to \chi ) )$
-\item $\axmp : \phi\ \arrowtype\ ( \phi \to \psi )\ \arrowtype\ \psi$
+\item $\axmp : ( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$
 \end{itemize}
-where $\arrowtype$ represents the arrow type, one can build a proof of
+where $\text{->}$ represents the arrow type, one can build a proof of
 the identity in a forward way:
 \begin{enumerate}
-\item apply $\axmp$ to $\axon$ and $\axtw$ to obtain
-  $(\axmp\ \axon\ \axtw) : ( \phi \to \psi) \to (\phi \to \phi)$,
-\item apply $\axmp$ to $\axon$ and step 1 to obtain
-  $(\axmp\ \axon\ (\axmp\ \axon\ \axtw)) : \phi \to \phi$.
+\item apply $\axmp$ to $\axtw$ and $\axon$ to obtain
+  $(\axmp\ \axtw\ \axon) : ( \phi \to \psi) \to (\phi \to \phi)$,
+\item apply $\axmp$ to step 1 and $\axon$ to obtain
+  $(\axmp\ (\axmp\ \axtw\ \axon)\ \axon) : \phi \to \phi$.
 \end{enumerate}
 On the contrary, a backward chainer starts with the proposition to be
-proven, and expands the proof backward until reaching the axioms.  For
-instance, the process may start with $x? : \phi \to \phi$ where $x?$
-is a hole, then expand $x?$ backward with $\axmp$ to obtain
-$(\axmp\ y?\ z?) : \phi \to \phi$, and keep expanding until reaching
-$(\axmp\ \axon\ (\axmp\ \axon\ \axtw)) : \phi \to \phi$.  The
+proven, and expands the proof backward till it reaches the axioms.
+For instance, the process may start with $x? : \phi \to \phi$ where
+$x?$ is a hole, then expand $x?$ backward using $\axmp$ to obtain
+$(\axmp\ y?\ z?) : \phi \to \phi$, and keep expanding until obtaining
+the full proof
+$(\axmp\ (\axmp\ \axtw\ \axon)\ \axon) : \phi \to \phi$.  The
 advantage of backward chaining is that the search space is constrained
-by proofs that can only prove the target proposition, resulting in
-considerable pruning.  The inconvenient is that it is more
-sophisticated, involving full syntactic unification and maintaining
-hypothetical paths.
+by proofs that can only prove the target proposition, thus pruning the
+search space.  The inconvenient is that it is more sophisticated,
+involving full syntactic unification and maintaining hypothetical
+paths.
 
 \section{Emulating Backward Chaining with Forward Chaining}
 
-To emulate backward chaining using forward chaining NEXT.
-
-To achieve this feat we decompose the backward chaining task into
-three steps
+Given a theory described by axioms and inference rules, the idea is to
+invert each inference rule using the \emph{blackbird}
+combinator~\cite{NEXT} to obtained an \emph{inverted theory}.
+Applying forward chaining on this inverted theory will have the effect
+of producing hypothetical truths that preserve conclusions, emulating
+backward expansion.  For instance, given the theory described earlier,
+we apply the blackbird combinator, recalled below
+$$\blackbird : (\cv' \arrowtype \dv') \arrowtype (\av' \arrowtype \bv' \arrowtype \cv') \arrowtype \av' \arrowtype \bv' \arrowtype \dv'$$
+to the Modus Ponens inference rule to obtain\footnote{The second
+  argument of $\blackbird$ is the inference rule to invert, here
+  $\axmp : ( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$, thus
+  $( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$ must unify with
+  $\av' \arrowtype \bv' \arrowtype \cv'$, which it does.}
+$$\lambda x.((\blackbird\ x)\ \axmp) : (\bv \arrowtype \cv) \arrowtype (\av
+\to \bv) \arrowtype \av \arrowtype \cv$$ which can be read as ``given
+a hypothetical proof of $\cv$ assuming $\bv$, produce a hypothetical
+proof of $\cv$ assuming $\av \to \bv$ and $\av$'', precisely
+corresponding to Modus Ponens backward expansion.  For the sake of
+simplicity let us rename this inverted inference rule
+$$\axmpi\ \eqdef\ \lambda x.((\blackbird\ x)\ \axmp)$$
+We can now use it in a forward way to prove\footnote{Note that within
+  that proof, variables are scoped within each line, not across lines.
+  Thus, in spite of sharing names across lines, they are fresh on each
+  line.}  the identity theorem shown
+earlier.  We start from a trivial hypothetical truth using the
+\emph{idiot} combinator~\cite{NEXT}
 \begin{enumerate}
-\item Use forward chaining to generate a theory of backward expansion
-  up to some depth.
-\item Given some target theorem, apply forward chaining on the theory
-  of backward expansion to generate composite rules, such that, if
-  they were to run forward, they would derive the given theorem only.
-\item Use forward chaining on the obtained composite rules to generate
-  proofs of the target theorem.
+\item[1.] $\idiot : (\av \to \av) \arrowtype (\av \to \av)$
 \end{enumerate}
-You may have noticed that these three steps only make use of forward
-chaining.
+then we apply $\axmpi$ twice (backward expansion)
+\begin{enumerate}
+\item[2.]
+  $(\axmpi\ \idiot) : (\psi \to (\av \to \av)) \arrowtype \psi
+  \arrowtype (\av \to \av)$
+\item[3.]
+  $(\axmpi\ (\axmpi\ \idiot)) : (\chi \to (\psi \to (\av \to \av)))
+  \arrowtype \chi \arrowtype \psi \arrowtype (\av \to \av)$
+\end{enumerate}
+then apply the result of step 3 to axiom $\axtw$ (reach the second axiom)
+\begin{enumerate}
+\item[4.]
+  $((\axmpi\ (\axmpi\ \idiot))\ \axtw) : (\av \to (\bv \to \av)) \arrowtype (\av \to \bv) \arrowtype (\av \to \av)$
+\end{enumerate}
+then apply the result of step 4 to axiom $\axon$ twice (reach the first axiom)
+\begin{enumerate}
+\item[5.]
+  $(((\axmpi\ (\axmpi\ \idiot))\ \axtw)\ \axon) : (\av \to \bv) \arrowtype (\av \to \av)$
+\item[6.] $((((\axmpi\ (\axmpi\ \idiot))\ \axtw)\ \axon)\ \axon) : (\av \to \av)$
+\end{enumerate}
+giving us a prove of the identity theorem.  The proof is equivalent to
+the one provided earlier $(\axmp\ \axon\ (\axmp\ \axon\ \axtw))$ but
+is constructed inside-out.  The reader may notice that this process of
+construction emulates a backward chaining depth-first search, and that
+the proof encodes a search path along the search tree.  It is also
+possible to emulate breadth-first search by using the \emph{bluebird}
+combinator and may be the subject of a future paper.
+
+\section{Experiments}
 
 \newpage
 
