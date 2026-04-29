@@ -213,7 +213,19 @@ the proof encodes a search path along the search tree.  It is also
 possible to emulate breadth-first search by using the \emph{bluebird}
 combinator and may be the subject of a future paper.
 
-\section{Experiments}
+\section{Experimental Results}
+
+Experiments have been conducted to compare such backward chaining
+emulation via forward chaining with regular backward chaining based on
+a corpus ported from Metamath~\cite{NEXT} to MeTTa~\cite{NEXT}.  To
+establish a fair comparison much care has been put to ensure that both
+chainers search isomorphic spaces and run on the same back-end, PeTTa,
+to measure the overhead of the emulation itself and nothing else.  It
+has been found so far that the emulation is twice slower in the worse
+cases to almost as fast in the best cases compared to regular backward
+chaining~\cite{NEXT}.  This indicates that it could be a competitive
+approach on rewriting systems that excel at forward chaining such as
+MORK, though more work is required to determine exactly how much.
 
 \newpage
 
