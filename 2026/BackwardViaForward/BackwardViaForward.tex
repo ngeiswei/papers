@@ -125,21 +125,22 @@ MORK-based backward chainer that outperforms PeTTa.
 \section{Forward vs Backward Chaining}
 
 Forward chaining is a reasoning process that begins with axioms and
-apply inference rules to produce theorems.  For instance, using some
-axioms and inference rules of propositional calculus (borrowed from
-Metamath~\cite{NEXT}), given with a type theoretic representation
+apply inference rules to produce theorems.  For instance, using the
+axioms and inference rules of a fragment of propositional calculus
+(borrowed from Metamath~\cite{NEXT}), given with a type theoretic
+representation:
 \begin{itemize}
 \item $\axon : \phi \to (\psi \to \phi)$ $\ \ \ \ \ \ \ \ \ \ \ \ \ \
   \ \ \ \ \ \ \ \ $ $\axtw : ( \phi \to ( \psi \to \chi ) ) \to ( ( \phi \to \psi ) \to ( \phi \to \chi ) )$
 \item $\axmp : ( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$
 \end{itemize}
-where $\text{->}$ represents the arrow type, one can build a proof of
-the identity in a forward way:
+where $\text{->}$ is the arrow type and $\to$ is the implication logic
+connector, one can build a proof of the identity in a forward way:
 \begin{enumerate}
 \item apply $\axmp$ to $\axtw$ and $\axon$ to obtain
-  $(\axmp\ \axtw\ \axon) : ( \phi \to \psi) \to (\phi \to \phi)$,
+  $\ (\axmp\ \axtw\ \axon) : ( \phi \to \psi) \to (\phi \to \phi)$,
 \item apply $\axmp$ to step 1 and $\axon$ to obtain
-  $(\axmp\ (\axmp\ \axtw\ \axon)\ \axon) : \phi \to \phi$.
+  $\ (\axmp\ (\axmp\ \axtw\ \axon)\ \axon) : \phi \to \phi$.
 \end{enumerate}
 On the contrary, a backward chainer starts with the proposition to be
 proven, and expands the proof backward till it reaches the axioms.
@@ -149,43 +150,43 @@ $(\axmp\ y?\ z?) : \phi \to \phi$, and keep expanding until obtaining
 the full proof
 $(\axmp\ (\axmp\ \axtw\ \axon)\ \axon) : \phi \to \phi$.  The
 advantage of backward chaining is that the search space is constrained
-by proofs that can only prove the target proposition, thus pruning the
-search space.  The inconvenient is that it is more sophisticated,
-involving full syntactic unification and maintaining hypothetical
-paths.
+by proofs that can only prove the target proposition, resulting in
+pruning the search space.  The inconvenient is that it is more
+sophisticated, involving full syntactic unification and maintaining a
+stack of hypothetical paths.
 
 \section{Emulating Backward Chaining with Forward Chaining}
 
 Given a theory described by axioms and inference rules, the idea is to
-invert each inference rule using the \emph{blackbird}
+invert the inference rules using the \emph{blackbird}
 combinator~\cite{NEXT} to obtained an \emph{inverted theory}.
 Applying forward chaining on this inverted theory will have the effect
-of producing hypothetical truths that preserve conclusions, emulating
-backward expansion.  For instance, given the theory described earlier,
-we apply the blackbird combinator, recalled below
-$$\blackbird : (\cv' \arrowtype \dv') \arrowtype (\av' \arrowtype \bv' \arrowtype \cv') \arrowtype \av' \arrowtype \bv' \arrowtype \dv'$$
+of producing hypothetical truths that preserve their conclusions,
+therefor emulating backward expansion.  For instance, given the theory
+described earlier, we apply the blackbird combinator, recalled below:
+$$\blackbird : (\cv \arrowtype \dv) \arrowtype (\av \arrowtype \bv \arrowtype \cv) \arrowtype \av \arrowtype \bv \arrowtype \dv$$
 to the Modus Ponens inference rule to obtain\footnote{The second
   argument of $\blackbird$ is the inference rule to invert, here
   $\axmp : ( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$, thus
-  $( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$ must unify with
-  $\av' \arrowtype \bv' \arrowtype \cv'$, which it does.}
+  $( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$ must unify up to
+  alpha conversion with $\av \arrowtype \bv \arrowtype \cv$, which it
+  does.}:
 $$\lambda x.((\blackbird\ x)\ \axmp) : (\bv \arrowtype \cv) \arrowtype (\av
 \to \bv) \arrowtype \av \arrowtype \cv$$ which can be read as ``given
 a hypothetical proof of $\cv$ assuming $\bv$, produce a hypothetical
 proof of $\cv$ assuming $\av \to \bv$ and $\av$'', precisely
 corresponding to Modus Ponens backward expansion.  For the sake of
-simplicity let us rename this inverted inference rule
+simplicity let us rename this inverted inference rule:
 $$\axmpi\ \eqdef\ \lambda x.((\blackbird\ x)\ \axmp)$$
-We can now use it in a forward way to prove\footnote{Note that within
-  that proof, variables are scoped within each line, not across lines.
-  Thus, in spite of sharing names across lines, they are fresh on each
-  line.}  the identity theorem shown
-earlier.  We start from a trivial hypothetical truth using the
-\emph{idiot} combinator~\cite{NEXT}
+We can now use it in a forward way to prove\footnote{Keep in mind that
+  variables are scoped within each line, not across lines, and
+  unification is performed with alpha conversion when necessary.}  the
+identity theorem shown earlier.  We start from a trivial hypothetical
+truth using the \emph{idiot} combinator~\cite{NEXT}:
 \begin{enumerate}
 \item[1.] $\idiot : (\av \to \av) \arrowtype (\av \to \av)$
 \end{enumerate}
-then we apply $\axmpi$ twice (backward expansion)
+then apply $\axmpi$ twice (backward expansion)
 \begin{enumerate}
 \item[2.]
   $(\axmpi\ \idiot) : (\psi \to (\av \to \av)) \arrowtype \psi
@@ -216,16 +217,20 @@ combinator and may be the subject of a future paper.
 \section{Experimental Results}
 
 Experiments have been conducted to compare such backward chaining
-emulation via forward chaining with regular backward chaining based on
-a corpus ported from Metamath~\cite{NEXT} to MeTTa~\cite{NEXT}.  To
-establish a fair comparison much care has been put to ensure that both
-chainers search isomorphic spaces and run on the same back-end, PeTTa,
-to measure the overhead of the emulation itself and nothing else.  It
-has been found so far that the emulation is twice slower in the worse
-cases to almost as fast in the best cases compared to regular backward
+emulation with regular backward chaining based on a corpus ported from
+Metamath~\cite{NEXT} to MeTTa~\cite{NEXT}.  To establish a fair
+comparison care has been put to ensure that both chainers search
+isomorphic spaces and run on the same back-end, PeTTa, to measure the
+overhead of the emulation itself and nothing else.  It has been found
+that the emulation is twice slower in the worse cases to almost as
+fast in the best cases compared to regular backward
 chaining~\cite{NEXT}.  This indicates that it could be a competitive
 approach on rewriting systems that excel at forward chaining such as
 MORK, though more work is required to determine exactly how much.
+Although we understand that brute force search, however fast, is never
+going to replace inference control~\cite{NEXT}, we believe it still
+serves as a base that may underlie the performance of the whole
+system.
 
 \newpage
 
