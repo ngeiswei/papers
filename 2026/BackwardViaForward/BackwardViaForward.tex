@@ -55,7 +55,7 @@
 \newcommand{\axth}{\text{ax}_3}
 \newcommand{\axmp}{\text{mp}}
 \newcommand{\axmpi}{\text{mp}^i}
-\newcommand{\blackbird}{B_1}
+\newcommand{\blackbird}{B}
 \newcommand{\idiot}{I}
 \newcommand{\av}{\phi}
 \newcommand{\bv}{\psi}
@@ -113,23 +113,24 @@ If all you have is a forward chainer, is it possible to emulate a
 process that is functionally equivalent to backward chaining?
 % This is
 % the question we attempt to answer in this paper.
-Such question stems
-from the observation that some rewriting systems, such as
-MORK~\cite{NEXT}, perform better on forward chaining than on backward
-chaining~\cite{NEXT}.  This is to be contrasted with some other
-rewriting systems such as PeTTa~\cite{NEXT}, a Prolog-based rewriting
-system, which performs equally well on forward and backward
-chaining~\cite{NEXT}.  Since forward chaining in MORK outperforms
-forward chaining in PeTTa~\cite{NEXT}, it gives us an incentive to
-emulate backward chaining using forward chaining to obtain a
-MORK-based backward chainer that outperforms PeTTa.
+This question stems from the observation that some rewriting systems,
+such as MORK~\cite{MORKRepo}, perform better on forward chaining than
+on backward chaining~\cite{Geisweiller2026MetamathBenchmark}.  This is
+to be contrasted with some other rewriting systems such as
+PeTTa~\cite{PeTTaRepo}, a Prolog-based rewriting system, which
+performs equally well on forward and backward
+chaining~\cite{Geisweiller2026MetamathBenchmark}.  Since forward
+chaining in MORK outperforms forward chaining in
+PeTTa~\cite{Geisweiller2026MetamathBenchmark}, it gives us an
+incentive to emulate backward chaining using forward chaining to
+obtain a MORK-based backward chainer that outperforms PeTTa.
 
 \section{Forward vs Backward Chaining}
 
 Forward chaining is a reasoning process that begins with axioms and
 apply inference rules to produce theorems.  For instance, using the
 axioms and inference rules of a fragment of propositional calculus
-(borrowed from Metamath~\cite{NEXT}), given with a type theoretic
+(borrowed from Metamath~\cite{Metamath}), given with a type theoretic
 representation:
 \begin{itemize}
 \item $\axon : \phi \to (\psi \to \phi)$ $\ \ \ \ \ \ \ \ \ \ \ \ \ \
@@ -153,8 +154,8 @@ $(\axmp\ y?\ z?) : \phi \to \phi$, and keep expanding until obtaining
 the full proof
 $(\axmp\ (\axmp\ \axtw\ \axon)\ \axon) : \phi \to \phi$.  The
 advantage of backward chaining is that the search space is constrained
-by proofs that can only prove the target proposition, resulting in
-much pruning.  The drawback is that it is more sophisticated,
+by proofs that can only prove the target proposition, resulting in a
+lot of pruning.  The drawback is that it is more sophisticated,
 involving full syntactic unification and maintaining a stack of
 hypothetical paths.
 
@@ -162,11 +163,12 @@ hypothetical paths.
 
 Given a theory described by axioms and inference rules, the idea is to
 invert the inference rules using the \emph{blackbird}
-combinator~\cite{NEXT} to obtained an \emph{inverted theory}.
-Applying forward chaining on this inverted theory will have the effect
-of producing hypothetical truths that preserve their conclusions,
-therefor emulating backward expansion.  For instance, given the theory
-described earlier, we apply the blackbird combinator, recalled below:
+combinator~\cite{Smullyan1992ToMock} to obtained an \emph{inverted
+  theory}.  Applying forward chaining on this inverted theory will
+have the effect of producing hypothetical truths that preserve their
+conclusions, therefore emulating backward expansion.  For instance,
+given the theory described earlier, we apply the blackbird combinator,
+recalled below:
 $$\blackbird : (\cv \arrowtype \dv) \arrowtype (\av \arrowtype \bv \arrowtype \cv) \arrowtype \av \arrowtype \bv \arrowtype \dv$$
 to the Modus Ponens inference rule to obtain\footnote{The second
   argument of $\blackbird$ is the inference rule to invert, here
@@ -185,7 +187,8 @@ We can now use it in a forward way to prove\footnote{Keep in mind that
   variables are scoped within each line, not across lines, and thus
   unification is performed using alpha conversion when necessary.}
 the identity theorem shown earlier.  We start from a trivial
-hypothetical truth using the \emph{idiot} combinator~\cite{NEXT}:
+hypothetical truth using the \emph{idiot}
+combinator~\cite{Smullyan1992ToMock}:
 \begin{enumerate}
 \item[1.] $\idiot : (\av \to \av) \arrowtype (\av \to \av)$
 \end{enumerate}
@@ -215,26 +218,29 @@ is constructed inside-out.  The reader may notice that this process of
 construction emulates a backward chaining depth-first search, and that
 the proof encodes a search path along the search tree.  It is also
 possible to emulate breadth-first search by using the \emph{bluebird}
-combinator and may be the subject of future work.
+combinator~\cite{Smullyan1992ToMock} and may be the subject of future
+work.
 
 \section{Experimental Results}
 
 Experiments have been conducted to compare such backward chaining
 emulation with regular backward chaining based on a corpus ported from
-Metamath~\cite{NEXT} to MeTTa~\cite{NEXT}.  To establish a fair
-comparison, care has been put to ensure that both chainers search
-isomorphic spaces and run on the same back-end, PeTTa.
+Metamath~\cite{Metamath} to MeTTa~\cite{MeTTa,
+  MeTTaSpecification2021}.  To establish a fair comparison, care has
+been taken to ensure that both chainers search isomorphic spaces and
+run on the same back-end, PeTTa.
 % , to measure the
 % overhead of the emulation itself and nothing else.
 It has been found that the emulation is twice slower in the worse
 cases to almost as fast in the best cases compared to regular backward
-chaining~\cite{NEXT}.  This indicates that it could be a competitive
-approach on rewriting systems that excel at forward chaining such as
-MORK, though more work is required to determine exactly how much.
-Although we understand that brute force search, however fast, is never
-going to replace inference control~\cite{NEXT}, we believe it still
-serves as a base that may underlie the performance of the whole
-system, and thus is worth our attention.
+chaining~\cite{Geisweiller2026BackwardViaForward}.  This indicates
+that it could be a competitive approach on rewriting systems that
+excel at forward chaining such as MORK, though more work is required
+to determine exactly how much.  Although we understand that brute
+force search, however fast, is never going to replace inference
+control~\cite{Geisweiller2025AITP}, we believe it still serves as a
+base that may underlie the performance of the whole system, and thus
+is worth our attention.
 
 \newpage
 
