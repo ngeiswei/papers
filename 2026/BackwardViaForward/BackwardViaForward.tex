@@ -110,8 +110,10 @@
 \section{Introduction}
 
 If all you have is a forward chainer, is it possible to emulate a
-process that is functionally equivalent to backward chaining?  This is
-the question we attempt to answer in this paper.  Such question stems
+process that is functionally equivalent to backward chaining?
+% This is
+% the question we attempt to answer in this paper.
+Such question stems
 from the observation that some rewriting systems, such as
 MORK~\cite{NEXT}, perform better on forward chaining than on backward
 chaining~\cite{NEXT}.  This is to be contrasted with some other
@@ -135,7 +137,8 @@ representation:
 \item $\axmp : ( \phi \to \psi ) \arrowtype \phi \arrowtype \psi$
 \end{itemize}
 where $\text{->}$ is the arrow type and $\to$ is the implication logic
-connector, one can build a proof of the identity in a forward way:
+connector, one can build a proof of the identity theorem in a forward
+way:
 \begin{enumerate}
 \item apply $\axmp$ to $\axtw$ and $\axon$ to obtain
   $\ (\axmp\ \axtw\ \axon) : ( \phi \to \psi) \to (\phi \to \phi)$,
@@ -151,9 +154,9 @@ the full proof
 $(\axmp\ (\axmp\ \axtw\ \axon)\ \axon) : \phi \to \phi$.  The
 advantage of backward chaining is that the search space is constrained
 by proofs that can only prove the target proposition, resulting in
-pruning the search space.  The inconvenient is that it is more
-sophisticated, involving full syntactic unification and maintaining a
-stack of hypothetical paths.
+much pruning.  The drawback is that it is more sophisticated,
+involving full syntactic unification and maintaining a stack of
+hypothetical paths.
 
 \section{Emulating Backward Chaining with Forward Chaining}
 
@@ -179,10 +182,10 @@ corresponding to Modus Ponens backward expansion.  For the sake of
 simplicity let us rename this inverted inference rule:
 $$\axmpi\ \eqdef\ \lambda x.((\blackbird\ x)\ \axmp)$$
 We can now use it in a forward way to prove\footnote{Keep in mind that
-  variables are scoped within each line, not across lines, and
-  unification is performed with alpha conversion when necessary.}  the
-identity theorem shown earlier.  We start from a trivial hypothetical
-truth using the \emph{idiot} combinator~\cite{NEXT}:
+  variables are scoped within each line, not across lines, and thus
+  unification is performed using alpha conversion when necessary.}
+the identity theorem shown earlier.  We start from a trivial
+hypothetical truth using the \emph{idiot} combinator~\cite{NEXT}:
 \begin{enumerate}
 \item[1.] $\idiot : (\av \to \av) \arrowtype (\av \to \av)$
 \end{enumerate}
@@ -212,25 +215,26 @@ is constructed inside-out.  The reader may notice that this process of
 construction emulates a backward chaining depth-first search, and that
 the proof encodes a search path along the search tree.  It is also
 possible to emulate breadth-first search by using the \emph{bluebird}
-combinator and may be the subject of a future paper.
+combinator and may be the subject of future work.
 
 \section{Experimental Results}
 
 Experiments have been conducted to compare such backward chaining
 emulation with regular backward chaining based on a corpus ported from
 Metamath~\cite{NEXT} to MeTTa~\cite{NEXT}.  To establish a fair
-comparison care has been put to ensure that both chainers search
-isomorphic spaces and run on the same back-end, PeTTa, to measure the
-overhead of the emulation itself and nothing else.  It has been found
-that the emulation is twice slower in the worse cases to almost as
-fast in the best cases compared to regular backward
+comparison, care has been put to ensure that both chainers search
+isomorphic spaces and run on the same back-end, PeTTa.
+% , to measure the
+% overhead of the emulation itself and nothing else.
+It has been found that the emulation is twice slower in the worse
+cases to almost as fast in the best cases compared to regular backward
 chaining~\cite{NEXT}.  This indicates that it could be a competitive
 approach on rewriting systems that excel at forward chaining such as
 MORK, though more work is required to determine exactly how much.
 Although we understand that brute force search, however fast, is never
 going to replace inference control~\cite{NEXT}, we believe it still
 serves as a base that may underlie the performance of the whole
-system.
+system, and thus is worth our attention.
 
 \newpage
 
