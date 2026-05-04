@@ -210,10 +210,10 @@ then apply the result of step 4 to axiom $\axon$ twice (reach the first axiom)
 \begin{enumerate}
 \item[5.]
   $(((\axmpi\ (\axmpi\ \idiot))\ \axtw)\ \axon) : (\av \to \bv) \arrowtype (\av \to \av)$
-\item[6.] $((((\axmpi\ (\axmpi\ \idiot))\ \axtw)\ \axon)\ \axon) : (\av \to \av)$
+\item[6.] $((((\axmpi\ (\axmpi\ \idiot))\ \axtw)\ \axon)\ \axon) : \av \to \av$
 \end{enumerate}
 giving us a prove of the identity theorem.  The proof is equivalent to
-the one provided earlier $(\axmp\ \axon\ (\axmp\ \axon\ \axtw))$ but
+the one provided earlier $(\axmp\ (\axmp\ \axtw\ \axon)\ \axon)$ but
 is constructed inside-out.  The reader may notice that this process of
 construction emulates a backward chaining depth-first search, and that
 the proof encodes a search path along the search tree.  It is also
